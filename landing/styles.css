@@ -56,6 +56,10 @@ a { color: var(--accent); }
 }
 .nav-links a { color: #444; text-decoration: none; }
 .nav-links a:hover { color: var(--text); }
+.nav-links a.btn-primary,
+.nav-links a.btn-primary:hover {
+  color: #fff;
+}
 
 .btn {
   display: inline-flex;
@@ -290,8 +294,11 @@ details p { color: var(--muted); margin: 12px 0 0; }
 
 code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; }
 
+@media (max-width: 900px) {
+  .features { grid-template-columns: repeat(2, 1fr); }
+}
 @media (max-width: 850px) {
-  .hero-grid, .demo-grid, .pricing-grid, .features { grid-template-columns: 1fr; }
+  .hero-grid, .demo-grid, .pricing-grid { grid-template-columns: 1fr; }
   .hero { padding-top: 56px; }
   .nav-links a:not(.btn) { display: none; }
   .band { align-items: flex-start; flex-direction: column; }
@@ -301,6 +308,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0
   .container { width: min(100% - 24px, 1120px); }
   .hero { padding-top: 42px; }
   section { padding: 64px 0; }
+  .features { grid-template-columns: 1fr; }
   .compare { font-size: 0.86rem; }
   .compare th, .compare td { padding: 11px 9px; }
 }

@@ -6,7 +6,11 @@
   <title>saymd — Voice to structured Markdown prompts for AI coding agents</title>
   <meta name="description" content="saymd turns messy speech and audio files into structured Markdown prompts for Cursor, Codex, Claude Code, Copilot, Gemini CLI, and other AI agents. Free MIT CLI with BYOK." />
   <meta name="keywords" content="voice to prompt CLI, voice to markdown, speech to markdown, AI prompt generator CLI, Cursor voice prompt, Claude Code voice prompt, Codex voice prompt, Gemini transcription CLI, developer dictation CLI" />
-  <link rel="canonical" href="https://saymd.app/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#2563eb" />
+  <link rel="alternate" hreflang="en" href="https://saymd.app/" />
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+  <meta property="og:locale" content="en_US" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="saymd — Speak once. Get a prompt file any agent can @." />
   <meta property="og:description" content="Turn messy speech into structured Markdown prompts for any AI coding agent." />
@@ -15,7 +19,14 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="saymd — Voice to structured Markdown prompts" />
   <meta name="twitter:description" content="Speak your idea. Get an agent-ready Markdown prompt." />
+  <link rel="canonical" href="https://saymd.app/" />
   <link rel="stylesheet" href="/styles.css" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Organization","name":"saymd","url":"https://saymd.app/","email":"support@saymd.app","sameAs":["https://github.com/kondasviktor/saymd"]}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebSite","name":"saymd","url":"https://saymd.app/","description":"Voice to structured Markdown prompts for AI coding agents."}
+  </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"saymd","url":"https://saymd.app/","applicationCategory":"DeveloperApplication","operatingSystem":"macOS, Linux, Windows via WSL","description":"A CLI that converts spoken ideas and audio files into structured Markdown prompts for AI coding agents.","offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"EUR"},{"@type":"Offer","name":"Pro Monthly","price":"5","priceCurrency":"EUR"},{"@type":"Offer","name":"Pro Annual","price":"39","priceCurrency":"EUR"}]}
   </script>
@@ -165,11 +176,7 @@ Keep the existing session cookies and preserve the current landing page.
           </div>
           <div class="card">
             <h3>BYOK by design</h3>
-            <p><strong>Bring Your Own Key</strong> — you pay Google, OpenAI, Deepgram, or ElevenLabs on your account. saymd never sells transcription minutes. Keys stay in <code>~/.saymd/config.json</code>.</p>
-          </div>
-          <div class="card">
-            <h3>Four STT providers</h3>
-            <p>Gemini (recommended), OpenAI, Deepgram Nova-3, and ElevenLabs Scribe — all on Free. Pick with <code>saymd setup</code> or <code>--provider</code>.</p>
+            <p><strong>Bring Your Own Key</strong> — Gemini, OpenAI, Deepgram, or ElevenLabs on your account. saymd never sells transcription minutes. Pick a provider with <code>saymd setup</code> or <code>--provider</code>. Keys stay in <code>~/.saymd/config.json</code>.</p>
           </div>
           <div class="card">
             <h3>85+ languages</h3>
@@ -227,7 +234,6 @@ Keep the existing session cookies and preserve the current landing page.
               <li><code>--review</code> — check gaps before you ship</li>
               <li><code>--out en</code> — cross-language output</li>
               <li><code>.saymd/vocab.txt</code> — project vocabulary</li>
-              <li>14-day refund on annual plan</li>
             </ul>
             <a class="btn btn-primary" href="#" data-plan="annual">Get Pro — €39/year</a>
             <a class="monthly-link" href="#" data-plan="monthly">Prefer monthly? €5/month</a>
@@ -252,7 +258,6 @@ Keep the existing session cookies and preserve the current landing page.
             </tbody>
           </table>
         </div>
-        <p style="margin-top:16px"><a href="/pricing.html" style="font-weight:800">See full pricing details →</a></p>
       </div>
     </section>
 
@@ -313,7 +318,7 @@ Keep the existing session cookies and preserve the current landing page.
           </details>
           <details>
             <summary>Can I cancel anytime?</summary>
-            <p>Yes. Use <a href="/api/billing-portal">Manage subscription</a> to open Stripe — invoices, card updates, and cancellation live there. Annual purchases also include a 14-day refund; email <a href="mailto:support@saymd.app">support@saymd.app</a> if you need help.</p>
+            <p>Yes. Use <a href="/api/billing-portal">Manage subscription</a> to open Stripe — invoices, card updates, and cancellation live there. Email <a href="mailto:support@saymd.app">support@saymd.app</a> if you need help.</p>
           </details>
         </div>
       </div>

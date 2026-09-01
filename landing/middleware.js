@@ -15,7 +15,7 @@ export default function middleware(request) {
     return;
   }
 
-  if (pathname === '/coming-soon.html' || pathname === '/robots.txt') {
+  if (pathname === '/coming-soon.html' || pathname === '/robots.txt' || pathname === '/sitemap.xml') {
     return;
   }
 
