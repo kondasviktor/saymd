@@ -1,0 +1,32 @@
+{
+  "name": "@saymd/pro",
+  "version": "0.1.0",
+  "description": "Pro features for saymd — continue, review, cross-language",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "generate-keys": "node --import tsx scripts/generate-keys.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

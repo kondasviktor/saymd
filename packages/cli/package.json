@@ -1,0 +1,56 @@
+{
+  "name": "saymd",
+  "version": "0.1.0",
+  "description": "Speak once. Get a prompt file any agent can @.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "saymd": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/**/*.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "zod": "^3.24.0"
+  },
+  "optionalDependencies": {
+    "@saymd/pro": "file:../pro"
+  },
+  "devDependencies": {
+    "@saymd/pro": "file:../pro",
+    "@types/node": "^22.13.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "gemini",
+    "openai",
+    "deepgram",
+    "elevenlabs",
+    "voice",
+    "prompt",
+    "cli",
+    "cursor",
+    "claude",
+    "speech-to-text",
+    "ai-agent",
+    "byok"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kondasviktor/saymd"
+  },
+  "homepage": "https://saymd.app"
+}

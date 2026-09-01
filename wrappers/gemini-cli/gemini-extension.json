@@ -1,0 +1,8 @@
+{
+  "name": "saymd",
+  "version": "0.1.0",
+  "description": "Voice to structured Markdown prompts — run local saymd CLI",
+  "repository": "https://github.com/kondasviktor/saymd",
+  "homepage": "https://saymd.app?utm_source=gemini",
+  "skills": ["../skills/saymd"]
+}

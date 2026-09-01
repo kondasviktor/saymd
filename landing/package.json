@@ -1,0 +1,11 @@
+{
+  "name": "saymd-landing",
+  "private": true,
+  "scripts": {
+    "init-db": "node scripts/init-db.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "stripe": "^17.7.0"
+  }
+}

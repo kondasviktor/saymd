@@ -1,0 +1,10 @@
+{
+  "name": "saymd",
+  "displayName": "saymd — voice to prompt",
+  "description": "Run local saymd CLI; @ the generated .ai/prompt.md in Cursor.",
+  "version": "0.1.0",
+  "publisher": "kondasviktor",
+  "repository": "https://github.com/kondasviktor/saymd",
+  "homepage": "https://saymd.app?utm_source=cursor",
+  "skills": ["../../skills/saymd"]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "saymd-workspace",
+  "private": true,
+  "workspaces": [
+    "packages/cli",
+    "packages/pro"
+  ],
+  "scripts": {
+    "build": "npm run build -w saymd && npm run build -w @saymd/pro",
+    "test": "npm run test -w saymd",
+    "typecheck": "npm run typecheck -w saymd && npm run typecheck -w @saymd/pro"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

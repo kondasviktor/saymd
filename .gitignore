@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.log
+.env
+.env.local
+keys.example.env
+.DS_Store
+landing/node_modules/
+packages/cli/dist/
+packages/pro/dist/
