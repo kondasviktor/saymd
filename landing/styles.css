@@ -226,6 +226,17 @@ section { padding: 82px 0; }
 .compare th:nth-child(n+2), .compare td:nth-child(n+2) { text-align: center; }
 .compare tr:last-child td { border-bottom: 0; }
 .compare th { background: #fbfbf8; font-size: 0.9rem; }
+.compare-vs th:nth-child(3),
+.compare-vs td:nth-child(3) { background: var(--soft); }
+.workflow-note {
+  margin-top: 20px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
 .check { color: var(--success); font-weight: 900; }
 .dash { color: #aaa; }
 

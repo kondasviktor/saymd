@@ -20,7 +20,7 @@
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"saymd","url":"https://saymd.app/","applicationCategory":"DeveloperApplication","operatingSystem":"macOS, Linux, Windows via WSL","description":"A CLI that converts spoken ideas and audio files into structured Markdown prompts for AI coding agents.","offers":[{"@type":"Offer","name":"Free","price":"0","priceCurrency":"EUR"},{"@type":"Offer","name":"Pro Monthly","price":"5","priceCurrency":"EUR"},{"@type":"Offer","name":"Pro Annual","price":"39","priceCurrency":"EUR"}]}
   </script>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is saymd?","acceptedAnswer":{"@type":"Answer","text":"saymd is a terminal CLI that turns microphone recordings or audio files into structured Markdown prompts for AI coding agents."}},{"@type":"Question","name":"Why use saymd instead of built-in voice in Cursor, Claude Code or Copilot?","acceptedAnswer":{"@type":"Answer","text":"saymd creates a reusable Markdown prompt file that is independent of any one AI agent."}},{"@type":"Question","name":"What does BYOK mean?","acceptedAnswer":{"@type":"Answer","text":"BYOK means Bring Your Own Key. You configure your own API keys for Google Gemini, OpenAI, Deepgram, or ElevenLabs. saymd does not sell transcription credits."}},{"@type":"Question","name":"Which languages does saymd support?","acceptedAnswer":{"@type":"Answer","text":"saymd supports more than 85 input languages with automatic detection. Free output stays in the detected language. Pro can generate cross-language output."}},{"@type":"Question","name":"Does saymd store my audio?","acceptedAnswer":{"@type":"Answer","text":"The saymd CLI does not send your audio to saymd.app. Audio is sent to the STT provider you chose using your own API key. Temporary local files are deleted after a successful write."}}]}
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is saymd?","acceptedAnswer":{"@type":"Answer","text":"saymd is a terminal CLI that turns microphone recordings or audio files into structured Markdown prompts for AI coding agents."}},{"@type":"Question","name":"Why use saymd instead of built-in voice in Cursor, Claude Code or Copilot?","acceptedAnswer":{"@type":"Answer","text":"Built-in voice turns speech into chat input inside one tool. saymd turns speech into a structured Markdown prompt file in your repo — Objective, Context, Instructions, Constraints — that any agent can read and that you can version, share, and reuse."}},{"@type":"Question","name":"What does BYOK mean?","acceptedAnswer":{"@type":"Answer","text":"BYOK means Bring Your Own Key. You configure your own API keys for Google Gemini, OpenAI, Deepgram, or ElevenLabs. saymd does not sell transcription credits."}},{"@type":"Question","name":"Which languages does saymd support?","acceptedAnswer":{"@type":"Answer","text":"saymd supports more than 85 input languages with automatic detection. Free output stays in the detected language. Pro can generate cross-language output."}},{"@type":"Question","name":"Does saymd store my audio?","acceptedAnswer":{"@type":"Answer","text":"The saymd CLI does not send your audio to saymd.app. Audio is sent to the STT provider you chose using your own API key. Temporary local files are deleted after a successful write."}}]}
   </script>
 </head>
 <body>
@@ -29,6 +29,7 @@
       <a class="brand" href="/">saymd</a>
       <div class="nav-links">
         <a href="#how">How it works</a>
+        <a href="#why">Why saymd</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
         <a href="https://github.com/kondasviktor/saymd">GitHub</a>
@@ -96,6 +97,54 @@ Keep the existing session cookies and preserve the current landing page.
 - Do not modify the current landing page</div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="why">
+      <div class="container">
+        <div class="section-head">
+          <h2>Why not just use built-in voice?</h2>
+          <p>Cursor, Claude Code, Codex, and Copilot can listen — but they turn speech into <strong>chat input</strong>. saymd turns speech into a <strong>structured prompt file</strong> you keep in your repo.</p>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="compare compare-vs">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Built-in voice</th>
+                <th>saymd</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Output</td>
+                <td>Chat bubble or inline text in one IDE</td>
+                <td><code>.ai/prompt.md</code> in your project</td>
+              </tr>
+              <tr>
+                <td>Structure</td>
+                <td>Raw transcript</td>
+                <td>Objective, Context, Instructions, Constraints</td>
+              </tr>
+              <tr>
+                <td>Reuse</td>
+                <td>Stays in that tool's session</td>
+                <td>Git-tracked, shareable, any agent can <code>@</code> it</td>
+              </tr>
+              <tr>
+                <td>Templates</td>
+                <td class="dash">—</td>
+                <td>Feature, bug, and plan specs</td>
+              </tr>
+              <tr>
+                <td>Evolve the spec</td>
+                <td class="dash">—</td>
+                <td>Pro: <code>--continue</code>, <code>--review</code>, cross-language <code>--out</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="workflow-note">Typical workflow: <code>saymd</code> → commit <code>.ai/prompt.md</code> → <code>@.ai/prompt.md</code> in Cursor, Claude Code, Codex, or Copilot.</p>
       </div>
     </section>
 
@@ -236,7 +285,7 @@ Keep the existing session cookies and preserve the current landing page.
           </details>
           <details>
             <summary>Why not just use built-in voice in Cursor, Claude Code, or Copilot?</summary>
-            <p>Built-in voice is convenient, but the transcript usually stays inside that tool. saymd writes a reusable Markdown file you can keep in your project and use with different agents.</p>
+            <p>Built-in voice is great for quick chat — but the transcript usually stays inside that session. saymd writes a <strong>structured Markdown file</strong> (Objective, Context, Instructions, Constraints) to your repo. You can version it, share it with your team, and reuse it with any agent — not just the one you spoke into.</p>
           </details>
           <details>
             <summary>What does BYOK mean?</summary>
