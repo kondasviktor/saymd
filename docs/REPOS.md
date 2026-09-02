@@ -57,3 +57,7 @@ Point Vercel at **kondasviktor/saymd-app** only (repo root = site). Never deploy
 2. Flip `saymd` to public + `npm publish` (MIT CLI).
 3. Keep `saymd-pro` private; distribute `@saymd/pro` via private npm / GitHub Packages / post-purchase install when ready.
 4. `SAYMD_SALES_ENABLED=1`.
+
+## Go-live
+
+See [NEXT_STEPS.md](./NEXT_STEPS.md) for testing and production checklist. Marketplaces stay off until that is done.
