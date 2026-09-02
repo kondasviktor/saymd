@@ -50,8 +50,8 @@ Supported audio: mp3, m4a, wav, ogg, opus, flac, webm, aiff, caf, mp4, mov
 Recording
 ─────────
 Press Enter to stop — you do not need to wait for the maximum.
-Free: up to ${FREE_MAX_SECONDS} seconds per recording
-Pro:  up to ${PRO_MAX_MIC_SECONDS / 60} minutes per recording
+Free: up to ${FREE_MAX_SECONDS} seconds per recording (default ${FREE_MAX_SECONDS}s)
+Pro:  default 120 seconds, up to ${PRO_MAX_MIC_SECONDS / 60} minutes per recording
   --seconds 30             shorter first test
 
 Providers — BYOK
@@ -125,8 +125,8 @@ Free options
   -o, --output path     markdown path (default: .ai/prompt.md)
   --lang CODE           input language hint (auto-detect 85+; same language out)
   --seconds N           max seconds per recording (Enter to stop sooner)
-                        Free: up to ${FREE_MAX_SECONDS}s per recording
-                        Pro:  up to ${PRO_MAX_MIC_SECONDS / 60} min per recording
+                        Free default/max: ${FREE_MAX_SECONDS}s per recording
+                        Pro default: 120s, max ${PRO_MAX_MIC_SECONDS / 60} min per recording
   --file path           mp3, m4a, wav, ogg, opus, flac, webm, aiff, caf, mp4, mov
   --raw | --stdout | --clipboard | --json | --diff | --dry-run
 

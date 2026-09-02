@@ -101,6 +101,7 @@ export async function runContinue(opts: {
   cwd: string;
   newMarkdown?: string;
   newSections?: import('./types.js').SaymdSections;
+  template?: import('./types.js').TemplateId;
 }): Promise<string> {
   const allowed = await requirePro('continue');
   if (!allowed) return '';

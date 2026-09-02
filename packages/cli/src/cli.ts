@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { copyFile, writeFile } from 'node:fs/promises';
+import { copyFile, writeFile, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 
@@ -22,7 +22,7 @@ function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey
     json: false,
     diff: false,
     dryRun: false,
-    recordSeconds: 60,
+    recordSeconds: 0,
   };
 
   const args = [...argv];
@@ -196,7 +196,18 @@ async function main(): Promise<void> {
       process.exit(1);
     }
     const target = join(cwd, parsed.continue);
-    const fresh = await runPipeline({ ...parsed, continue: undefined }, cwd);
+    const existingMd = await readFile(target, 'utf8').catch(() => '');
+    const proMod = await import('@saymd/pro').catch(() => null);
+    const inferred =
+      parsed.template !== 'default'
+        ? parsed.template
+        : proMod?.detectTemplate
+          ? proMod.detectTemplate(existingMd)
+          : 'default';
+    const fresh = await runPipeline(
+      { ...parsed, continue: undefined, template: inferred },
+      cwd
+    );
     const merged = await runContinue({
       apiKey,
       targetPath: target,
@@ -204,6 +215,7 @@ async function main(): Promise<void> {
       cwd,
       newMarkdown: fresh.markdown,
       newSections: fresh.sections,
+      template: inferred,
     });
     if (!merged) return;
     if (parsed.dryRun) {
