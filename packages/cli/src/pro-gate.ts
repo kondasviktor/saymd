@@ -2,7 +2,13 @@ import { loadLicense, saveLicense, type SaymdLicense } from './config.js';
 
 export type ProFeature = 'continue' | 'review' | 'out';
 
-const PRO_UPGRADE_URL = 'https://saymd.app/pricing.html';
+export const PRO_UPGRADE_URL = 'https://saymd.app/pricing.html';
+
+/** Free: one short take. Pro: longer takes + --continue for more. */
+export const FREE_MAX_SECONDS = 60;
+export const PRO_DEFAULT_SECONDS = 120;
+export const PRO_MAX_MIC_SECONDS = 600;
+export const PRO_MAX_FILE_SECONDS = 20 * 60;
 const ACTIVATE_API_URL = process.env.SAYMD_ACTIVATE_URL || 'https://saymd.app/api/activate';
 
 function isShortActivationCode(raw: string): boolean {
@@ -43,10 +49,20 @@ export async function requirePro(feature: ProFeature): Promise<boolean> {
 }
 
 export function printProGate(feature: ProFeature): void {
-  console.error(`
---${feature} is a Pro feature.
+  const tip =
+    feature === 'continue'
+      ? 'Add more speech into the same markdown file without starting over.'
+      : feature === 'review'
+        ? 'Gap-check an existing spec before you hand it to an agent.'
+        : 'Speak in one language, write the prompt in another (e.g. --out en).';
 
-Free CLI stays MIT. Unlock --continue, --review, and --out: €39/year → ${PRO_UPGRADE_URL}
+  console.error(`
+--${feature} is Pro.
+
+${tip}
+
+Upgrade: ${PRO_UPGRADE_URL}
+Then:    saymd activate <activation-code>
 `);
   process.exit(1);
 }

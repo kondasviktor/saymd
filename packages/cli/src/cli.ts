@@ -6,9 +6,10 @@ import { mkdir } from 'node:fs/promises';
 import { cleanupAudio } from './audio.js';
 import { runDoctor } from './doctor.js';
 import { printCostLine, runPipeline } from './pipeline.js';
-import { activateLicense, requireCrossLang, runContinue, runReview } from './pro-gate.js';
-import { runConfigSet, runSetup } from './setup.js';
-import { isSttProviderId, loadConfig, resolveTextApiKey } from './config.js';
+import { activateLicense, hasValidLicense, requireCrossLang, requirePro, runContinue, runReview } from './pro-gate.js';
+import { printHelp, printNextAfterSetup, printStartHere } from './help.js';
+import { runConfigSet, runConfigShow, runSetup } from './setup.js';
+import { isSttProviderId, loadConfig, resolveSttApiKey, resolveTextApiKey, resolveProvider, sttKeyEnvName } from './config.js';
 import type { CliOptions, TemplateId } from './types.js';
 
 function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey?: string; configKey?: string; configValue?: string } {
@@ -21,7 +22,7 @@ function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey
     json: false,
     diff: false,
     dryRun: false,
-    recordSeconds: 120,
+    recordSeconds: 60,
   };
 
   const args = [...argv];
@@ -90,7 +91,7 @@ function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey
         opts.review = args[0]?.startsWith('-') ? opts.output : (args.shift() ?? opts.output);
         break;
       case '--seconds':
-        opts.recordSeconds = Number(args.shift() ?? '120');
+        opts.recordSeconds = Number(args.shift() ?? '60');
         break;
       case '-h':
       case '--help':
@@ -104,40 +105,6 @@ function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey
     }
   }
   return opts;
-}
-
-function printHelp(): void {
-  console.log(`saymd — Speak once. Get a prompt file any agent can @.
-
-Usage:
-  saymd [--file audio.m4a] [options]
-  saymd setup
-  saymd doctor
-  saymd config set provider <gemini|openai|deepgram|elevenlabs>
-  saymd activate <activation-code>
-
-Options:
-  --provider gemini|openai|deepgram|elevenlabs
-                                STT provider (default: gemini, or ~/.saymd/config.json)
-  --template feature|bug|plan   Built-in spec shape (default: generic 4-section)
-  -o, --output path             Output markdown (default: .ai/prompt.md)
-  --lang CODE                   Input language hint (auto-detect if omitted)
-  --out CODE                    Pro: cross-language output (e.g. en while speaking hu)
-  --raw                         Print raw transcript only
-  --stdout                      Print markdown to stdout
-  --clipboard                   Copy markdown to clipboard (macOS pbcopy)
-  --json                        Print SaymdResult JSON
-  --diff                        Show raw vs cleaned diff
-  --dry-run                     Print merge/write diff without saving
-  --continue [file]             Pro: merge new speech into existing spec
-  --review [file]               Pro: gap check on existing spec
-  --seconds N                   Max mic recording seconds (default 120)
-
-BYOK (Bring Your Own Key): you pay the STT provider on your account.
-Providers: Gemini (recommended), OpenAI, Deepgram, ElevenLabs — all on Free.
-
-Pro:  https://saymd.app
-`);
 }
 
 async function copyClipboard(text: string): Promise<void> {
@@ -169,6 +136,10 @@ async function main(): Promise<void> {
   const parsed = parseArgs(process.argv.slice(2));
   const cwd = process.cwd();
 
+  if (parsed.command === 'help') {
+    printStartHere();
+    return;
+  }
   if (parsed.command === 'setup') {
     await runSetup();
     return;
@@ -177,8 +148,12 @@ async function main(): Promise<void> {
     process.exit(await runDoctor());
   }
   if (parsed.command === 'config') {
+    if (!parsed.configKey && !parsed.configValue) {
+      await runConfigShow();
+      return;
+    }
     if (!parsed.configKey || !parsed.configValue) {
-      console.error('Usage: saymd config set provider <gemini|openai|deepgram|elevenlabs>');
+      console.error('Usage: saymd config\n       saymd config set provider <gemini|openai|deepgram|elevenlabs>');
       process.exit(1);
     }
     await runConfigSet(parsed.configKey, parsed.configValue);
@@ -193,6 +168,15 @@ async function main(): Promise<void> {
     return;
   }
 
+  // No STT key yet → show start-here instead of a blank / cryptic failure.
+  const config = await loadConfig();
+  const providerId = resolveProvider(config, parsed.provider);
+  if (!resolveSttApiKey(providerId, config) && !parsed.review) {
+    printStartHere();
+    console.error(`Missing ${sttKeyEnvName(providerId)} — run step 1 above.`);
+    process.exit(1);
+  }
+
   if (parsed.review) {
     const apiKey = resolveTextApiKey(await loadConfig());
     if (!apiKey) {
@@ -204,6 +188,8 @@ async function main(): Promise<void> {
   }
 
   if (parsed.continue) {
+    // Gate before any mic / STT work so free users never start recording.
+    if (!(await requirePro('continue'))) return;
     const apiKey = resolveTextApiKey(await loadConfig());
     if (!apiKey) {
       console.error('GEMINI_API_KEY or OPENAI_API_KEY not set. Run: saymd setup');
@@ -267,6 +253,23 @@ async function main(): Promise<void> {
 
     if (parsed.clipboard) await copyClipboard(result.markdown);
     printCostLine(result);
+
+    if (
+      !parsed.stdout &&
+      !parsed.json &&
+      !parsed.raw &&
+      !parsed.dryRun &&
+      !(await hasValidLicense())
+    ) {
+      const lang = (result.language || '').toLowerCase();
+      const notEnglish = lang && lang !== 'en' && lang !== 'eng' && lang !== 'und';
+      console.error(`
+Want to add more to this file?
+  saymd --continue ${parsed.output}
+${notEnglish ? `\nSpoke ${lang}? Pro can write the next spec in English:\n  saymd --out en --template ${parsed.template} -o ${parsed.output}\n` : ''}
+--continue${notEnglish ? ' and --out' : ''} is Pro → https://saymd.app/pricing.html
+`);
+    }
   } catch (err) {
     if (tempPath) {
       console.error(`Audio kept for retry: ${tempPath}`);

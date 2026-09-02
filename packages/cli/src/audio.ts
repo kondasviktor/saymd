@@ -1,7 +1,9 @@
 import { spawn, spawnSync } from 'node:child_process';
+import { access } from 'node:fs/promises';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { stdin } from 'node:process';
 
 export interface AudioProbe {
   durationSeconds: number;
@@ -52,22 +54,36 @@ function probeDuration(path: string): number {
   return sec;
 }
 
-export async function recordMic(seconds: number): Promise<AudioProbe> {
+export async function recordMic(
+  seconds: number,
+  opts: { stopOnEnter?: boolean } = {}
+): Promise<AudioProbe> {
   if (!ffmpegExists()) throw new Error('ffmpeg not found.');
   const tempDir = await mkdtemp(join(tmpdir(), 'saymd-rec-'));
   const outPath = join(tempDir, 'recording.wav');
   const platform = process.platform;
+  const stopOnEnter = opts.stopOnEnter !== false && Boolean(stdin.isTTY);
 
+  let args: string[];
   if (platform === 'darwin') {
-    await runFfmpeg(['-y', '-f', 'avfoundation', '-i', ':0', '-t', String(seconds), '-ar', '16000', '-ac', '1', outPath]);
+    args = ['-y', '-f', 'avfoundation', '-i', ':0', '-t', String(seconds), '-ar', '16000', '-ac', '1', outPath];
   } else if (platform === 'linux') {
-    await runFfmpeg(['-y', '-f', 'alsa', '-i', 'default', '-t', String(seconds), '-ar', '16000', '-ac', '1', outPath]);
+    args = ['-y', '-f', 'alsa', '-i', 'default', '-t', String(seconds), '-ar', '16000', '-ac', '1', outPath];
   } else {
     throw new Error('Recording supported on macOS and Linux only. Use WSL on Windows or pass --file.');
   }
 
+  await runFfmpeg(args, { stopOnEnter });
+
+  const duration = probeDuration(outPath);
+  try {
+    await access(outPath);
+  } catch {
+    throw new Error('Recording failed — no audio file. Check microphone permission.');
+  }
+
   return {
-    durationSeconds: probeDuration(outPath) || seconds,
+    durationSeconds: duration || 0.1,
     localPath: outPath,
     mimeType: 'audio/wav',
     tempDir,
@@ -109,15 +125,51 @@ export async function splitLongAudio(
   return { chunkPaths, tempDir, mimeType: 'audio/wav' };
 }
 
-function runFfmpeg(args: string[]): Promise<void> {
+function runFfmpeg(args: string[], opts: { stopOnEnter?: boolean } = {}): Promise<void> {
   return new Promise((resolve, reject) => {
-    const proc = spawn('ffmpeg', args, { stdio: ['ignore', 'ignore', 'pipe'] });
+    const proc = spawn('ffmpeg', args, { stdio: ['pipe', 'ignore', 'pipe'] });
     let err = '';
+    let stoppedEarly = false;
     proc.stderr?.on('data', (d) => {
       err += String(d);
     });
+
+    const detachStdin = () => {
+      stdin.off('data', onStdin);
+      if (stdin.isTTY) stdin.pause();
+    };
+
+    const onStdin = (chunk: Buffer | string) => {
+      const text = String(chunk);
+      if (!text.includes('\n') && !text.includes('\r')) return;
+      stoppedEarly = true;
+      detachStdin();
+      process.stderr.write('● Stopped (Enter). Finishing audio…\n');
+      try {
+        proc.stdin?.write('q');
+      } catch {
+        /* ignore */
+      }
+      setTimeout(() => {
+        if (proc.exitCode === null) proc.kill('SIGINT');
+      }, 300);
+    };
+
+    if (opts.stopOnEnter && stdin.isTTY) {
+      stdin.resume();
+      stdin.setEncoding('utf8');
+      stdin.on('data', onStdin);
+    }
+
+    proc.on('error', (e) => {
+      detachStdin();
+      reject(e);
+    });
+
     proc.on('close', (code) => {
-      if (code === 0) resolve();
+      detachStdin();
+      // SIGINT / 'q' often exits non-zero even when the wav is valid.
+      if (code === 0 || stoppedEarly) resolve();
       else reject(new Error(err.slice(-500) || `ffmpeg exited ${code}`));
     });
   });

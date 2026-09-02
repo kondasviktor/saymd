@@ -1,7 +1,7 @@
 # Deploy saymd.app (saymd-app on Vercel)
 
 Project: [saymd-app on Vercel](https://vercel.com/viktors-projects-298638fc/saymd-app)  
-Repo: `kondasviktor/saymd-app` (private) — **repo root = `landing/` contents**
+Repo: `kondasviktor/saymd-app` (private) — **repo root = site** (not a copy of the MIT CLI)
 
 ## Pre-launch (now)
 
@@ -45,7 +45,7 @@ File: [NEON_SCHEMA.sql](./NEON_SCHEMA.sql)
 ### 4. Push code to GitHub
 
 ```bash
-cd landing   # contents go to saymd-app repo root
+# In kondasviktor/saymd-app (private), not the MIT CLI repo
 git add .
 git commit -m "Pre-launch site with preview gate"
 git push origin main

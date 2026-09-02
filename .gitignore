@@ -5,6 +5,4 @@ dist/
 .env.local
 keys.example.env
 .DS_Store
-landing/node_modules/
 packages/cli/dist/
-packages/pro/dist/

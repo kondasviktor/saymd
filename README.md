@@ -49,10 +49,12 @@ Keys live in `~/.saymd/config.json` (mode 0600) or env: `GEMINI_API_KEY`, `OPENA
 saymd --continue .ai/prompt.md
 saymd --review .ai/prompt.md
 saymd --out en          # think HU, ship EN
-saymd activate <key>
+saymd activate <activation-code>
 ```
 
 €39/yr (primary) · €5/mo · BYOK · no hosted STT
+
+Pro logic ships as a separate proprietary package (`@saymd/pro`), **not** in this MIT repository.
 
 ## Requirements
 
@@ -62,16 +64,20 @@ saymd activate <key>
 
 ```bash
 saymd doctor
+saymd help
 ```
 
-## Monorepo
+## Repo layout
 
-| Path | Package |
-|------|---------|
-| `packages/cli` | `saymd` (MIT) |
-| `packages/pro` | `@saymd/pro` (closed) |
-| `landing/` | saymd.app static + Stripe API → push to **saymd-app** repo |
-| `docs/` | invoicing, GTM, [DEPLOY.md](./docs/DEPLOY.md), [STRIPE_SAYMD.md](./docs/STRIPE_SAYMD.md), [MARKETPLACE_PLAN.md](./docs/MARKETPLACE_PLAN.md) |
+This repository is the **MIT CLI only** (`packages/cli`).
+
+| Repo | Role |
+|------|------|
+| `kondasviktor/saymd` | Public MIT CLI |
+| `kondasviktor/saymd-pro` | Private `@saymd/pro` |
+| `kondasviktor/saymd-app` | Private landing + Stripe (Vercel) |
+
+See [docs/REPOS.md](./docs/REPOS.md).
 
 ## Develop
 
@@ -82,14 +88,9 @@ npm test
 node packages/cli/dist/cli.js doctor
 ```
 
-Optional live smoke (requires your API keys):
-
-```bash
-chmod +x scripts/live-smoke.sh
-GEMINI_API_KEY=... ./scripts/live-smoke.sh sample.m4a
-```
+For Pro features locally, link the private package (see REPOS.md).
 
 ## License
 
-- CLI: MIT
-- `@saymd/pro`: proprietary (subscribers only)
+- CLI (`saymd`): MIT
+- `@saymd/pro`: proprietary (separate private repo; subscribers only)

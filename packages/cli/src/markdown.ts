@@ -1,5 +1,9 @@
 import type { SaymdSections, TemplateId } from './types.js';
 
+function stripBullet(text: string): string {
+  return text.replace(/^(?:[-*]\s+|\[(?: |x|X)?\]\s*)+/g, '').trim();
+}
+
 export function sectionsToMarkdown(sections: SaymdSections, template: TemplateId): string {
   const lines: string[] = [];
 
@@ -13,7 +17,7 @@ export function sectionsToMarkdown(sections: SaymdSections, template: TemplateId
   if (template === 'bug') {
     if (sections.stepsToReproduce?.length) {
       lines.push('## Steps to reproduce', '');
-      for (const step of sections.stepsToReproduce) lines.push(`- ${step}`);
+      for (const step of sections.stepsToReproduce) lines.push(`- ${stripBullet(step)}`);
       lines.push('');
     }
     if (sections.expectedBehavior?.trim()) {
@@ -25,30 +29,30 @@ export function sectionsToMarkdown(sections: SaymdSections, template: TemplateId
   } else if (template === 'plan') {
     if (sections.instructions?.length) {
       lines.push('## Steps', '');
-      sections.instructions.forEach((step, i) => lines.push(`${i + 1}. ${step}`));
+      sections.instructions.forEach((step, i) => lines.push(`${i + 1}. ${stripBullet(step)}`));
       lines.push('');
     }
   } else if (sections.instructions?.length) {
     lines.push('## Instructions', '');
-    for (const item of sections.instructions) lines.push(`- ${item}`);
+    for (const item of sections.instructions) lines.push(`- ${stripBullet(item)}`);
     lines.push('');
   }
 
   if (sections.constraints?.length) {
     lines.push('## Constraints', '');
-    for (const c of sections.constraints) lines.push(`- ${c}`);
+    for (const c of sections.constraints) lines.push(`- ${stripBullet(c)}`);
     lines.push('');
   }
 
   if (sections.acceptanceCriteria?.length) {
     lines.push('## Acceptance criteria', '');
-    for (const c of sections.acceptanceCriteria) lines.push(`- [ ] ${c}`);
+    for (const c of sections.acceptanceCriteria) lines.push(`- [ ] ${stripBullet(c)}`);
     lines.push('');
   }
 
   if (sections.openQuestions?.length) {
     lines.push('## Open questions', '');
-    for (const q of sections.openQuestions) lines.push(`- ${q}`);
+    for (const q of sections.openQuestions) lines.push(`- ${stripBullet(q)}`);
     lines.push('');
   }
 

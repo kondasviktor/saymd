@@ -1,48 +1,59 @@
-# GitHub repos and Vercel
+# GitHub repos
 
 | Repo | Visibility | Contents | Vercel? |
 |------|------------|----------|---------|
-| [kondasviktor/saymd](https://github.com/kondasviktor/saymd) | Private until launch → **public** | MIT CLI (`packages/cli`), README, tests | **No** |
-| [kondasviktor/saymd-app](https://github.com/kondasviktor/saymd-app) | **Private always** | Landing site, Stripe API routes, Neon, Pro bundle source | **Yes** |
+| [kondasviktor/saymd](https://github.com/kondasviktor/saymd) | Private until launch → **public** | MIT CLI (`packages/cli`) only | **No** |
+| [kondasviktor/saymd-pro](https://github.com/kondasviktor/saymd-pro) | **Private always** | `@saymd/pro` — continue, review, license verify | **No** |
+| [kondasviktor/saymd-app](https://github.com/kondasviktor/saymd-app) | **Private always** | Landing, Stripe, Neon, activation API | **Yes** → saymd.app |
 
-## Import in Vercel: `saymd-app`
+Do **not** mirror landing code into `saymd`, and do **not** put Pro implementation into the MIT CLI repo (even behind a license check).
 
-Point Vercel at **kondasviktor/saymd-app**, not `saymd`.
+## Layout
 
-- Root directory: `/` (if repo root is the landing app) or `landing/` if you keep a subfolder.
-- Domain: `saymd.app`
-- Env vars: see [STRIPE_SAYMD.md](./STRIPE_SAYMD.md)
-
-The public CLI repo is for GitHub + npm only. Customers never need to clone it to buy Pro.
-
-## Local → remote layout (suggested)
-
-**saymd** (public CLI repo):
+**saymd** (MIT CLI):
 
 ```text
 packages/cli/
 README.md
 LICENSE
+docs/
 ```
 
-**saymd-app** (private):
+**saymd-pro** (proprietary):
 
 ```text
-index.html
-privacy.html
-terms.html
-success.html
-styles.css
-vercel.json
-api/
-packages/pro/          # closed Pro bundle + activate download API
+src/          # merge, review, license
+LICENSE       # subscribers only
+package.json  # @saymd/pro
 ```
 
-Until you split, `gemini-transcribe/saymd/landing/` is the source for **saymd-app**.
+Local path (this machine): `/Users/kondasviktor/Documents/saymd-pro`
+
+**saymd-app** (private site):
+
+```text
+index.html, pricing.html, success.html, …
+api/          # checkout, webhook, activate, …
+lib/
+```
+
+## Local CLI + Pro
+
+```bash
+cd ~/Documents/saymd-pro && npm install && npm run build && npm link
+cd ~/Documents/gemini-transcribe/saymd/packages/cli && npm link @saymd/pro
+cd ~/Documents/gemini-transcribe/saymd && npm run build -w saymd
+```
+
+Or rely on `devDependencies` → `file:../../../../saymd-pro` after `npm install` at the monorepo root.
+
+## Vercel
+
+Point Vercel at **kondasviktor/saymd-app** only (repo root = site). Never deploy `saymd` or `saymd-pro` to Vercel.
 
 ## Launch day
 
-1. Deploy saymd-app to Vercel (already live).
-2. Flip `kondasviktor/saymd` to public.
-3. `npm publish` from `packages/cli`.
+1. saymd-app live on Vercel.
+2. Flip `saymd` to public + `npm publish` (MIT CLI).
+3. Keep `saymd-pro` private; distribute `@saymd/pro` via private npm / GitHub Packages / post-purchase install when ready.
 4. `SAYMD_SALES_ENABLED=1`.

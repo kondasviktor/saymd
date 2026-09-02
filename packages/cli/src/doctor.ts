@@ -73,7 +73,7 @@ export async function runDoctor(): Promise<number> {
   if (ffmpegExists() && process.platform !== 'win32') {
     try {
       console.log('· Recording 1s mic test…');
-      const probe = await recordMic(1);
+      const probe = await recordMic(1, { stopOnEnter: false });
       console.log(`✓ Mic test clip: ${probe.localPath} (${probe.durationSeconds.toFixed(1)}s)`);
       await rm(probe.tempDir, { recursive: true, force: true });
     } catch (err) {
@@ -84,5 +84,15 @@ export async function runDoctor(): Promise<number> {
   }
 
   console.log(ok ? '\nAll checks passed.' : '\nFix the issues above, then retry.');
+  if (ok) {
+    console.log(`
+Next
+────
+  saymd -o .ai/prompt.md --template feature --seconds 30
+
+Speak, then press Enter → @ the markdown in your agent.
+Need more later? saymd --continue .ai/prompt.md (Pro)
+`);
+  }
   return ok ? 0 : 1;
 }

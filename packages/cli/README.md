@@ -56,9 +56,10 @@ Deepgram/ElevenLabs need a Gemini or OpenAI key too (prompt structuring). `saymd
 
 `--continue`, `--review`, and `--out` require a Pro license from [saymd.app](https://saymd.app) — €39/yr.
 
+Pro implementation is a **separate proprietary package** (`@saymd/pro`), not part of this MIT repo.
+
 ```bash
-npm install -g @saymd/pro   # optional; bundled as optionalDependency
-saymd activate <license-key>
+saymd activate <activation-code>
 saymd --continue feature-auth.md
 ```
 

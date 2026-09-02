@@ -15,8 +15,21 @@ import { estimateCostUsd, getProvider, providerLabel } from './providers/index.j
 import { sectionsToMarkdown } from './markdown.js';
 import type { CliOptions, SaymdResult } from './types.js';
 import type { SttProviderId } from './providers/types.js';
+import {
+  FREE_MAX_SECONDS,
+  PRO_MAX_FILE_SECONDS,
+  PRO_MAX_MIC_SECONDS,
+  PRO_UPGRADE_URL,
+  hasValidLicense,
+} from './pro-gate.js';
 
 const MAX_FILE_MINUTES = 20;
+
+function printFreeDurationHint(): void {
+  process.stderr.write(
+    `Free: up to ${FREE_MAX_SECONDS}s per recording. Pro: up to ${PRO_MAX_MIC_SECONDS / 60} min per recording, plus --continue → ${PRO_UPGRADE_URL}\n`
+  );
+}
 
 export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdResult> {
   const config = await loadConfig();
@@ -30,13 +43,49 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
   const projectCfg = await import('./config.js').then((m) => m.loadProjectConfig(cwd));
   const outLang = opts.outLang ?? projectCfg.out;
   const lang = opts.lang ?? projectCfg.in;
-  const vocab = await loadVocab(cwd);
+  const isPro = await hasValidLicense();
+  let vocab = await loadVocab(cwd);
+  if (vocab.length > 0 && !isPro) {
+    process.stderr.write(
+      `.saymd/vocab.txt is Pro — ignored this run. Upgrade → ${PRO_UPGRADE_URL}\n`
+    );
+    vocab = [];
+  }
+  const maxMic = isPro ? PRO_MAX_MIC_SECONDS : FREE_MAX_SECONDS;
+  const maxFile = isPro ? PRO_MAX_FILE_SECONDS : FREE_MAX_SECONDS;
 
-  let probe = opts.file
-    ? await normalizeAudio(opts.file)
-    : await recordMic(opts.recordSeconds);
+  let probe;
+  if (opts.file) {
+    process.stderr.write(`Reading ${opts.file}…\n`);
+    probe = await normalizeAudio(opts.file);
+  } else {
+    let seconds = opts.recordSeconds;
+    if (!Number.isFinite(seconds) || seconds <= 0) seconds = isPro ? 120 : FREE_MAX_SECONDS;
+    if (seconds > maxMic) {
+      if (!isPro) {
+        printFreeDurationHint();
+        seconds = maxMic;
+      } else {
+        throw new Error(`Pro mic max is ${PRO_MAX_MIC_SECONDS / 60} min. Use --file for longer audio (max ${MAX_FILE_MINUTES} min).`);
+      }
+    } else if (!isPro && opts.recordSeconds > FREE_MAX_SECONDS) {
+      printFreeDurationHint();
+      seconds = FREE_MAX_SECONDS;
+    }
+    process.stderr.write(
+      `\n● Recording (max ${seconds}s) — speak now. Press Enter to stop.\n` +
+        `  Ctrl+C to cancel.\n\n`
+    );
+    probe = await recordMic(seconds);
+    process.stderr.write(`● Recorded ${probe.durationSeconds.toFixed(1)}s — transcribing…\n`);
+  }
 
-  if (probe.durationSeconds > MAX_FILE_MINUTES * 60) {
+  if (probe.durationSeconds > maxFile) {
+    if (!isPro) {
+      throw new Error(
+        `Free is ${FREE_MAX_SECONDS}s per take (this file is ${Math.ceil(probe.durationSeconds)}s). Trim the audio or upgrade → ${PRO_UPGRADE_URL}`
+      );
+    }
     throw new Error(
       `Audio is ${Math.ceil(probe.durationSeconds / 60)} min — max ${MAX_FILE_MINUTES} min in v1. Split the file or record a shorter clip.`
     );
@@ -47,6 +96,7 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
     const { chunkPaths, tempDir } = await splitLongAudio(probe.localPath);
     chunkTemp = tempDir !== probe.tempDir ? tempDir : undefined;
 
+    process.stderr.write(`Transcribing via ${providerLabel(providerId)}…\n`);
     const transcript =
       chunkPaths.length > 1
         ? await provider.chunkAndTranscribe(sttApiKey, chunkPaths, probe.mimeType, lang)
@@ -57,6 +107,7 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
             durationSeconds: probe.durationSeconds,
           });
 
+    process.stderr.write('Structuring into markdown…\n');
     const structured = await structureTranscript(providerId, config, {
       raw: transcript.text,
       template: opts.template,
