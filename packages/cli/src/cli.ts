@@ -114,7 +114,7 @@ Usage:
   saymd setup
   saymd doctor
   saymd config set provider <gemini|openai|deepgram|elevenlabs>
-  saymd activate <license-key>
+  saymd activate <activation-code>
 
 Options:
   --provider gemini|openai|deepgram|elevenlabs
@@ -186,7 +186,7 @@ async function main(): Promise<void> {
   }
   if (parsed.command === 'activate') {
     if (!parsed.activateKey) {
-      console.error('Usage: saymd activate <license-key>');
+      console.error('Usage: saymd activate <activation-code>');
       process.exit(1);
     }
     await activateLicense(parsed.activateKey);

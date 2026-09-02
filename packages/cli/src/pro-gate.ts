@@ -3,6 +3,26 @@ import { loadLicense, saveLicense, type SaymdLicense } from './config.js';
 export type ProFeature = 'continue' | 'review' | 'out';
 
 const PRO_UPGRADE_URL = 'https://saymd.app/pricing.html';
+const ACTIVATE_API_URL = process.env.SAYMD_ACTIVATE_URL || 'https://saymd.app/api/activate';
+
+function isShortActivationCode(raw: string): boolean {
+  const n = raw.trim().replace(/-/g, '');
+  return n.length >= 16 && n.length <= 32 && /^[a-zA-Z0-9]+$/.test(n) && !raw.includes('.');
+}
+
+async function exchangeActivationCode(code: string): Promise<string> {
+  const res = await fetch(ACTIVATE_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: code.trim() }),
+  });
+  const data = (await res.json()) as { licenseKey?: string; error?: string };
+  if (!res.ok || !data.licenseKey) {
+    console.error(data.error || 'Activation failed. Check your code or email support@saymd.app.');
+    process.exit(1);
+  }
+  return data.licenseKey;
+}
 
 export async function hasValidLicense(): Promise<boolean> {
   const license = await loadLicense();
@@ -37,9 +57,13 @@ export async function activateLicense(rawKey: string): Promise<void> {
     console.error('Install Pro support: npm install -g @saymd/pro');
     process.exit(1);
   }
-  const license = pro.parseLicenseKey(rawKey);
+  let licenseRaw = rawKey.trim();
+  if (isShortActivationCode(licenseRaw)) {
+    licenseRaw = await exchangeActivationCode(licenseRaw);
+  }
+  const license = pro.parseLicenseKey(licenseRaw);
   if (!pro.verifyLicense(license)) {
-    console.error('Invalid license key.');
+    console.error('Invalid activation code.');
     process.exit(1);
   }
   await saveLicense(license as SaymdLicense);
