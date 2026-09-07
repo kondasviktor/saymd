@@ -16,5 +16,7 @@ export function normalizeKnownAsr(text: string): string {
     .replace(/\bSaint app\b/gi, 'saymd.app')
     .replace(/\bsay\s*M\s*D\b/gi, 'saymd')
     .replace(/\bE-?prouter\b/gi, 'App Router')
-    .replace(/\bA\s+router\b/gi, 'App Router');
+    .replace(/\bA\s+router\b/gi, 'App Router')
+    .replace(/\bOutcall[- ]?[Bb]ug\b/gi, 'auth callback')
+    .replace(/\bauth call back\b/gi, 'auth callback');
 }

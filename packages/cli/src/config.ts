@@ -119,8 +119,13 @@ export function resolveSttApiKey(provider: SttProviderId, config: SaymdConfig): 
   }
 }
 
-/** Text-model key for Pro --continue/--review (Gemini preferred, OpenAI fallback). */
+/** Text-model key for Pro --continue/--review.
+ * Prefer OpenAI when OPENAI_BASE_URL is set (e.g. OpenRouter), else Gemini then OpenAI.
+ */
 export function resolveTextApiKey(config: SaymdConfig): string | undefined {
+  if (process.env.OPENAI_BASE_URL?.trim()) {
+    return resolveOpenaiKey(config) ?? resolveGeminiKey(config);
+  }
   return resolveGeminiKey(config) ?? resolveOpenaiKey(config);
 }
 

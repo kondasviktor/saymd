@@ -30,4 +30,10 @@ declare module '@saymd/pro' {
     maxFileSeconds: number;
   };
   export function proCompilerAddendum(opts: { vocab: string[]; outLang?: string }): string;
+  export function translateSections(opts: {
+    apiKey: string;
+    sections: Record<string, unknown>;
+    outLang: string;
+    template?: 'default' | 'feature' | 'bug' | 'plan';
+  }): Promise<Record<string, unknown>>;
 }

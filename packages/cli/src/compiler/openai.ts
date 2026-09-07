@@ -37,12 +37,12 @@ async function chatJson(apiKey: string, prompt: string): Promise<string> {
 }
 
 function buildPrompt(opts: StructureOptions): string {
-  const extra = opts.proAddendum?.trim() ? `\n${opts.proAddendum.trim()}\n` : '';
+  const extra = opts.proAddendum?.trim() ? `${opts.proAddendum.trim()}\n\n` : '';
 
   return `You are saymd — speech to agent-ready prompt spec.
 
-${freeCompilerRules()}
-${extra}
+${extra}${freeCompilerRules()}
+
 Transcript:
 """
 ${opts.raw}

@@ -9,6 +9,7 @@ import {
   resolveSttApiKey,
   loadConfig,
   resolveProvider,
+  resolveTextApiKey,
   sttKeyEnvName,
 } from './config.js';
 import { estimateCostUsd, getProvider, providerLabel } from './providers/index.js';
@@ -16,7 +17,7 @@ import { sectionsToMarkdown } from './markdown.js';
 import { normalizeKnownAsr } from './asr-normalize.js';
 import { polishStructuredSections } from './structure-polish.js';
 import { resolveUserPath } from './paths.js';
-import type { CliOptions, SaymdResult } from './types.js';
+import type { CliOptions, SaymdResult, SaymdSections } from './types.js';
 import type { SttProviderId } from './providers/types.js';
 import {
   FREE_MAX_SECONDS,
@@ -127,14 +128,35 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
       proAddendum,
     });
 
-    const sections = polishStructuredSections(rawText, structured.sections, opts.template);
+    let sections: SaymdSections = polishStructuredSections(
+      rawText,
+      structured.sections,
+      opts.template
+    );
+
+    if (isPro && outLang && outLang !== 'same') {
+      const textKey = resolveTextApiKey(config);
+      const pro = await import('@saymd/pro').catch(() => null);
+      if (textKey && pro?.translateSections) {
+        process.stderr.write(`Translating spec to ${outLang}…\n`);
+        sections = (await pro.translateSections({
+          apiKey: textKey,
+          sections,
+          outLang,
+          template: opts.template,
+        })) as SaymdSections;
+        sections = polishStructuredSections(rawText, sections, opts.template);
+      }
+    }
+
     const markdown = normalizeKnownAsr(sectionsToMarkdown(sections, opts.template));
     const durationSeconds = probe.durationSeconds;
+    const language = outLang && outLang !== 'same' ? outLang : structured.language;
 
     return {
       raw: rawText,
       clean: normalizeKnownAsr(structured.clean || rawText),
-      language: structured.language,
+      language,
       sections,
       markdown,
       durationSeconds,
