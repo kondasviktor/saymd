@@ -24,4 +24,10 @@ declare module '@saymd/pro' {
     targetPath: string;
     cwd: string;
   }): Promise<void>;
+  export function getRecordingLimits(): {
+    defaultSeconds: number;
+    maxMicSeconds: number;
+    maxFileSeconds: number;
+  };
+  export function proCompilerAddendum(opts: { vocab: string[]; outLang?: string }): string;
 }

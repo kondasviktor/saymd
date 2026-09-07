@@ -1,77 +1,85 @@
 # saymd
 
-Speak once. Get a prompt file any agent can @.
+**Speak once. Get a prompt file any agent can @.**
 
-## Quick start
+Free MIT CLI. Bring your own speech-to-text key. Pro features are a **separate proprietary package** (`@saymd/pro`) — not in this repo.
+
+## Start here
 
 ```bash
 npm install -g saymd
-saymd setup          # pick provider + paste API key → ~/.saymd/config.json
+saymd setup
 saymd doctor
-saymd                # record from mic → .ai/prompt.md
-saymd --file x.m4a --template feature -o feature-auth.md
+saymd -o .ai/prompt.md --template feature --seconds 30
 ```
+
+Speak, press **Enter** to stop, then `@` `.ai/prompt.md` in your agent.
+
+## Languages
+
+Auto-detect, 85+ languages. Spec is written in the **same language you spoke**.
+
+```bash
+saymd --lang hu          # optional hint
+saymd --out en           # Pro: speak one language, write another
+```
+
+## Templates
+
+| `--template` | Headings |
+|--------------|----------|
+| `feature` | Objective, Context, Instructions, Constraints, Acceptance criteria |
+| `bug` | Objective, Context, Steps to reproduce, Expected / Actual |
+| `plan` | Objective, Context, numbered Steps, Constraints, Open questions |
+| _(none)_ | Objective, Context, Instructions, Constraints |
+
+```bash
+saymd --file idea.m4a --template feature -o .ai/feature.md
+```
+
+Audio: mp3, m4a, wav, ogg, opus, flac, webm, aiff, caf, mp4, mov
+
+## Recording
+
+Enter to stop. Free: max **60s** per take. Pro: default 120s, max 10 min.
 
 ## BYOK providers
 
-Bring Your Own Key — you pay the STT provider, not saymd.
+You pay the STT provider. Keys in `~/.saymd/config.json` (0600) or env — never printed by `saymd config`.
 
 | `--provider` | Model |
 |--------------|-------|
-| `gemini` (default) | gemini-3.5-transcribe |
+| `gemini` (recommended) | gemini-3.5-transcribe |
 | `openai` | gpt-4o-transcribe |
-| `deepgram` | nova-3 |
-| `elevenlabs` | scribe_v2 |
+| `deepgram` | nova-3 (needs Gemini or OpenAI for structuring) |
+| `elevenlabs` | scribe_v2 (needs Gemini or OpenAI for structuring) |
 
 ```bash
 saymd config set provider openai
 saymd --provider deepgram --file meeting.wav
 ```
 
-Deepgram/ElevenLabs need a Gemini or OpenAI key too (prompt structuring). `saymd setup` walks you through both.
-
-## Language
-
-- **Default:** auto-detect (85+ languages)
-- **Hint:** `--lang de` when you know the audio is German
-- **Pro cross-language:** `--out en` — speak Hungarian, get English spec
-
-## Output shape
-
-```markdown
-## Objective
-...
-
-## Context
-...
-
-## Instructions
-- ...
-
-## Constraints
-- ...
-```
-
 ## Pro
 
-`--continue`, `--review`, and `--out` require a Pro license from [saymd.app](https://saymd.app) — €39/yr.
-
-Pro implementation is a **separate proprietary package** (`@saymd/pro`), not part of this MIT repo.
+`--continue`, `--review`, `--out`, `.saymd/vocab.txt`, and longer recordings require [saymd.app](https://saymd.app) (€39/yr · €5/mo).
 
 ```bash
 saymd activate <activation-code>
-saymd --continue feature-auth.md
+saymd --continue .ai/prompt.md
+saymd --review .ai/prompt.md
 ```
+
+Implementation is **not** in this MIT package. Install `@saymd/pro` after purchase.
+
+## Privacy
+
+Audio goes only to the provider you chose, with your key. [Privacy](https://saymd.app/privacy.html)
 
 ## Platforms
 
-macOS + Linux native. Windows: WSL or `--file` only.
+macOS + Linux. Windows: WSL or `--file` only. Node 20+, ffmpeg.
 
-## Cost
-
-BYOK — saymd prints duration + per-provider estimate after each run (not a guarantee).
-
-## Links
-
-- [saymd.app](https://saymd.app)
-- [Apify audio Actors](https://apify.com/kondasviktor) — batch podcast/meeting intelligence (platform-managed key)
+```bash
+saymd help
+saymd --help
+```

@@ -13,8 +13,8 @@ export interface StructureOptions {
   apiKey: string;
   raw: string;
   template: TemplateId;
-  vocab: string[];
-  outLang?: string;
+  /** Injected only when @saymd/pro is installed and licensed. */
+  proAddendum?: string;
 }
 
 export interface PromptCompiler {

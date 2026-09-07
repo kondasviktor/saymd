@@ -22,11 +22,7 @@
     "@google/genai": "^1.0.0",
     "zod": "^3.24.0"
   },
-  "optionalDependencies": {
-    "@saymd/pro": "^0.1.0"
-  },
   "devDependencies": {
-    "@saymd/pro": "file:../../../../saymd-pro",
     "@types/node": "^22.13.4",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3"

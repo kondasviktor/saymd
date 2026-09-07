@@ -4,11 +4,11 @@ export type ProFeature = 'continue' | 'review' | 'out';
 
 export const PRO_UPGRADE_URL = 'https://saymd.app/pricing.html';
 
-/** Free: one short take. Pro: longer takes + --continue for more. */
+/** Free cap — enforced in this repo. Pro duration is enforced via @saymd/pro. */
 export const FREE_MAX_SECONDS = 60;
+/** Help / upgrade copy only. Do not use these to unlock longer recordings. */
 export const PRO_DEFAULT_SECONDS = 120;
 export const PRO_MAX_MIC_SECONDS = 600;
-export const PRO_MAX_FILE_SECONDS = 20 * 60;
 const ACTIVATE_API_URL = process.env.SAYMD_ACTIVATE_URL || 'https://saymd.app/api/activate';
 
 function isShortActivationCode(raw: string): boolean {
@@ -134,4 +134,28 @@ export async function requireCrossLang(outLang: string | undefined): Promise<voi
   if (!outLang) return;
   const allowed = await requirePro('out');
   if (!allowed) process.exit(1);
+}
+
+/** Pro recording limits. Returns null on Free or if @saymd/pro is missing. */
+export async function getProRecordingLimits(): Promise<{
+  defaultSeconds: number;
+  maxMicSeconds: number;
+  maxFileSeconds: number;
+} | null> {
+  if (!(await hasValidLicense())) return null;
+  const pro = await importPro();
+  if (!pro?.getRecordingLimits) return null;
+  return pro.getRecordingLimits();
+}
+
+/** Cross-language + vocab prompt lines. Empty unless Pro is installed and licensed. */
+export async function getProCompilerAddendum(opts: {
+  vocab: string[];
+  outLang?: string;
+}): Promise<string> {
+  if (!opts.outLang && opts.vocab.length === 0) return '';
+  if (!(await hasValidLicense())) return '';
+  const pro = await importPro();
+  if (!pro?.proCompilerAddendum) return '';
+  return pro.proCompilerAddendum(opts);
 }

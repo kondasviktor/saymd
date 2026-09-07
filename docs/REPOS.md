@@ -3,10 +3,10 @@
 | Repo | Visibility | Contents | Vercel? |
 |------|------------|----------|---------|
 | [kondasviktor/saymd](https://github.com/kondasviktor/saymd) | Private until launch → **public** | MIT CLI (`packages/cli`) only | **No** |
-| [kondasviktor/saymd-pro](https://github.com/kondasviktor/saymd-pro) | **Private always** | `@saymd/pro` — continue, review, license verify | **No** |
+| [kondasviktor/saymd-pro](https://github.com/kondasviktor/saymd-pro) | **Private always** | `@saymd/pro` — continue, review, `--out`, vocab, duration, license verify | **No** |
 | [kondasviktor/saymd-app](https://github.com/kondasviktor/saymd-app) | **Private always** | Landing, Stripe, Neon, activation API | **Yes** → saymd.app |
 
-Do **not** mirror landing code into `saymd`, and do **not** put Pro implementation into the MIT CLI repo (even behind a license check).
+Do **not** mirror landing code into `saymd`, and do **not** put Pro implementation into the MIT CLI repo (even behind a license check). The MIT tree may dynamically `import('@saymd/pro')` and show a paywall. Merge, review, cross-language prompts, vocab addendum, and Pro recording limits must live only in `saymd-pro`.
 
 ## Layout
 
@@ -22,12 +22,10 @@ docs/
 **saymd-pro** (proprietary):
 
 ```text
-src/          # merge, review, license
+src/          # merge, review, compiler addendum, limits, license
 LICENSE       # subscribers only
 package.json  # @saymd/pro
 ```
-
-Local path (this machine): `/Users/kondasviktor/Documents/saymd-pro`
 
 **saymd-app** (private site):
 
@@ -37,7 +35,7 @@ api/          # checkout, webhook, activate, …
 lib/
 ```
 
-## Local CLI + Pro
+## Local CLI + Pro (maintainers)
 
 ```bash
 cd ~/Documents/saymd-pro && npm install && npm run build && npm link
@@ -45,7 +43,7 @@ cd ~/Documents/gemini-transcribe/saymd/packages/cli && npm link @saymd/pro
 cd ~/Documents/gemini-transcribe/saymd && npm run build -w saymd
 ```
 
-Or rely on `devDependencies` → `file:../../../../saymd-pro` after `npm install` at the monorepo root.
+Never add `file:…/saymd-pro` or `optionalDependencies` on `@saymd/pro` to the MIT `package.json`. The CLI loads Pro with a dynamic import after the user installs that package separately. Until `@saymd/pro` is published, `npm link` is the maintainer path.
 
 ## Vercel
 

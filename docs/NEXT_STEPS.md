@@ -22,7 +22,7 @@ alias saymd='node /Users/kondasviktor/Documents/gemini-transcribe/saymd/packages
 cd ~/Documents/saymd-test
 ```
 
-Ensure `@saymd/pro` resolves (`file:../../../../saymd-pro` or `npm link`).
+Ensure `@saymd/pro` resolves via `npm link` (do not commit a `file:` path into the MIT repo).
 
 ### A1. Free path
 
@@ -90,11 +90,11 @@ Ensure `@saymd/pro` resolves (`file:../../../../saymd-pro` or `npm link`).
 
 ### B4. Distribute `@saymd/pro` to paying users
 
-Today Pro works via local `file:` / `npm link` only. Pick one and implement:
+Today Pro works via maintainer `npm link` only. Paying users still need a real install path. Pick one and implement:
 
 - [ ] **Chosen approach** documented (GitHub Packages private scope, or post-purchase tarball/install script, or gated download from saymd.app)  
 - [ ] Buyer after `saymd activate` can run `--continue` **without** your laptop  
-- [ ] MIT CLI still has **no** Pro source; optionalDependency / install instructions only  
+- [ ] MIT CLI still has **no** Pro source; no `file:` / optionalDependency that resolves to this repo  
 
 ### B5. Invoicing (Hungary)
 

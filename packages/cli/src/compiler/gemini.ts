@@ -51,17 +51,12 @@ async function parseStructureJson(
 }
 
 function buildPrompt(opts: StructureOptions): string {
-  const vocab =
-    opts.vocab.length > 0 ? `Preserve spelling: ${opts.vocab.join(', ')}.` : '';
-  const outLang =
-    opts.outLang && opts.outLang !== 'same'
-      ? `Write all section text in ${opts.outLang}.`
-      : 'Write section text in the same language as the transcript.';
+  const extra = opts.proAddendum?.trim() ? `\n${opts.proAddendum.trim()}\n` : '';
 
   return `You are saymd — speech to agent-ready prompt spec.
 
-${outLang}
-${vocab}
+Write section text in the same language as the transcript.
+${extra}
 Smart cleanup: remove filler words and false starts while preserving meaning.
 
 Transcript:
