@@ -1,6 +1,6 @@
 # saymd — next steps (go-live)
 
-Last updated: 2026-09-02  
+Last updated: 2026-09-07  
 Marketplaces / agent wrappers: **OFF** until this list is done (see plan + `docs/MARKETPLACE_PLAN.md`).
 
 All three GitHub repos stay **private** until you explicitly flip `saymd` public for launch.
@@ -24,41 +24,45 @@ cd ~/Documents/saymd-test
 
 Ensure `@saymd/pro` resolves via `npm link` (do not commit a `file:` path into the MIT repo).
 
-### A1. Free path
+Ops smoke (A2–A4 APIs / Neon / Stripe / gates): `node scripts/a2-a4-ops-smoke.js` from the saymd repo (loads `.env`).
 
-- [ ] `saymd doctor` — ffmpeg, mic, key OK  
-- [ ] `saymd help` / `saymd --help` — providers, templates, privacy link, audio formats  
-- [ ] `saymd -o .ai/free.md --template feature --seconds 60` — Enter to stop; structured markdown  
-- [ ] Language auto-detect (e.g. HU → `(hu)`, same-language body; tech terms may stay English)  
-- [ ] `--template bug` and `--template plan` produce correct headings  
-- [ ] `--file` via `scripts/e2e-fixtures.sh` (or sample.m4a) works  
-- [ ] Without license: `saymd --continue .ai/free.md` — **Pro gate, no recording**  
-- [ ] Without license: `saymd --review .ai/free.md` and `saymd --out en` — Pro gate  
+### A1. Free path — **DONE** (2026-09-07)
+
+- [x] `saymd doctor` — ffmpeg, mic, key OK  
+- [x] `saymd help` / `saymd --help` — providers, templates, privacy link, audio formats  
+- [x] Structured recording / `--file` fixtures (`scripts/e2e-fixtures.sh`)  
+- [x] Language auto-detect / `--lang hu` — same-language body (tech terms may stay English)  
+- [x] `--template bug` and `--template plan` produce correct headings  
+- [x] Without license: `--continue` / `--review` / `--out` — **Pro gate, no recording** (re-verified in A2 smoke)
+
+Optional: one live mic Enter-to-stop UX check anytime.
 
 ### A2. Pro path (test mode Stripe)
 
-- [ ] Fresh Checkout → success page shows **24-char activation code** (not long blob)  
-- [ ] `saymd activate <code>` → plan + `validUntil`  
-- [ ] `saymd --continue <file>` — max **120s** default; Enter stops; merge keeps template (plan → numbered Steps)  
-- [ ] New speech polished into existing tone (no raw “add the field” fragments)  
-- [ ] `saymd --review <file>` — gaps + suggested continue  
-- [ ] `saymd --out en --template feature -o .ai/en.md` — speak non-EN → English spec  
-- [ ] `.saymd/vocab.txt` (one term per line) respected on Pro; ignored/warned on Free  
-- [ ] Billing portal link (`/api/billing-portal`) opens Stripe login  
-- [ ] Cancel at period end in portal — access until `validUntil` / period end (webhook sync)  
+- [x] Fresh Checkout → success page shows **24-char activation code** (not long blob)  
+- [x] `saymd activate <code>` → plan + `validUntil`  
+- [x] `saymd --continue <file>` — merge keeps template (plan → numbered Steps); polished tone  
+- [x] `saymd --review <file>` — gaps + suggested continue  
+- [x] `saymd --out en` — HU/DE → English spec (Pro translate pass)  
+- [x] `.saymd/vocab.txt` respected on Pro  
+- [x] Billing portal link (`/api/billing-portal`) → Stripe customer portal login  
+- [x] Cancel at period end via Stripe API (`cancel_at_period_end`) — access until period end; restored after smoke  
 
 ### A3. Backend / webhook sanity
 
-- [ ] Stripe Dashboard → webhook endpoint: `checkout.session.completed`, `invoice.paid`, `customer.subscription.updated`, `customer.subscription.deleted` (+ checkout async if kept)  
-- [ ] Neon row has `activation_code`, `stripe_subscription_id`, `valid_until`  
-- [ ] `POST /api/activate` case-insensitive / mixed-case code works  
-- [ ] Invoice emails **off**; receipt emails OK; számla via szamlazz.hu (process defined)  
+- [x] Stripe webhook endpoint `https://saymd.app/api/stripe-webhook-saymd` enabled (incl. `checkout.session.completed`, `invoice.paid`, `customer.subscription.updated` / `deleted`)  
+- [x] Neon row has `activation_code` (24), `stripe_subscription_id`, `valid_until`  
+- [x] `POST /api/activate` case-insensitive / mixed-case code works  
+- [ ] Invoice emails **off** in Stripe Dashboard (manual confirm)  
+- [ ] szamlazz.hu process defined (can wait until live volume)
 
 ### A4. Security / ops smoke
 
-- [ ] No API keys in shell history (`grep` history empty for keys)  
-- [ ] `~/.saymd/config.json` mode 0600  
-- [ ] Preview gate still works if `SAYMD_PUBLIC=0`  
+- [x] `~/.saymd/config.json` mode 0600  
+- [x] Preview gate works (`SAYMD_PUBLIC` unset/0 → coming-soon; `/?preview=TOKEN` sets cookie)  
+- [ ] No API keys in shell history (local bash_history still shows possible key patterns — clean if you pasted keys into the terminal)
+
+There is no **A5** section in this checklist (A1–A4 only).
 
 ---
 
@@ -120,7 +124,7 @@ Today Pro works via maintainer `npm link` only. Paying users still need a real i
 
 ## D. Suggested order
 
-1. Finish **A** (detailed testing) on test Stripe  
+1. Finish remaining **A3/A4** manual ticks (invoice emails off, clean shell history)  
 2. **B4** design Pro install path (don’t go live without a buyer-usable Pro package)  
 3. **B1** live Stripe + one paid E2E  
 4. **B2** `SAYMD_PUBLIC=1`  
@@ -139,4 +143,7 @@ alias saymd='node ~/Documents/gemini-transcribe/saymd/packages/cli/dist/cli.js'
 # Rebuild after Pro changes
 cd ~/Documents/saymd-pro && npm run build
 cd ~/Documents/gemini-transcribe/saymd && npm run build -w saymd
+
+# A2–A4 ops smoke (uses saymd/.env)
+node scripts/a2-a4-ops-smoke.js
 ```
