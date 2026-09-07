@@ -101,8 +101,8 @@ There is no **A5** section in this checklist (A1–A4 only).
 - [x] `POST /api/activate` returns `pro.version` + download path
 - [x] `POST /api/pro-download` streams tarball after valid activation code
 - [x] CLI `saymd activate <code>` downloads + `npm install --prefix ~/.saymd`
-- [ ] Redeploy saymd-app + one activate on a machine **without** `npm link` Pro
-- [ ] MIT CLI still has **no** Pro source; no `file:` dependency
+- [x] Redeploy saymd-app + one activate on a machine **without** `npm link` Pro
+- [x] MIT CLI still has **no** Pro source; no `file:` dependency
 
 Re-upload after Pro releases:
 
@@ -138,7 +138,7 @@ node scripts/upload-pro-blob.js
 ## D. Suggested order
 
 1. Finish remaining **A3/A4** manual ticks (invoice emails off, clean shell history)  
-2. **B4** design Pro install path (don’t go live without a buyer-usable Pro package)  
+2. **B4** Pro install path — **DONE** (Vercel Blob + activate auto-download)  
 3. **B1** live Stripe + one paid E2E  
 4. **B2** `SAYMD_PUBLIC=1`  
 5. **B3** public `saymd` + npm  
