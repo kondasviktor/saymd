@@ -7,6 +7,29 @@ const TRANSCRIBE_MODEL = process.env.GEMINI_TRANSCRIBE_MODEL ?? 'gemini-3.5-tran
 const VERIFY_MODEL = process.env.GEMINI_ENRICH_MODEL ?? 'gemini-3.5-flash-lite';
 const USD_PER_MIN = 0.005;
 
+function languageName(code: string): string {
+  const map: Record<string, string> = {
+    en: 'English',
+    hu: 'Hungarian',
+    de: 'German',
+    fr: 'French',
+    es: 'Spanish',
+    it: 'Italian',
+    pt: 'Portuguese',
+    nl: 'Dutch',
+    pl: 'Polish',
+    cs: 'Czech',
+    sk: 'Slovak',
+    ro: 'Romanian',
+    uk: 'Ukrainian',
+    ru: 'Russian',
+    ja: 'Japanese',
+    ko: 'Korean',
+    zh: 'Chinese',
+  };
+  return map[code.toLowerCase()] ?? code;
+}
+
 function extractTranscriptionText(response: {
   candidates?: Array<{ content?: { parts?: Array<Record<string, unknown>> } }>;
   text?: string;
@@ -54,8 +77,8 @@ export const geminiProvider: TranscriptionProvider = {
     const audio = await uploadAudio(client, opts.localPath, opts.mimeType);
     const langHint =
       opts.lang && opts.lang !== 'auto'
-        ? `The spoken language is ${opts.lang}.`
-        : 'Detect the spoken language automatically.';
+        ? `The spoken language is ${languageName(opts.lang)} (${opts.lang}). Transcribe in that language.`
+        : 'Detect the spoken language automatically and transcribe in that language.';
     const response = await client.models.generateContent({
       model: TRANSCRIBE_MODEL,
       contents: [
@@ -64,7 +87,10 @@ export const geminiProvider: TranscriptionProvider = {
           parts: [
             { fileData: { fileUri: audio.uri, mimeType: audio.mimeType } },
             {
-              text: `Transcribe this audio verbatim for a developer prompt dictation tool.\n${langHint}`,
+              text: `Transcribe this audio verbatim for a developer prompt dictation tool.
+${langHint}
+If the speaker means the product saymd (often pronounced "say M D"), spell it "saymd" — not Saint, Saint MD, or Saint Pro.
+Keep tech terms like OAuth, Next.js, App Router, session cookie in their usual English spelling.`,
             },
           ],
         },

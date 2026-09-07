@@ -1,5 +1,5 @@
 import { writeFile, copyFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 
 import { cleanupAudio, normalizeAudio, recordMic, splitLongAudio } from './audio.js';
@@ -13,6 +13,9 @@ import {
 } from './config.js';
 import { estimateCostUsd, getProvider, providerLabel } from './providers/index.js';
 import { sectionsToMarkdown } from './markdown.js';
+import { normalizeKnownAsr } from './asr-normalize.js';
+import { polishStructuredSections } from './structure-polish.js';
+import { resolveUserPath } from './paths.js';
 import type { CliOptions, SaymdResult } from './types.js';
 import type { SttProviderId } from './providers/types.js';
 import {
@@ -61,8 +64,9 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
 
   let probe;
   if (opts.file) {
+    const filePath = resolveUserPath(cwd, opts.file);
     process.stderr.write(`Reading ${opts.file}…\n`);
-    probe = await normalizeAudio(opts.file);
+    probe = await normalizeAudio(filePath);
   } else {
     let seconds = opts.recordSeconds;
     if (!Number.isFinite(seconds) || seconds <= 0) seconds = defaultMic;
@@ -114,21 +118,24 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
             durationSeconds: probe.durationSeconds,
           });
 
+    const rawText = normalizeKnownAsr(transcript.text);
+
     process.stderr.write('Structuring into markdown…\n');
     const structured = await structureTranscript(providerId, config, {
-      raw: transcript.text,
+      raw: rawText,
       template: opts.template,
       proAddendum,
     });
 
-    const markdown = sectionsToMarkdown(structured.sections, opts.template);
+    const sections = polishStructuredSections(rawText, structured.sections, opts.template);
+    const markdown = normalizeKnownAsr(sectionsToMarkdown(sections, opts.template));
     const durationSeconds = probe.durationSeconds;
 
     return {
-      raw: transcript.text,
-      clean: structured.clean || transcript.text,
+      raw: rawText,
+      clean: normalizeKnownAsr(structured.clean || rawText),
       language: structured.language,
-      sections: structured.sections,
+      sections,
       markdown,
       durationSeconds,
       estimatedCostUsd: estimateCostUsd(providerId, durationSeconds),
@@ -149,7 +156,7 @@ export async function writeOutput(
   cwd: string,
   keepTempPath?: string
 ): Promise<{ outputPath: string; keptTemp?: string }> {
-  const outputPath = join(cwd, opts.output);
+  const outputPath = resolveUserPath(cwd, opts.output);
   await mkdir(dirname(outputPath), { recursive: true });
 
   if (opts.dryRun) {

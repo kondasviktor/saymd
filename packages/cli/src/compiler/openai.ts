@@ -1,5 +1,6 @@
 import { structureSchemaHint } from '../templates.js';
 import { sectionsSchema } from '../types.js';
+import { freeCompilerRules, freeCompilerReminder } from './rules.js';
 import type { PromptCompiler, StructureOptions } from './types.js';
 
 const ENRICH_MODEL = process.env.OPENAI_ENRICH_MODEL ?? 'gpt-4o-mini';
@@ -40,14 +41,14 @@ function buildPrompt(opts: StructureOptions): string {
 
   return `You are saymd — speech to agent-ready prompt spec.
 
-Write section text in the same language as the transcript.
+${freeCompilerRules()}
 ${extra}
-Smart cleanup: remove filler words and false starts while preserving meaning.
-
 Transcript:
 """
 ${opts.raw}
 """
+
+${freeCompilerReminder()}
 
 ${structureSchemaHint(opts.template)}`;
 }

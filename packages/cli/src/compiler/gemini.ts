@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 
 import { structureSchemaHint } from '../templates.js';
 import { sectionsSchema } from '../types.js';
+import { freeCompilerRules, freeCompilerReminder } from './rules.js';
 import type { PromptCompiler, StructureOptions } from './types.js';
 
 const ENRICH_MODEL = process.env.GEMINI_ENRICH_MODEL ?? 'gemini-3.5-flash-lite';
@@ -55,14 +56,14 @@ function buildPrompt(opts: StructureOptions): string {
 
   return `You are saymd — speech to agent-ready prompt spec.
 
-Write section text in the same language as the transcript.
+${freeCompilerRules()}
 ${extra}
-Smart cleanup: remove filler words and false starts while preserving meaning.
-
 Transcript:
 """
 ${opts.raw}
 """
+
+${freeCompilerReminder()}
 
 ${structureSchemaHint(opts.template)}`;
 }

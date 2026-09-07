@@ -5,11 +5,21 @@ import type { SttProviderId } from './providers/types.js';
 export const sectionsSchema = z.object({
   objective: z.string().optional(),
   context: z.string().optional(),
-  instructions: z.array(z.string()).optional(),
-  constraints: z.array(z.string()).optional(),
-  acceptanceCriteria: z.array(z.string()).optional(),
-  openQuestions: z.array(z.string()).optional(),
-  stepsToReproduce: z.array(z.string()).optional(),
+  acceptanceCriteria: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
+    v === undefined ? undefined : Array.isArray(v) ? v : [v]
+  ),
+  openQuestions: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
+    v === undefined ? undefined : Array.isArray(v) ? v : [v]
+  ),
+  stepsToReproduce: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
+    v === undefined ? undefined : Array.isArray(v) ? v : [v]
+  ),
+  instructions: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
+    v === undefined ? undefined : Array.isArray(v) ? v : [v]
+  ),
+  constraints: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
+    v === undefined ? undefined : Array.isArray(v) ? v : [v]
+  ),
   expectedBehavior: z.string().optional(),
   actualBehavior: z.string().optional(),
 });

@@ -29,9 +29,9 @@ Ensure `@saymd/pro` resolves via `npm link` (do not commit a `file:` path into t
 - [ ] `saymd doctor` — ffmpeg, mic, key OK  
 - [ ] `saymd help` / `saymd --help` — providers, templates, privacy link, audio formats  
 - [ ] `saymd -o .ai/free.md --template feature --seconds 60` — Enter to stop; structured markdown  
-- [ ] Language auto-detect (e.g. HU → `(hu)`, same-language body)  
+- [ ] Language auto-detect (e.g. HU → `(hu)`, same-language body; tech terms may stay English)  
 - [ ] `--template bug` and `--template plan` produce correct headings  
-- [ ] `--file sample.m4a` (or mp3/wav) works  
+- [ ] `--file` via `scripts/e2e-fixtures.sh` (or sample.m4a) works  
 - [ ] Without license: `saymd --continue .ai/free.md` — **Pro gate, no recording**  
 - [ ] Without license: `saymd --review .ai/free.md` and `saymd --out en` — Pro gate  
 

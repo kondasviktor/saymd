@@ -2,7 +2,10 @@ import { readFile } from 'node:fs/promises';
 
 import type { TranscribeOptions, Transcript, TranscriptionProvider } from './types.js';
 
-const TRANSCRIBE_MODEL = process.env.OPENAI_TRANSCRIBE_MODEL ?? 'gpt-4o-transcribe';
+function transcribeModel(): string {
+  return process.env.OPENAI_TRANSCRIBE_MODEL?.trim() || 'gpt-4o-transcribe';
+}
+
 const USD_PER_MIN = 0.006;
 
 function openaiBaseUrl(): string {
@@ -32,7 +35,9 @@ async function openaiFetch(
 export const openaiProvider: TranscriptionProvider = {
   id: 'openai',
   displayName: 'OpenAI',
-  model: TRANSCRIBE_MODEL,
+  get model() {
+    return transcribeModel();
+  },
   usdPerMinute: USD_PER_MIN,
 
   async verifyApiKey(apiKey: string): Promise<void> {
@@ -43,8 +48,9 @@ export const openaiProvider: TranscriptionProvider = {
     const buffer = await readFile(opts.localPath);
     const blob = new Blob([buffer], { type: opts.mimeType });
     const form = new FormData();
+    const model = transcribeModel();
     form.append('file', blob, opts.localPath.split('/').pop() ?? 'audio');
-    form.append('model', TRANSCRIBE_MODEL);
+    form.append('model', model);
     form.append('response_format', 'json');
     if (opts.lang && opts.lang !== 'auto') {
       form.append('language', opts.lang);
@@ -60,7 +66,7 @@ export const openaiProvider: TranscriptionProvider = {
       text: data.text.trim(),
       language: data.language,
       provider: 'openai',
-      model: TRANSCRIBE_MODEL,
+      model,
       durationSeconds: opts.durationSeconds,
     };
   },
@@ -79,7 +85,7 @@ export const openaiProvider: TranscriptionProvider = {
     return {
       text: parts.join('\n'),
       provider: 'openai',
-      model: TRANSCRIBE_MODEL,
+      model: transcribeModel(),
     };
   },
 };

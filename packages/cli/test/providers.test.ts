@@ -49,8 +49,14 @@ test('resolveCompilerProvider prefers gemini for STT-only providers', () => {
 });
 
 test('getProvider returns model names', () => {
-  assert.match(getProvider('gemini').model, /gemini/);
-  assert.equal(getProvider('openai').model, 'gpt-4o-transcribe');
-  assert.equal(getProvider('deepgram').model, 'nova-3');
-  assert.equal(getProvider('elevenlabs').model, 'scribe_v2');
+  const prev = process.env.OPENAI_TRANSCRIBE_MODEL;
+  delete process.env.OPENAI_TRANSCRIBE_MODEL;
+  try {
+    assert.match(getProvider('gemini').model, /gemini/);
+    assert.equal(getProvider('openai').model, 'gpt-4o-transcribe');
+    assert.equal(getProvider('deepgram').model, 'nova-3');
+    assert.equal(getProvider('elevenlabs').model, 'scribe_v2');
+  } finally {
+    if (prev !== undefined) process.env.OPENAI_TRANSCRIBE_MODEL = prev;
+  }
 });

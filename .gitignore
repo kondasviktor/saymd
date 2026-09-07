@@ -6,3 +6,5 @@ dist/
 keys.example.env
 .DS_Store
 packages/cli/dist/
+tmp/
+Users/

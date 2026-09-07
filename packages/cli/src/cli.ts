@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { copyFile, writeFile, readFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 
 import { cleanupAudio } from './audio.js';
@@ -8,6 +8,7 @@ import { runDoctor } from './doctor.js';
 import { printCostLine, runPipeline } from './pipeline.js';
 import { activateLicense, hasValidLicense, requireCrossLang, requirePro, runContinue, runReview } from './pro-gate.js';
 import { printHelp, printNextAfterSetup, printStartHere } from './help.js';
+import { resolveUserPath } from './paths.js';
 import { runConfigSet, runConfigShow, runSetup } from './setup.js';
 import { isSttProviderId, loadConfig, resolveSttApiKey, resolveTextApiKey, resolveProvider, sttKeyEnvName } from './config.js';
 import type { CliOptions, TemplateId } from './types.js';
@@ -183,7 +184,7 @@ async function main(): Promise<void> {
       console.error('GEMINI_API_KEY or OPENAI_API_KEY not set. Run: saymd setup');
       process.exit(1);
     }
-    await runReview({ apiKey, targetPath: join(cwd, parsed.review), cwd });
+    await runReview({ apiKey, targetPath: resolveUserPath(cwd, parsed.review), cwd });
     return;
   }
 
@@ -195,7 +196,7 @@ async function main(): Promise<void> {
       console.error('GEMINI_API_KEY or OPENAI_API_KEY not set. Run: saymd setup');
       process.exit(1);
     }
-    const target = join(cwd, parsed.continue);
+    const target = resolveUserPath(cwd, parsed.continue);
     const existingMd = await readFile(target, 'utf8').catch(() => '');
     const proMod = await import('@saymd/pro').catch(() => null);
     const inferred =
@@ -253,7 +254,7 @@ async function main(): Promise<void> {
     if (parsed.stdout || parsed.json) {
       console.log(body);
     } else if (!parsed.dryRun) {
-      const out = join(cwd, parsed.output);
+      const out = resolveUserPath(cwd, parsed.output);
       await mkdir(dirname(out), { recursive: true });
       await copyFile(out, out + '.bak').catch(() => undefined);
       await writeFile(out, result.markdown, 'utf8');
