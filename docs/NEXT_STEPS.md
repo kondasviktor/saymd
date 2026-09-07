@@ -53,14 +53,14 @@ Optional: one live mic Enter-to-stop UX check anytime.
 - [x] Stripe webhook endpoint `https://saymd.app/api/stripe-webhook-saymd` enabled (incl. `checkout.session.completed`, `invoice.paid`, `customer.subscription.updated` / `deleted`)  
 - [x] Neon row has `activation_code` (24), `stripe_subscription_id`, `valid_until`  
 - [x] `POST /api/activate` case-insensitive / mixed-case code works  
-- [ ] Invoice emails **off** in Stripe Dashboard (manual confirm)  
-- [ ] szamlazz.hu process defined (can wait until live volume)
+- [x] Invoice emails **off** in Stripe Dashboard (manual confirm 2026-09-07)  
+- [x] szamlazz.hu — account ready; paid tier when first real számla is needed (no more action now)
 
 ### A4. Security / ops smoke
 
 - [x] `~/.saymd/config.json` mode 0600  
 - [x] Preview gate works (`SAYMD_PUBLIC` unset/0 → coming-soon; `/?preview=TOKEN` sets cookie)  
-- [ ] No API keys in shell history (local bash_history still shows possible key patterns — clean if you pasted keys into the terminal)
+- [x] No API keys in shell history (bash_history scrubbed 2026-09-07; backup `~/.bash_history.bak.YYYYMMDD`)
 
 There is no **A5** section in this checklist (A1–A4 only).
 
@@ -115,8 +115,8 @@ node scripts/upload-pro-blob.js
 
 ### B5. Invoicing (Hungary)
 
-- [ ] Stripe invoice emails stay **off** (sandbox + live)  
-- [ ] szamlazz.hu workflow: map Stripe payment → számla (manual OK for early volume)  
+- [x] Stripe invoice emails stay **off** (sandbox confirmed; keep off in live)  
+- [x] szamlazz.hu — account exists; enroll paid tier at first live invoice  
 - [ ] Support email process for lost activation codes (Neon lookup by email)  
 
 ### B6. Copy / support polish
@@ -137,13 +137,11 @@ node scripts/upload-pro-blob.js
 
 ## D. Suggested order
 
-1. Finish remaining **A3/A4** manual ticks (invoice emails off, clean shell history)  
-2. **B4** Pro install path — **DONE** (Vercel Blob + activate auto-download)  
-3. **B1** live Stripe + one paid E2E  
-4. **B2** `SAYMD_PUBLIC=1`  
-5. **B3** public `saymd` + npm  
-6. **B5–B6** invoicing + copy  
-7. Only then reopen Phase 2 marketplaces  
+1. **B1** live Stripe + one paid E2E  
+2. **B2** `SAYMD_PUBLIC=1`  
+3. **B3** public `saymd` + npm  
+4. **B5** leftover: lost-code support process; **B6** copy polish  
+5. Only then reopen Phase 2 marketplaces  
 
 ---
 
