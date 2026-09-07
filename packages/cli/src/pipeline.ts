@@ -26,6 +26,7 @@ import {
   getProCompilerAddendum,
   getProRecordingLimits,
 } from './pro-gate.js';
+import { importProModule } from './pro-install.js';
 
 function printFreeDurationHint(): void {
   process.stderr.write(
@@ -136,7 +137,7 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
 
     if (isPro && outLang && outLang !== 'same') {
       const textKey = resolveTextApiKey(config);
-      const pro = await import('@saymd/pro').catch(() => null);
+      const pro = await importProModule();
       if (textKey && pro?.translateSections) {
         process.stderr.write(`Translating spec to ${outLang}…\n`);
         sections = (await pro.translateSections({

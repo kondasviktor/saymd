@@ -7,6 +7,7 @@ import { cleanupAudio } from './audio.js';
 import { runDoctor } from './doctor.js';
 import { printCostLine, runPipeline } from './pipeline.js';
 import { activateLicense, hasValidLicense, requireCrossLang, requirePro, runContinue, runReview } from './pro-gate.js';
+import { importProModule } from './pro-install.js';
 import { printHelp, printNextAfterSetup, printStartHere } from './help.js';
 import { resolveUserPath } from './paths.js';
 import { runConfigSet, runConfigShow, runSetup } from './setup.js';
@@ -198,7 +199,7 @@ async function main(): Promise<void> {
     }
     const target = resolveUserPath(cwd, parsed.continue);
     const existingMd = await readFile(target, 'utf8').catch(() => '');
-    const proMod = await import('@saymd/pro').catch(() => null);
+    const proMod = await importProModule();
     const inferred =
       parsed.template !== 'default'
         ? parsed.template

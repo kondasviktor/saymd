@@ -94,11 +94,24 @@ There is no **A5** section in this checklist (A1–A4 only).
 
 ### B4. Distribute `@saymd/pro` to paying users
 
-Today Pro works via maintainer `npm link` only. Paying users still need a real install path. Pick one and implement:
+**Chosen approach:** Vercel Blob (private) + auto-download on `saymd activate`.
 
-- [ ] **Chosen approach** documented (GitHub Packages private scope, or post-purchase tarball/install script, or gated download from saymd.app)  
-- [ ] Buyer after `saymd activate` can run `--continue` **without** your laptop  
-- [ ] MIT CLI still has **no** Pro source; no `file:` / optionalDependency that resolves to this repo  
+- [x] Private Blob store `saymd-pro` linked to saymd-app (`BLOB_READ_WRITE_TOKEN`)
+- [x] Upload script: `saymd-app/scripts/upload-pro-blob.js` → `pro/saymd-pro.tgz`
+- [x] `POST /api/activate` returns `pro.version` + download path
+- [x] `POST /api/pro-download` streams tarball after valid activation code
+- [x] CLI `saymd activate <code>` downloads + `npm install --prefix ~/.saymd`
+- [ ] Redeploy saymd-app + one activate on a machine **without** `npm link` Pro
+- [ ] MIT CLI still has **no** Pro source; no `file:` dependency
+
+Re-upload after Pro releases:
+
+```bash
+cd ~/Documents/saymd-app
+vercel env pull .env.local --yes
+set -a && source .env.local && set +a
+node scripts/upload-pro-blob.js
+```
 
 ### B5. Invoicing (Hungary)
 

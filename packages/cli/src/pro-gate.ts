@@ -1,4 +1,5 @@
 import { loadLicense, saveLicense, type SaymdLicense } from './config.js';
+import { ensureProInstalled, importProModule } from './pro-install.js';
 
 export type ProFeature = 'continue' | 'review' | 'out';
 
@@ -16,18 +17,24 @@ function isShortActivationCode(raw: string): boolean {
   return n.length >= 16 && n.length <= 32 && /^[a-zA-Z0-9]+$/.test(n) && !raw.includes('.');
 }
 
-async function exchangeActivationCode(code: string): Promise<string> {
+async function exchangeActivationCode(
+  code: string
+): Promise<{ licenseKey: string; proVersion?: string }> {
   const res = await fetch(ACTIVATE_API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code: code.trim() }),
   });
-  const data = (await res.json()) as { licenseKey?: string; error?: string };
+  const data = (await res.json()) as {
+    licenseKey?: string;
+    error?: string;
+    pro?: { version?: string };
+  };
   if (!res.ok || !data.licenseKey) {
     console.error(data.error || 'Activation failed. Check your code or email support@saymd.app.');
     process.exit(1);
   }
-  return data.licenseKey;
+  return { licenseKey: data.licenseKey, proVersion: data.pro?.version };
 }
 
 export async function hasValidLicense(): Promise<boolean> {
@@ -68,14 +75,36 @@ Then:    saymd activate <activation-code>
 }
 
 export async function activateLicense(rawKey: string): Promise<void> {
+  let licenseRaw = rawKey.trim();
+  let proVersion: string | undefined;
+
+  if (isShortActivationCode(licenseRaw)) {
+    const exchanged = await exchangeActivationCode(licenseRaw);
+    try {
+      await ensureProInstalled({ code: licenseRaw, version: exchanged.proVersion, force: true });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`Could not install Pro: ${msg}`);
+      console.error('License was not saved. Email support@saymd.app if this persists.');
+      process.exit(1);
+    }
+    licenseRaw = exchanged.licenseKey;
+    proVersion = exchanged.proVersion;
+  } else {
+    // Full license key paste — Pro must already be resolvable (link or prior install).
+    const existing = await importPro();
+    if (!existing) {
+      console.error(
+        'Pro is not installed. Use the short activation code from saymd.app (not the raw license blob):\n  saymd activate <activation-code>'
+      );
+      process.exit(1);
+    }
+  }
+
   const pro = await importPro();
   if (!pro) {
-    console.error('Install Pro support: npm install -g @saymd/pro');
+    console.error('Pro install finished but module could not be loaded.');
     process.exit(1);
-  }
-  let licenseRaw = rawKey.trim();
-  if (isShortActivationCode(licenseRaw)) {
-    licenseRaw = await exchangeActivationCode(licenseRaw);
   }
   const license = pro.parseLicenseKey(licenseRaw);
   if (!pro.verifyLicense(license)) {
@@ -83,15 +112,12 @@ export async function activateLicense(rawKey: string): Promise<void> {
     process.exit(1);
   }
   await saveLicense(license as SaymdLicense);
-  console.log(`Activated Pro (${license.plan}) until ${license.validUntil}.`);
+  const verNote = proVersion ? ` · Pro ${proVersion}` : '';
+  console.log(`Activated Pro (${license.plan}) until ${license.validUntil}${verNote}.`);
 }
 
 async function importPro(): Promise<typeof import('@saymd/pro') | null> {
-  try {
-    return await import('@saymd/pro');
-  } catch {
-    return null;
-  }
+  return importProModule();
 }
 
 export async function runContinue(opts: {
@@ -108,7 +134,7 @@ export async function runContinue(opts: {
 
   const pro = await importPro();
   if (!pro) {
-    console.error('@saymd/pro not installed. npm install -g @saymd/pro');
+    console.error('@saymd/pro not installed. Run: saymd activate <activation-code>');
     process.exit(1);
   }
   return pro.mergeContinue(opts);
@@ -124,7 +150,7 @@ export async function runReview(opts: {
 
   const pro = await importPro();
   if (!pro) {
-    console.error('@saymd/pro not installed.');
+    console.error('@saymd/pro not installed. Run: saymd activate <activation-code>');
     process.exit(1);
   }
   await pro.reviewSpec(opts);

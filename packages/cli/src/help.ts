@@ -96,7 +96,7 @@ Useful commands
   saymd --help             full option list
   saymd doctor             check your installation
   saymd setup              configure or change provider / API key
-  saymd activate <code>    activate Pro
+  saymd activate <code>    activate Pro (downloads Pro automatically)
 
   Pro     ${PRO_URL}
   GitHub  ${GITHUB}
@@ -114,7 +114,7 @@ Usage
   saymd [--file audio] [options]
   saymd setup | doctor | help | config
   saymd config set provider <gemini|openai|deepgram|elevenlabs>
-  saymd activate <activation-code>
+  saymd activate <activation-code>   # downloads Pro into ~/.saymd automatically
 
 Free options
   --provider gemini|openai|deepgram|elevenlabs
