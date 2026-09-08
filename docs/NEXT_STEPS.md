@@ -70,13 +70,17 @@ There is no **A5** section in this checklist (A1–A4 only).
 
 ### B1. Stripe live mode
 
-- [ ] Dashboard → **Live** mode  
-- [ ] Products/prices €39/year + €5/month → new live `price_…` IDs  
-- [ ] Webhook on `https://saymd.app/api/stripe-webhook-saymd` with same event set → new `whsec_…`  
-- [ ] Customer portal live login URL → `STRIPE_SAYMD_BILLING_PORTAL_URL`  
-- [ ] Vercel **saymd-app** Production env: `STRIPE_SECRET_KEY` (`sk_live_…`), price IDs, webhook secret, portal URL  
-- [ ] Redeploy production  
-- [ ] One real €5 (or annual) purchase → activation code → `saymd activate`  
+- [x] Live API keys in local `.env` (`sk_live_…` / `pk_live_…` / live `whsec_…`)
+- [x] Product **saymd Pro** (`prod_VDtWLeTDbnjCzj`)
+- [x] Prices: annual €39 `price_1UDRjtIGJTdhOjjUqMNiuY0q`, monthly €5 `price_1UDRkHIGJTdhOjjUJ6TDhfP1`
+- [x] Coupon **LAUNCH50** (€10 off once → €29 first year)
+- [x] Webhook already live on `https://saymd.app/api/stripe-webhook-saymd`
+- [x] Billing portal **configuration** created (cancel at period end)
+- [x] Promotion code `LAUNCH50` active
+- [ ] Customer portal **login page** URL (Live) → update `STRIPE_SAYMD_BILLING_PORTAL_URL` (still has test URL locally)
+- [ ] Push live Stripe env vars to Vercel Production + Preview (CLI token expired — run `npx vercel login` then `node scripts/sync-stripe-env-to-vercel.js` in saymd-app)
+- [ ] Redeploy production
+- [ ] One real €5 (or annual) purchase → activation code → `saymd activate`
 
 ### B2. Site public
 
