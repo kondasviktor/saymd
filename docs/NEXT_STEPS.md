@@ -73,10 +73,10 @@ There is no **A5** section in this checklist (A1–A4 only).
 - [x] Live API keys in local `.env` (`sk_live_…` / `pk_live_…` / live `whsec_…`)
 - [x] Product **saymd Pro** (`prod_VDtWLeTDbnjCzj`)
 - [x] Prices: annual €39 `price_1UDRjtIGJTdhOjjUqMNiuY0q`, monthly €5 `price_1UDRkHIGJTdhOjjUJ6TDhfP1`
-- [x] Coupon **LAUNCH50** (€10 off once → €29 first year)
+- [x] Coupon €10 off once → €29 first year; promo code **`SAYMD29`** (newsletter only; not on site)
 - [x] Webhook already live on `https://saymd.app/api/stripe-webhook-saymd`
 - [x] Billing portal **configuration** created (cancel at period end)
-- [x] Promotion code `LAUNCH50` active
+- [x] Promotion code `SAYMD29` active (`LAUNCH50` deactivated)
 - [ ] Customer portal **login page** URL (Live) → update `STRIPE_SAYMD_BILLING_PORTAL_URL` (still has test URL locally)
 - [ ] Push live Stripe env vars to Vercel Production + Preview (CLI token expired — run `npx vercel login` then `node scripts/sync-stripe-env-to-vercel.js` in saymd-app)
 - [ ] Redeploy production

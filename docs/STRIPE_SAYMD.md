@@ -38,7 +38,7 @@ Same legal entity (Hungarian sole trader) can own both accounts — check with y
    - Signing secret → `STRIPE_SAYMD_WEBHOOK_SECRET`
 6. **Developers → API keys** — Secret key → `STRIPE_SECRET_KEY` (test mode first).
 
-Promo `LAUNCH50` (€29 first year): create coupon in Dashboard, enable promotion codes on Checkout (already in API).
+Promo `SAYMD29` (€10 off once → €29 first year on annual): newsletter-only — do **not** show on the website. Checkout already has `allow_promotion_codes: true`. Optional: set an expiry on the promotion code in Stripe when you decide the end date.
 
 ## Checkout billing fields
 

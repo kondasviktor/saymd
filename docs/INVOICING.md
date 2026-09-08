@@ -27,7 +27,7 @@ If **monthly subscribers exceed 10**, either:
 
 ## Launch promo
 
-- Stripe code `LAUNCH50` → first 50 annual at **€29** (configure in Stripe Dashboard).
+- Stripe code `SAYMD29` → €10 off once on annual (**€29** first year). Newsletter-only; not promoted on the website. Set an end date in Stripe when ready (no redemption cap).
 
 ## Grandfathering
 
