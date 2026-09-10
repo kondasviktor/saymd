@@ -33,11 +33,11 @@ test('polish recovers plan Context and saymd spelling', async () => {
 
 test('resolveUserPath keeps absolute outputs outside cwd', async () => {
   const { resolveUserPath } = await import('../src/paths.js');
-  const abs = '/Users/kondasviktor/Documents/saymd-test/.ai/03-plan.md';
-  assert.equal(resolveUserPath('/Users/kondasviktor/Documents/gemini-transcribe/saymd', abs), abs);
+  const abs = '/Users/kondasviktor/Documents/saymd/saymd-test/.ai/03-plan.md';
+  assert.equal(resolveUserPath('/Users/kondasviktor/Documents/saymd/cli', abs), abs);
   assert.equal(
-    resolveUserPath('/Users/kondasviktor/Documents/gemini-transcribe/saymd', '.ai/out.md'),
-    '/Users/kondasviktor/Documents/gemini-transcribe/saymd/.ai/out.md'
+    resolveUserPath('/Users/kondasviktor/Documents/saymd/cli', '.ai/out.md'),
+    '/Users/kondasviktor/Documents/saymd/cli/.ai/out.md'
   );
 });
 

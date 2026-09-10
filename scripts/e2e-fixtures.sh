@@ -2,8 +2,8 @@
 # Regenerate TTS fixtures + run Free saymd matrix (BYOK; not for CI).
 set -euo pipefail
 
-TEST_ROOT="${SAYMD_TEST_ROOT:-$HOME/Documents/saymd-test}"
-CLI="${SAYMD_CLI:-$HOME/Documents/gemini-transcribe/saymd/packages/cli/dist/cli.js}"
+TEST_ROOT="${SAYMD_TEST_ROOT:-$HOME/Documents/saymd/saymd-test}"
+CLI="${SAYMD_CLI:-$HOME/Documents/saymd/cli/packages/cli/dist/cli.js}"
 FIX="$TEST_ROOT/fixtures"
 OUT="$TEST_ROOT/.ai"
 

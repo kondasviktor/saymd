@@ -39,7 +39,7 @@ function fail(msg) {
 async function run() {
   let Stripe;
   try {
-    Stripe = require('/Users/kondasviktor/Documents/saymd-app/node_modules/stripe');
+    Stripe = require('/Users/kondasviktor/Documents/saymd/saymd-app/node_modules/stripe');
   } catch {
     try {
       Stripe = require('stripe');
@@ -49,7 +49,7 @@ async function run() {
     }
   }
 
-  const { neon } = require('/Users/kondasviktor/Documents/saymd-app/node_modules/@neondatabase/serverless');
+  const { neon } = require('/Users/kondasviktor/Documents/saymd/saymd-app/node_modules/@neondatabase/serverless');
 
   console.log(`Base: ${BASE}`);
   console.log('Env present:', [
@@ -230,7 +230,7 @@ async function run() {
   fs.renameSync(lic, bak);
   try {
     const cont = spawnSync(process.execPath, [CLI, '--continue', '.ai/01-feature.md', '--file', 'fixtures/01-feature-en.aiff'], {
-      cwd: path.join(process.env.HOME, 'Documents/saymd-test'),
+      cwd: path.join(process.env.HOME, 'Documents/saymd/saymd-test'),
       encoding: 'utf8',
     });
     const out = `${cont.stdout}\n${cont.stderr}`;
@@ -238,7 +238,7 @@ async function run() {
     else fail(`A2 Free gate continue unexpected status=${cont.status} out=${out.slice(0, 200)}`);
 
     const rev = spawnSync(process.execPath, [CLI, '--review', '.ai/01-feature.md'], {
-      cwd: path.join(process.env.HOME, 'Documents/saymd-test'),
+      cwd: path.join(process.env.HOME, 'Documents/saymd/saymd-test'),
       encoding: 'utf8',
     });
     const rout = `${rev.stdout}\n${rev.stderr}`;
@@ -248,7 +248,7 @@ async function run() {
     const outp = spawnSync(
       process.execPath,
       [CLI, '--out', 'en', '--file', 'fixtures/05-feature-hu.aiff', '-o', '.ai/gate-out.md'],
-      { cwd: path.join(process.env.HOME, 'Documents/saymd-test'), encoding: 'utf8' }
+      { cwd: path.join(process.env.HOME, 'Documents/saymd/saymd-test'), encoding: 'utf8' }
     );
     const oout = `${outp.stdout}\n${outp.stderr}`;
     if (/--out is Pro|is Pro/i.test(oout) && outp.status !== 0) ok('A2 Free gate: --out blocked without license');

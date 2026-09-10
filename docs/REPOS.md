@@ -38,9 +38,9 @@ lib/
 ## Local CLI + Pro (maintainers)
 
 ```bash
-cd ~/Documents/saymd-pro && npm install && npm run build && npm link
-cd ~/Documents/gemini-transcribe/saymd/packages/cli && npm link @saymd/pro
-cd ~/Documents/gemini-transcribe/saymd && npm run build -w saymd
+cd ~/Documents/saymd/saymd-pro && npm install && npm run build && npm link
+cd ~/Documents/saymd/cli/packages/cli && npm link @saymd/pro
+cd ~/Documents/saymd/cli && npm run build -w saymd
 ```
 
 Never add `file:…/saymd-pro` or `optionalDependencies` on `@saymd/pro` to the MIT `package.json`. The CLI loads Pro with a dynamic import after the user installs that package separately. Until `@saymd/pro` is published, `npm link` is the maintainer path.

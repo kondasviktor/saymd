@@ -18,8 +18,8 @@ All three GitHub repos stay **private** until you explicitly flip `saymd` public
 Run from a clean terminal with:
 
 ```bash
-alias saymd='node /Users/kondasviktor/Documents/gemini-transcribe/saymd/packages/cli/dist/cli.js'
-cd ~/Documents/saymd-test
+alias saymd='node /Users/kondasviktor/Documents/saymd/cli/packages/cli/dist/cli.js'
+cd ~/Documents/saymd/saymd-test
 ```
 
 Ensure `@saymd/pro` resolves via `npm link` (do not commit a `file:` path into the MIT repo).
@@ -111,7 +111,7 @@ There is no **A5** section in this checklist (A1–A4 only).
 Re-upload after Pro releases:
 
 ```bash
-cd ~/Documents/saymd-app
+cd ~/Documents/saymd/saymd-app
 vercel env pull .env.local --yes
 set -a && source .env.local && set +a
 node scripts/upload-pro-blob.js
@@ -153,11 +153,11 @@ node scripts/upload-pro-blob.js
 
 ```bash
 # Local CLI (dev)
-alias saymd='node ~/Documents/gemini-transcribe/saymd/packages/cli/dist/cli.js'
+alias saymd='node ~/Documents/saymd/cli/packages/cli/dist/cli.js'
 
 # Rebuild after Pro changes
-cd ~/Documents/saymd-pro && npm run build
-cd ~/Documents/gemini-transcribe/saymd && npm run build -w saymd
+cd ~/Documents/saymd/saymd-pro && npm run build
+cd ~/Documents/saymd/cli && npm run build -w saymd
 
 # A2–A4 ops smoke (uses saymd/.env)
 node scripts/a2-a4-ops-smoke.js
