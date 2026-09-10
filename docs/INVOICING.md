@@ -1,6 +1,6 @@
 # Szamlazz.hu invoicing — saymd Pro (manual v1)
 
-Annual-first to limit manual work. Same Stripe account as VCL Playbook.
+Annual-first to limit manual work. Dedicated **saymd** Stripe account only — never the VCL Playbook account.
 
 ## Trigger
 
@@ -28,10 +28,6 @@ If **monthly subscribers exceed 10**, either:
 ## Launch promo
 
 - Stripe code `SAYMD29` → €10 off once on annual (**€29** first year). Newsletter-only; not promoted on the website. Set an end date in Stripe when ready (no redemption cap).
-
-## Grandfathering
-
-- Early subscribers keep their price while subscription stays active — state on landing page.
 
 ## Refunds
 
