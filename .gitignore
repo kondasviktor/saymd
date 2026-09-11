@@ -2,9 +2,12 @@ node_modules/
 dist/
 *.log
 .env
-.env.local
+.env.*
+!.env.example
 keys.example.env
 .DS_Store
 packages/cli/dist/
+*.tgz
+*.bak
 tmp/
-Users/
+.npm/
