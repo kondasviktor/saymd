@@ -2,9 +2,17 @@
 
 **Speak once. Get a prompt file any agent can @.**
 
-Free MIT CLI. You bring your own speech-to-text key. saymd does not host audio or sell minutes.
+Free MIT CLI that turns microphone speech or audio files into structured Markdown prompts for Cursor, Claude Code, Codex, Copilot, Gemini CLI, and other agents. You bring your own speech-to-text key (**BYOK**). saymd does not host audio or sell transcription minutes.
 
 Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separate proprietary package**. It is not in this repository. Removing a check in this CLI does not unlock Pro.
+
+### Free includes
+
+- Mic **or** existing audio via `--file`
+- **85+ input languages** with automatic detection
+- Structured Markdown (not a raw transcript dump)
+- Templates: `feature`, `bug`, `plan` (or default headings)
+- Exact BYOK models: `gemini-3.5-transcribe`, `gpt-4o-transcribe`, `nova-3`, `scribe_v2`
 
 ## Start here — Free
 
@@ -14,22 +22,41 @@ npx saymd doctor
 npx saymd -o .ai/prompt.md --template feature --seconds 30
 ```
 
-Speak naturally, then press **Enter** when finished (you do not need to wait for the maximum).
+1. **setup** — choose a provider (Gemini recommended) and add your API key (clipboard or hidden paste; key stays on this machine).
+2. **doctor** — checks ffmpeg, microphone, provider, and API key.
+3. **record** — speak naturally, then press **Enter** when finished (you do not need to wait for the maximum).
 
-Open `.ai/prompt.md` and `@` it in Cursor, Claude Code, Codex, Gemini CLI, Copilot, or any agent that can read Markdown.
+Open `.ai/prompt.md` and `@` it in your agent.
 
 The raw transcript is not the main artifact — the structured spec is.
 
 Default output shape (no `--template`): **Objective / Context / Instructions / Constraints**.
 
-## Languages — Free
+## Languages — Free (85+)
 
-Auto-detect, 85+ languages. Markdown is written in the **same language you spoke**.
+saymd supports **more than 85 input languages** with **automatic detection**. On Free, every section of the Markdown is written in the **same language you spoke**.
+
+Examples:
+
+| You speak | Free output language | Optional flags |
+|-----------|----------------------|----------------|
+| English | English | _(auto)_ |
+| Hungarian | Hungarian | `saymd --lang hu` if auto-detect is wrong |
+| German | German | `saymd --lang de` |
+| Mixed / unclear | Detected language | `--lang` hint |
 
 ```bash
-saymd --lang hu          # optional hint if auto-detect is wrong
-saymd --out en           # Pro: speak one language, write the spec in another
+saymd --lang hu -o .ai/prompt.md --template feature
+saymd --file idea.m4a --lang de --template bug -o .ai/bug.md
 ```
+
+**Pro only:** speak in one language, write the spec in another:
+
+```bash
+saymd --out en           # e.g. speak Hungarian → English Markdown
+```
+
+Conventional tech identifiers (REST, Stripe, PostgreSQL, `saymd`, …) may stay in English inside otherwise native-language prose.
 
 ## Templates — Free
 
@@ -51,40 +78,54 @@ Supported audio: mp3, m4a, wav, ogg, opus, flac, webm, aiff, caf, mp4, mov
 
 ## Recording
 
-Press **Enter** to stop.
+Press **Enter** to stop — you do not need to wait for the maximum.
 
-- **Free:** up to 60 seconds per recording (default 60s)
-- **Pro:** default 120 seconds, up to 10 minutes per recording
+| Plan | Default | Max per recording |
+|------|---------|-------------------|
+| Free | 60s | 60s |
+| Pro | 120s | 10 minutes |
 
 ```bash
 saymd --seconds 30       # shorter first test
 ```
 
-## Providers — BYOK
+## Providers — BYOK (exact models)
 
-You pay the speech-to-text provider on your own account.
+**BYOK = Bring Your Own Key.** You create a key with the provider, paste it into `saymd setup`, and pay that provider directly. saymd never sells transcription credits.
 
-| Provider | Notes |
-|----------|--------|
-| **Gemini** (recommended) | STT + structuring |
-| OpenAI | STT + structuring |
-| Deepgram | STT only — also needs a Gemini or OpenAI key to structure Markdown |
-| ElevenLabs | STT only — same as Deepgram |
+All four models below are available on **Free**:
+
+| `--provider` | Exact model ID | What it does |
+|--------------|----------------|--------------|
+| `gemini` **(recommended)** | `gemini-3.5-transcribe` | Speech-to-text **and** Markdown structuring |
+| `openai` | `gpt-4o-transcribe` | Speech-to-text **and** Markdown structuring |
+| `deepgram` | `nova-3` | Speech-to-text only — also needs a Gemini or OpenAI key to structure Markdown |
+| `elevenlabs` | `scribe_v2` | Speech-to-text only — same as Deepgram |
 
 ```bash
-saymd setup                              # provider + key (clipboard or hidden paste)
+saymd setup                              # pick provider + paste key
 saymd config                             # current provider (never prints the key)
 saymd config set provider openai
+saymd --provider deepgram --file meeting.wav
 ```
 
-Keys live in `~/.saymd/config.json` (mode 0600) or env: `GEMINI_API_KEY`, `OPENAI_API_KEY`, `DEEPGRAM_API_KEY`, `ELEVENLABS_API_KEY`.
+Keys live in `~/.saymd/config.json` (mode **0600**) or environment variables:
+
+- `GEMINI_API_KEY`
+- `OPENAI_API_KEY`
+- `DEEPGRAM_API_KEY`
+- `ELEVENLABS_API_KEY`
+
+Get keys: [Google AI Studio](https://aistudio.google.com/app/apikey) · [OpenAI](https://platform.openai.com/api-keys) · [Deepgram](https://console.deepgram.com/) · [ElevenLabs](https://elevenlabs.io/)
+
+A typical ~60 second dictation is usually well under **$0.01** on your own key (provider pricing applies).
 
 ## Pro — when you need more
 
-Upgrade at [saymd.app](https://saymd.app), then:
+Upgrade at [saymd.app](https://saymd.app) (**€39/year** · **€5/month**), then:
 
 ```bash
-saymd activate <activation-code>
+saymd activate <activation-code>   # downloads @saymd/pro into ~/.saymd automatically
 saymd --continue .ai/prompt.md     # add more speech; merge into the same spec
 saymd --review .ai/prompt.md       # missing requirements, constraints, acceptance criteria
 saymd --out en                     # speak one language → write the spec in another
@@ -98,7 +139,7 @@ Pro implementation ships as `@saymd/pro` from a **private** repo. This MIT tree 
 
 API keys stay on this machine. Audio is sent only to the STT provider you chose, using your key. saymd does not receive your audio, transcripts, or prompt files.
 
-[Privacy](https://saymd.app/privacy.html)
+[Privacy policy](https://saymd.app/privacy.html)
 
 ## Requirements
 
@@ -107,19 +148,32 @@ API keys stay on this machine. Audio is sent only to the STT provider you chose,
 - macOS or Linux (Windows: WSL or `--file` only)
 
 ```bash
-saymd help                 # this start-here guide
+saymd help                 # start-here guide (matches this README)
 saymd --help               # full option list
+saymd doctor               # check your installation
+saymd setup                # configure or change provider / API key
+saymd activate <code>      # activate Pro
 ```
+
+## How you can help (please)
+
+1. ⭐ **Star this repo** if saymd is useful — stars help other developers find a Free BYOK voice-to-Markdown CLI, and they tell us the project is worth maintaining.
+2. 🍴 **Fork it** when you want to experiment, fix a bug, or adapt the Free CLI for your workflow — Pro stays out of this tree on purpose.
+3. 💻 **Try the Free CLI (BYOK)** — `npx saymd setup && npx saymd doctor`, then one short recording or `--file` clip, and [open an issue](https://github.com/kondasviktor/saymd/issues) if something breaks.
+4. ✉️ **[Subscribe to the Vibe Coder's Life newsletter](https://vibecoderslife.com/?utm_source=github&utm_medium=readme&utm_campaign=saymd#subscribe-email)** for product updates and developer tooling write-ups — no need to live in GitHub to stay in the loop.
+5. ☕ **[Buy Me a Coffee](https://buymeacoffee.com/kondasviktor)** if you want to support maintenance — optional tips help keep the Free MIT CLI updated.
+
+Site + Pro: [saymd.app](https://saymd.app/?utm_source=github&utm_medium=readme&utm_campaign=saymd)
 
 ## Repo layout
 
-This repository is the **MIT CLI only** (`packages/cli`).
+This repository is the **MIT CLI only** (`packages/cli` → npm package [`saymd`](https://www.npmjs.com/package/saymd)).
 
 | Repo | Role |
 |------|------|
-| `kondasviktor/saymd` | MIT CLI (this repo) |
+| [`kondasviktor/saymd`](https://github.com/kondasviktor/saymd) | MIT CLI (this repo) |
 | `kondasviktor/saymd-pro` | Private `@saymd/pro` — never MIT |
-| `kondasviktor/saymd-app` | Private landing + Stripe (Vercel → saymd.app) |
+| `kondasviktor/saymd-app` | Private landing + Stripe (Vercel → [saymd.app](https://saymd.app)) |
 
 See [docs/REPOS.md](./docs/REPOS.md).
 
