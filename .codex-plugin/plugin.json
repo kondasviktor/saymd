@@ -1,0 +1,19 @@
+{
+  "name": "saymd",
+  "version": "0.1.2",
+  "description": "Voice to structured Markdown prompts — run local saymd, then @ .ai/prompt.md",
+  "author": {
+    "name": "Viktor Kondás",
+    "email": "support@saymd.app"
+  },
+  "homepage": "https://saymd.app/?utm_source=codex&utm_medium=plugin&utm_campaign=saymd",
+  "repository": "https://github.com/kondasviktor/saymd",
+  "license": "MIT",
+  "keywords": ["voice", "markdown", "prompts", "cli", "byok"],
+  "skills": ["./skills/saymd"],
+  "interface": {
+    "displayName": "saymd",
+    "shortDescription": "Speak once. Get a prompt file any agent can @.",
+    "brandColor": "#2563eb"
+  }
+}

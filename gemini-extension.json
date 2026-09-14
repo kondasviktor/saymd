@@ -1,0 +1,6 @@
+{
+  "name": "saymd",
+  "version": "0.1.2",
+  "description": "Voice to structured Markdown prompts for AI coding agents. Free MIT CLI with BYOK.",
+  "contextFileName": "GEMINI.md"
+}

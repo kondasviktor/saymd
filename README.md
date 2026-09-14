@@ -32,6 +32,21 @@ npx saymd -o .ai/prompt.md --template feature --seconds 30
 
 ![saymd --file demo](./assets/demo.gif)
 
+## Install in Cursor / Claude / Codex / Gemini
+
+This repo is the plugin package (shared skill + slash commands). The Free CLI stays `npx saymd`.
+
+| Agent | Install |
+|-------|---------|
+| **Cursor** | Clone or add this repo as a plugin; local: symlink into `~/.cursor/plugins/local/saymd`. Manifest: `.cursor-plugin/plugin.json` |
+| **Claude Code** | `claude plugin marketplace add kondasviktor/saymd` then install **saymd**. Or submit/install from the community catalog after approval. |
+| **Codex** | Skills-only plugin (`.codex-plugin/plugin.json`). Submit via OpenAI plugin portal after identity verification. |
+| **Gemini CLI** | `gemini extensions install https://github.com/kondasviktor/saymd` (root `gemini-extension.json` + `GEMINI.md`) |
+
+Slash commands: `/saymd`, `/saymd-feature`, `/saymd-bug`, `/saymd-plan`, `/saymd-continue`, `/saymd-review`, `/saymd-out`.
+
+Native loop: run local CLI → `@` `.ai/prompt.md` → offer to implement. Pro CTAs use `?utm_source=<agent>&utm_medium=plugin`.
+
 The raw transcript is not the main artifact — the structured spec is.
 
 Default output shape (no `--template`): **Objective / Context / Instructions / Constraints**.

@@ -7,7 +7,8 @@
   "scripts": {
     "build": "npm run build -w saymd",
     "test": "npm run test -w saymd",
-    "typecheck": "npm run typecheck -w saymd"
+    "typecheck": "npm run typecheck -w saymd",
+    "validate:plugins": "node scripts/validate-plugin-manifests.js"
   },
   "engines": {
     "node": ">=20"

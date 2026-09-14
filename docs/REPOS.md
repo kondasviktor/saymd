@@ -11,14 +11,21 @@ Do **not** put Pro implementation into this MIT CLI repo (even behind a license 
 ## Layout (this repo)
 
 ```text
-packages/cli/     # npm package `saymd`
-skills/saymd/     # optional agent skill
-wrappers/         # marketplace stubs (not published yet)
+packages/cli/              # npm package `saymd`
+skills/saymd/              # shared Agent Skill
+commands/                  # slash commands (/saymd, …)
+plugin.json                # Agent Plugins (skills only)
+gemini-extension.json      # Gemini CLI gallery (repo root)
+GEMINI.md
+.cursor-plugin/            # Cursor manifest
+.claude-plugin/            # Claude Code + marketplace.json
+.codex-plugin/             # Codex skills-only manifest
+assets/                    # logo, icon-512, demo.gif
+wrappers/huggingface/      # static HF Space pointer
 README.md
 LICENSE
 docs/REPOS.md
 ```
-
 ## Develop
 
 ```bash
