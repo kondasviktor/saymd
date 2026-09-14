@@ -2,7 +2,9 @@
 
 **Speak once. Get a prompt file any agent can @.**
 
-Free MIT CLI that turns microphone speech or audio files into structured Markdown prompts for Cursor, Claude Code, Codex, Copilot, Gemini CLI, and other agents. You bring your own speech-to-text key (**BYOK**). saymd does not host audio or sell transcription minutes.
+Agents execute. saymd delivers a usable spec — a Free MIT CLI that turns microphone speech or audio files into structured Markdown prompts. You bring your own speech-to-text key (**BYOK**). saymd does not host audio or sell transcription minutes.
+
+**Works with:** Cursor · Claude Code · Codex · GitHub Copilot · Gemini CLI · OpenCode (and any agent that can `@` a Markdown file).
 
 Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separate proprietary package**. It is not in this repository. Removing a check in this CLI does not unlock Pro.
 
@@ -16,17 +18,17 @@ Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separat
 
 ## Start here — Free
 
+1. **Install** — `npx saymd setup` (pick a provider; key stays on this machine).
+2. **Speak** — mic or `--file`; press **Enter** to stop (you do not need to wait for the maximum).
+3. **@ the prompt** — open `.ai/prompt.md` in your agent.
+
 ```bash
 npx saymd setup
 npx saymd doctor
 npx saymd -o .ai/prompt.md --template feature --seconds 30
 ```
 
-1. **setup** — choose a provider (Gemini recommended) and add your API key (clipboard or hidden paste; key stays on this machine).
-2. **doctor** — checks ffmpeg, microphone, provider, and API key.
-3. **record** — speak naturally, then press **Enter** when finished (you do not need to wait for the maximum).
-
-Open `.ai/prompt.md` and `@` it in your agent.
+`doctor` checks ffmpeg, microphone, provider, and API key before your first run.
 
 The raw transcript is not the main artifact — the structured spec is.
 
