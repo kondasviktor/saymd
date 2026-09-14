@@ -1,0 +1,5 @@
+# Local tooling / large media for regenerating demos
+agg
+demo-idea.aiff
+demo-idea.wav
+*.cast.bak

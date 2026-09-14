@@ -30,6 +30,8 @@ npx saymd -o .ai/prompt.md --template feature --seconds 30
 
 `doctor` checks ffmpeg, microphone, provider, and API key before your first run.
 
+![saymd --file demo](./assets/demo.gif)
+
 The raw transcript is not the main artifact — the structured spec is.
 
 Default output shape (no `--template`): **Objective / Context / Instructions / Constraints**.
