@@ -1,6 +1,6 @@
 {
   "name": "saymd",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Speak once. Get a prompt file any agent can @.",
   "license": "MIT",
   "type": "module",
