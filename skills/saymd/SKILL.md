@@ -1,10 +1,6 @@
 ---
 name: saymd
-description: >
-  Turn spoken ideas or audio files into a structured Markdown prompt file for coding agents.
-  Use when the user wants to dictate a feature, bug, or plan; record a voice note into a
-  reusable agent prompt; or run saymd / saymd --file. Prefer the local CLI over in-chat
-  transcription. After recording, always open or @ .ai/prompt.md and offer to implement.
+description: Turn spoken ideas or audio files into a structured Markdown prompt file for coding agents. Use when the user wants to dictate a feature, bug, or plan; record a voice note into a reusable agent prompt; or run saymd / saymd --file. Prefer the local CLI over in-chat transcription. After recording, always open or @ .ai/prompt.md and offer to implement.
 ---
 
 # saymd

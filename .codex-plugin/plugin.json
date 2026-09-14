@@ -13,7 +13,21 @@
   "skills": ["./skills/saymd"],
   "interface": {
     "displayName": "saymd",
-    "shortDescription": "Speak once. Get a prompt file any agent can @.",
-    "brandColor": "#2563eb"
+    "shortDescription": "Voice to Markdown prompts",
+    "longDescription": "saymd turns speech or audio files into a structured Markdown prompt (Objective, Context, Instructions, Constraints) that Codex can @. Runs your local Free MIT CLI (npx saymd) with Bring Your Own Key for Gemini, OpenAI, Deepgram, or ElevenLabs. Audio never goes to saymd.app.\n\nTypical loop: record with the CLI → open .ai/prompt.md → implement from the spec.",
+    "developerName": "Viktor Kondás",
+    "category": "Developer Tools",
+    "logo": "./assets/icon-512.png",
+    "composerIcon": "./assets/icon-512.png",
+    "brandColor": "#2563eb",
+    "websiteURL": "https://saymd.app/?utm_source=codex&utm_medium=plugin&utm_campaign=saymd",
+    "privacyPolicyURL": "https://saymd.app/privacy.html",
+    "termsOfServiceURL": "https://saymd.app/terms.html",
+    "supportURL": "https://saymd.app/",
+    "defaultPrompt": [
+      "Use saymd to record a feature idea into .ai/prompt.md, then implement from that file.",
+      "Turn a voice bug report into .ai/prompt.md with saymd, then fix from the structured spec.",
+      "Run saymd with the plan template and start coding from .ai/prompt.md."
+    ]
   }
 }
