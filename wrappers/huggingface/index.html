@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>saymd — Voice to structured Markdown prompts</title>
+  <meta name="description" content="Free MIT CLI: turn speech into structured Markdown prompts for AI coding agents. BYOK. Not a hosted demo." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <p class="kicker">Free MIT CLI · BYOK</p>
+    <h1>saymd</h1>
+    <p class="slogan">Speak once. Get a prompt file any agent can @.</p>
+    <p class="lead">
+      Agents execute. saymd delivers a usable spec — structured Markdown from messy speech,
+      ready for Cursor, Claude Code, Codex, Copilot, Gemini CLI, OpenCode, and more.
+    </p>
+    <div class="callout">
+      <strong>Not a hosted demo.</strong> This Hugging Face Space only points to the CLI.
+      Audio and keys stay with the STT provider you choose — not here, and not on saymd.app.
+    </div>
+    <div class="actions">
+      <a class="btn btn-primary" href="https://saymd.app/?utm_source=huggingface&amp;utm_medium=space&amp;utm_campaign=saymd">Open saymd.app</a>
+      <a class="btn" href="#install">Install Free CLI</a>
+      <a class="btn" href="https://github.com/kondasviktor/saymd">GitHub</a>
+    </div>
+  </header>
+
+  <section id="install">
+    <h2>Install → Speak → @prompt.md</h2>
+    <ol class="steps">
+      <li><strong>Install</strong> — <code>npx saymd setup</code></li>
+      <li><strong>Speak</strong> — mic or <code>--file</code>; get <code>.ai/prompt.md</code></li>
+      <li><strong>@ the prompt</strong> — open it in your agent</li>
+    </ol>
+    <pre class="terminal"><code>npx saymd setup
+npx saymd doctor
+npx saymd -o .ai/prompt.md --template feature --seconds 30</code></pre>
+  </section>
+
+  <section>
+    <h2>What you get</h2>
+    <div class="cards">
+      <article class="card">
+        <h3>Structured Markdown</h3>
+        <p>Objective, Context, Instructions, Constraints — not a raw transcript dump.</p>
+      </article>
+      <article class="card">
+        <h3>Agent-independent</h3>
+        <p>One prompt file you can version, share, and reuse across tools.</p>
+      </article>
+      <article class="card">
+        <h3>BYOK models</h3>
+        <p><code>gemini-3.5-transcribe</code> · <code>gpt-4o-transcribe</code> · <code>nova-3</code> · <code>scribe_v2</code></p>
+      </article>
+    </div>
+  </section>
+
+  <aside class="cta">
+    <h2>Free CLI is MIT. Pro is separate.</h2>
+    <p class="note">Core CLI is open source. Pro adds <code>--continue</code>, <code>--review</code>, cross-language <code>--out</code>, and project vocab.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="https://saymd.app/?utm_source=huggingface&amp;utm_medium=space&amp;utm_campaign=saymd">saymd.app</a>
+      <a class="btn" href="https://github.com/kondasviktor/saymd">Star on GitHub</a>
+      <a class="btn" href="https://vibecoderslife.com/?utm_source=huggingface&amp;utm_medium=space&amp;utm_campaign=saymd#subscribe-email">VCL newsletter</a>
+    </div>
+  </aside>
+
+  <footer>
+    <p>MIT CLI · Space is a static pointer · Canonical product: <a href="https://saymd.app/?utm_source=huggingface&amp;utm_medium=space&amp;utm_campaign=saymd">saymd.app</a> · Source: <a href="https://github.com/kondasviktor/saymd">GitHub</a></p>
+  </footer>
+</body>
+</html>

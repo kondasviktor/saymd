@@ -165,7 +165,7 @@ saymd activate <code>      # activate Pro
 4. ✉️ **[Subscribe to the Vibe Coder's Life newsletter](https://vibecoderslife.com/?utm_source=github&utm_medium=readme&utm_campaign=saymd#subscribe-email)** for product updates and developer tooling write-ups — no need to live in GitHub to stay in the loop.
 5. ☕ **[Buy Me a Coffee](https://buymeacoffee.com/kondasviktor)** if you want to support maintenance — optional tips help keep the Free MIT CLI updated.
 
-Site + Pro: [saymd.app](https://saymd.app/?utm_source=github&utm_medium=readme&utm_campaign=saymd)
+Site + Pro: [saymd.app](https://saymd.app/?utm_source=github&utm_medium=readme&utm_campaign=saymd) · Hugging Face Space (pointer, not a demo): [kondasviktor/saymd](https://huggingface.co/spaces/kondasviktor/saymd)
 
 ## Repo layout
 
