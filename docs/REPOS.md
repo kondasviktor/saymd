@@ -14,9 +14,9 @@ Do **not** put Pro implementation into this MIT CLI repo (even behind a license 
 packages/cli/              # npm package `saymd`
 skills/saymd/              # shared Agent Skill
 commands/                  # slash commands (/saymd, …)
-plugin.json                # Agent Plugins (skills only)
-gemini-extension.json      # Gemini CLI gallery (repo root)
-GEMINI.md
+plugin.json                # Antigravity CLI (`agy`) + Agent Plugins (skills/)
+gemini-extension.json      # Legacy Gemini CLI / `agy plugin import gemini`
+GEMINI.md                  # Workspace context (Antigravity still reads this)
 .cursor-plugin/            # Cursor manifest
 .claude-plugin/            # Claude Code + marketplace.json
 .codex-plugin/             # Codex skills-only manifest

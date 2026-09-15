@@ -78,8 +78,12 @@ for (const c of cmds) {
   else ok(`commands/${c}.md`);
 }
 
+const rootPlugin = readJson('plugin.json');
+if (rootPlugin && rootPlugin.name !== 'saymd') fail('plugin.json name must be saymd');
+else if (rootPlugin) ok('plugin.json name=saymd (Antigravity + Agent Plugins)');
+
 if (!fs.existsSync(path.join(ROOT, 'GEMINI.md'))) fail('missing GEMINI.md');
-else ok('GEMINI.md');
+else ok('GEMINI.md (Antigravity still loads this as workspace context)');
 if (!fs.existsSync(path.join(ROOT, 'assets/logo.svg'))) fail('missing assets/logo.svg');
 else ok('assets/logo.svg');
 

@@ -1,6 +1,14 @@
-# saymd (Gemini CLI)
+# saymd (Antigravity CLI / Gemini CLI)
 
 Voice → structured Markdown prompt for coding agents.
+
+Antigravity CLI (`agy`) replaced Gemini CLI for personal Google AI accounts (June 2026). This file still loads as workspace context. Install the plugin with:
+
+```bash
+agy plugin install https://github.com/kondasviktor/saymd
+```
+
+Enterprise Gemini CLI users: `gemini extensions install https://github.com/kondasviktor/saymd`
 
 ## Setup
 
@@ -23,4 +31,4 @@ Use the **saymd** skill for the full speak → CLI → `@prompt.md` → implemen
 
 ## Pro
 
-`--continue`, `--review`, `--out`: https://saymd.app/?utm_source=gemini&utm_medium=plugin&utm_campaign=saymd
+`--continue`, `--review`, `--out`: https://saymd.app/?utm_source=antigravity&utm_medium=plugin&utm_campaign=saymd

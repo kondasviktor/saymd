@@ -23,7 +23,7 @@ Output: Objective / Context / Instructions / Constraints
 (The raw transcript is not the main artifact — the structured spec is.)
 
 Then open .ai/prompt.md and @ it in Cursor, Claude Code, Codex,
-Gemini CLI, Copilot, or any AI agent that can read Markdown.
+Antigravity CLI, Copilot, or any AI agent that can read Markdown.
 
 Languages — Free
 ────────────────

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
   "name": "saymd",
   "version": "0.1.2",
   "description": "Voice to structured Markdown prompts for AI coding agents. Free MIT CLI with BYOK — speak once, then @ the prompt file.",
@@ -6,10 +7,10 @@
     "name": "Viktor Kondás",
     "email": "support@saymd.app"
   },
-  "homepage": "https://saymd.app/?utm_source=github&utm_medium=plugin&utm_campaign=saymd",
+  "homepage": "https://saymd.app/?utm_source=antigravity&utm_medium=plugin&utm_campaign=saymd",
   "repository": "https://github.com/kondasviktor/saymd",
   "license": "MIT",
-  "keywords": ["voice", "markdown", "prompts", "cli", "byok", "cursor", "claude", "codex", "gemini"],
+  "keywords": ["voice", "markdown", "prompts", "cli", "byok", "cursor", "claude", "codex", "antigravity", "gemini"],
   "logo": "assets/logo.svg",
   "skills": ["skills/saymd"]
 }

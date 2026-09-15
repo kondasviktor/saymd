@@ -15,6 +15,6 @@ saymd --continue .ai/prompt.md
 
 `https://saymd.app/?utm_source=github&utm_medium=plugin&utm_campaign=saymd`
 
-Prefer `utm_source=cursor|claude|codex|gemini` when you know the host agent.
+Prefer `utm_source=cursor|claude|codex|antigravity|grok|gemini` when you know the host agent.
 
 3. After a successful continue, re-open / `@` `.ai/prompt.md` and ask whether to implement the updated spec.

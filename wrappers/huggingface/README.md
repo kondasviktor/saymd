@@ -20,7 +20,7 @@ tags:
 
 **Not a hosted demo.** This Space is a pointer to the Free MIT CLI.
 
-Agents execute. saymd delivers a usable spec — speak (or pass `--file`), get a structured Markdown prompt, then `@` it in Cursor, Claude Code, Codex, Copilot, Gemini CLI, OpenCode, or any agent that reads Markdown.
+Agents execute. saymd delivers a usable spec — speak (or pass `--file`), get a structured Markdown prompt, then `@` it in Cursor, Claude Code, Codex, Copilot, Antigravity CLI, OpenCode, or any agent that reads Markdown.
 
 ## Start here
 

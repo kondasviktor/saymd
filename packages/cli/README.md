@@ -2,7 +2,7 @@
 
 **Speak once. Get a prompt file any agent can @.**
 
-Agents execute. saymd delivers a usable spec. Free MIT CLI — bring your own speech-to-text key (**BYOK**). Works with Cursor · Claude Code · Codex · GitHub Copilot · Gemini CLI · OpenCode. Pro is a **separate proprietary package** (`@saymd/pro`) — not in this package.
+Agents execute. saymd delivers a usable spec. Free MIT CLI — bring your own speech-to-text key (**BYOK**). Works with Cursor · Claude Code · Codex · GitHub Copilot · Antigravity CLI · OpenCode. Pro is a **separate proprietary package** (`@saymd/pro`) — not in this package.
 
 ### Free includes
 
@@ -19,7 +19,7 @@ npx saymd doctor
 npx saymd -o .ai/prompt.md --template feature --seconds 30
 ```
 
-Speak, press **Enter** to stop, then `@` `.ai/prompt.md` in Cursor, Claude Code, Codex, Copilot, Gemini CLI, OpenCode, or any agent that can read Markdown.
+Speak, press **Enter** to stop, then `@` `.ai/prompt.md` in Cursor, Claude Code, Codex, Copilot, Antigravity CLI, OpenCode, or any agent that can read Markdown.
 
 Default output (no `--template`): **Objective / Context / Instructions / Constraints**.
 

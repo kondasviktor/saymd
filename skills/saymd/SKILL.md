@@ -38,7 +38,7 @@ If you only print install instructions without running the CLI and reading the f
 
 Pro is license-gated in the CLI. On a paywall message, send the user to:
 
-`https://saymd.app/?utm_source=<cursor|claude|codex|gemini>&utm_medium=plugin&utm_campaign=saymd`
+`https://saymd.app/?utm_source=<cursor|claude|codex|antigravity|grok|gemini>&utm_medium=plugin&utm_campaign=saymd`
 
 Use the host agent name as `utm_source`. Fallback: `utm_source=github`.
 
