@@ -7,6 +7,7 @@ Agents execute. saymd delivers a usable spec — a Free MIT CLI that turns micro
 **Works with:** Cursor · Claude Code · Codex · Grok Build · GitHub Copilot · Gemini CLI · OpenCode (and any agent that can `@` a Markdown file).
 
 [![Codex / ChatGPT plugin](https://img.shields.io/badge/Codex%20%2F%20ChatGPT-Plugin%20Directory-412991?style=flat-square)](https://chatgpt.com/plugins/plugins_6aa7de5bf4f48191b8eb88fcf33e2f24)
+[![Grok Build plugin](https://img.shields.io/badge/Grok%20Build-Plugin-111111?style=flat-square)](https://github.com/kondasviktor/saymd)
 [![Gemini CLI extension](https://img.shields.io/badge/Gemini%20CLI-Extension-1a73e8?style=flat-square)](https://github.com/kondasviktor/saymd)
 
 Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separate proprietary package**. It is not in this repository. Removing a check in this CLI does not unlock Pro.
