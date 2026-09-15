@@ -1,0 +1,28 @@
+{
+  "name": "saymd-marketplace",
+  "owner": {
+    "name": "Viktor Kondás",
+    "email": "support@saymd.app"
+  },
+  "metadata": {
+    "description": "saymd — voice to structured Markdown prompts for coding agents",
+    "version": "0.1.2"
+  },
+  "plugins": [
+    {
+      "name": "saymd",
+      "source": "./",
+      "description": "Speak once. Get a prompt file any agent can @. Free MIT CLI with BYOK.",
+      "version": "0.1.2",
+      "author": {
+        "name": "Viktor Kondás",
+        "email": "support@saymd.app"
+      },
+      "homepage": "https://saymd.app/?utm_source=grok&utm_medium=plugin&utm_campaign=saymd",
+      "repository": "https://github.com/kondasviktor/saymd",
+      "license": "MIT",
+      "keywords": ["saymd", "saymd prompt"],
+      "category": "development"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 
 Agents execute. saymd delivers a usable spec — a Free MIT CLI that turns microphone speech or audio files into structured Markdown prompts. You bring your own speech-to-text key (**BYOK**). saymd does not host audio or sell transcription minutes.
 
-**Works with:** Cursor · Claude Code · Codex · GitHub Copilot · Gemini CLI · OpenCode (and any agent that can `@` a Markdown file).
+**Works with:** Cursor · Claude Code · Codex · Grok Build · GitHub Copilot · Gemini CLI · OpenCode (and any agent that can `@` a Markdown file).
 
 [![Codex / ChatGPT plugin](https://img.shields.io/badge/Codex%20%2F%20ChatGPT-Plugin%20Directory-412991?style=flat-square)](https://chatgpt.com/plugins/plugins_6aa7de5bf4f48191b8eb88fcf33e2f24)
 [![Gemini CLI extension](https://img.shields.io/badge/Gemini%20CLI-Extension-1a73e8?style=flat-square)](https://github.com/kondasviktor/saymd)
@@ -35,7 +35,7 @@ npx saymd -o .ai/prompt.md --template feature --seconds 30
 
 ![saymd --file demo](./assets/demo.gif)
 
-## Install in Cursor / Claude / Codex / Gemini
+## Install in Cursor / Claude / Codex / Grok / Gemini
 
 This repo is the plugin package (shared skill + slash commands). The Free CLI stays `npx saymd`.
 
@@ -44,6 +44,7 @@ This repo is the plugin package (shared skill + slash commands). The Free CLI st
 | **Cursor** | Clone or add this repo as a plugin; local: symlink into `~/.cursor/plugins/local/saymd`. Manifest: `.cursor-plugin/plugin.json` |
 | **Claude Code** | `claude plugin marketplace add kondasviktor/saymd` then install **saymd**. Or submit/install from the community catalog after approval. |
 | **Codex** | Listed in the [OpenAI Plugins Directory](https://chatgpt.com/plugins/plugins_6aa7de5bf4f48191b8eb88fcf33e2f24) (ChatGPT + Codex). Manifest: `.codex-plugin/plugin.json` |
+| **Grok Build** | DIY: `grok plugin marketplace add kondasviktor/saymd` then install **saymd**. Official catalog PR pending ([xai-org/plugin-marketplace](https://github.com/xai-org/plugin-marketplace)). Manifest: `.grok-plugin/plugin.json` |
 | **Gemini CLI** | `gemini extensions install https://github.com/kondasviktor/saymd` (root `gemini-extension.json` + `GEMINI.md`) |
 
 Slash commands: `/saymd`, `/saymd-feature`, `/saymd-bug`, `/saymd-plan`, `/saymd-continue`, `/saymd-review`, `/saymd-out`.

@@ -1,0 +1,13 @@
+{
+  "name": "saymd",
+  "version": "0.1.2",
+  "description": "Voice to structured Markdown prompts — run local saymd, then @ .ai/prompt.md",
+  "author": {
+    "name": "Viktor Kondás",
+    "email": "support@saymd.app"
+  },
+  "homepage": "https://saymd.app/?utm_source=grok&utm_medium=plugin&utm_campaign=saymd",
+  "repository": "https://github.com/kondasviktor/saymd",
+  "license": "MIT",
+  "keywords": ["saymd", "saymd prompt", "saymd voice"]
+}
