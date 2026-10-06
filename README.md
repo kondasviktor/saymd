@@ -22,14 +22,14 @@ Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separat
 
 ## Start here — Free
 
-1. **Install** — `npx saymd setup` (pick a provider; key stays on this machine).
+1. **Install** — `npx saymd@0.1.2 setup` (pick a provider; key stays on this machine).
 2. **Speak** — mic or `--file`; press **Enter** to stop (you do not need to wait for the maximum).
 3. **@ the prompt** — open `.ai/prompt.md` in your agent.
 
 ```bash
-npx saymd setup
-npx saymd doctor
-npx saymd -o .ai/prompt.md --template feature --seconds 30
+npx saymd@0.1.2 setup
+npx saymd@0.1.2 doctor
+npx saymd@0.1.2 -o .ai/prompt.md --template feature --seconds 30
 ```
 
 `doctor` checks ffmpeg, microphone, provider, and API key before your first run.
@@ -38,7 +38,7 @@ npx saymd -o .ai/prompt.md --template feature --seconds 30
 
 ## Install in Cursor / Claude / Codex / Grok / Antigravity
 
-This repo is the plugin package (shared skill + slash commands). The Free CLI stays `npx saymd`.
+This repo is the plugin package (shared skill + slash commands). The Free CLI stays `npx saymd@0.1.2`.
 
 | Agent | Install |
 |-------|---------|
@@ -184,7 +184,7 @@ saymd activate <code>      # activate Pro
 
 1. ⭐ **Star this repo** if saymd is useful — stars help other developers find a Free BYOK voice-to-Markdown CLI, and they tell us the project is worth maintaining.
 2. 🍴 **Fork it** when you want to experiment, fix a bug, or adapt the Free CLI for your workflow — Pro stays out of this tree on purpose.
-3. 💻 **Try the Free CLI (BYOK)** — `npx saymd setup && npx saymd doctor`, then one short recording or `--file` clip, and [open an issue](https://github.com/kondasviktor/saymd/issues) if something breaks.
+3. 💻 **Try the Free CLI (BYOK)** — `npx saymd@0.1.2 setup && npx saymd@0.1.2 doctor`, then one short recording or `--file` clip, and [open an issue](https://github.com/kondasviktor/saymd/issues) if something breaks.
 4. ✉️ **[Subscribe to the Vibe Coder's Life newsletter](https://vibecoderslife.com/?utm_source=github&utm_medium=readme&utm_campaign=saymd#subscribe-email)** for product updates and developer tooling write-ups — no need to live in GitHub to stay in the loop.
 5. ☕ **[Buy Me a Coffee](https://buymeacoffee.com/kondasviktor)** if you want to support maintenance — optional tips help keep the Free MIT CLI updated.
 

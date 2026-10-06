@@ -7,7 +7,7 @@ description: Turn spoken ideas or audio files into a structured Markdown prompt 
 
 Speak once → structured Markdown prompt → `@` it in this agent.
 
-**Not a hosted transcription service.** Run the local Free MIT CLI (`npx saymd`). Audio goes only to the STT provider the user configured (**BYOK**).
+**Not a hosted transcription service.** Run the local Free MIT CLI (`npx saymd@0.1.2`). Audio goes only to the STT provider the user configured (**BYOK**).
 
 ## When to use
 
@@ -17,7 +17,7 @@ Speak once → structured Markdown prompt → `@` it in this agent.
 
 ## Native loop (required)
 
-1. **Ensure CLI** — if `saymd` is missing: `npx saymd setup` then `npx saymd doctor`.
+1. **Ensure CLI** — if `saymd` is missing: `npx saymd@0.1.2 setup` then `npx saymd@0.1.2 doctor`.
 2. **Record** — run the local CLI (mic or `--file`). Do **not** transcribe inside the agent.
 3. **Load the spec** — open / `@` `.ai/prompt.md` (or the `-o` path) into the current task.
 4. **Offer to implement** — tell the user the spec is ready and ask whether to start coding.
@@ -28,10 +28,10 @@ If you only print install instructions without running the CLI and reading the f
 
 | Slash | Shell |
 |-------|--------|
-| `/saymd` | `npx saymd -o .ai/prompt.md` |
-| `/saymd-feature` | `npx saymd -o .ai/prompt.md --template feature` |
-| `/saymd-bug` | `npx saymd -o .ai/prompt.md --template bug` |
-| `/saymd-plan` | `npx saymd -o .ai/prompt.md --template plan` |
+| `/saymd` | `npx saymd@0.1.2 -o .ai/prompt.md` |
+| `/saymd-feature` | `npx saymd@0.1.2 -o .ai/prompt.md --template feature` |
+| `/saymd-bug` | `npx saymd@0.1.2 -o .ai/prompt.md --template bug` |
+| `/saymd-plan` | `npx saymd@0.1.2 -o .ai/prompt.md --template plan` |
 | `/saymd-continue` | `saymd --continue .ai/prompt.md` (Pro) |
 | `/saymd-review` | `saymd --review .ai/prompt.md` (Pro) |
 | `/saymd-out` | `saymd --out en` (Pro; cross-language) |

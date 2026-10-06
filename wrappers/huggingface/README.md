@@ -25,7 +25,7 @@ Agents execute. saymd delivers a usable spec — speak (or pass `--file`), get a
 ## Start here
 
 1. Open **[saymd.app](https://saymd.app/?utm_source=huggingface&utm_medium=space&utm_campaign=saymd)**
-2. Or install locally: `npx saymd setup`
+2. Or install locally: `npx saymd@0.1.2 setup`
 3. Secondary: [GitHub](https://github.com/kondasviktor/saymd)
 
 **BYOK** — Bring Your Own Key (Gemini, OpenAI, Deepgram, or ElevenLabs). Audio goes to the provider you chose, not to saymd.app.

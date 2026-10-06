@@ -14,7 +14,7 @@
   "interface": {
     "displayName": "saymd",
     "shortDescription": "Voice to Markdown prompts",
-    "longDescription": "saymd turns speech or audio files into a structured Markdown prompt (Objective, Context, Instructions, Constraints) that Codex can @. Runs your local Free MIT CLI (npx saymd) with Bring Your Own Key for Gemini, OpenAI, Deepgram, or ElevenLabs. Audio never goes to saymd.app.\n\nTypical loop: record with the CLI → open .ai/prompt.md → implement from the spec.",
+    "longDescription": "saymd turns speech or audio files into a structured Markdown prompt (Objective, Context, Instructions, Constraints) that Codex can @. Runs your local Free MIT CLI (npx saymd@0.1.2) with Bring Your Own Key for Gemini, OpenAI, Deepgram, or ElevenLabs. Audio never goes to saymd.app.\n\nTypical loop: record with the CLI → open .ai/prompt.md → implement from the spec.",
     "developerName": "Viktor Kondás",
     "category": "Developer Tools",
     "logo": "./assets/icon-512.png",

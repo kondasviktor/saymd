@@ -13,8 +13,8 @@ Enterprise Gemini CLI users: `gemini extensions install https://github.com/konda
 ## Setup
 
 ```bash
-npx saymd setup
-npx saymd doctor
+npx saymd@0.1.2 setup
+npx saymd@0.1.2 doctor
 ```
 
 Bring Your Own Key (Gemini, OpenAI, Deepgram, or ElevenLabs). Audio goes to the provider you chose — not to saymd.app.
@@ -22,7 +22,7 @@ Bring Your Own Key (Gemini, OpenAI, Deepgram, or ElevenLabs). Audio goes to the 
 ## Record a prompt
 
 ```bash
-npx saymd -o .ai/prompt.md --template feature
+npx saymd@0.1.2 -o .ai/prompt.md --template feature
 ```
 
 Then open / `@` `.ai/prompt.md` in this session and offer to implement.

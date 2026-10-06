@@ -14,9 +14,9 @@ Agents execute. saymd delivers a usable spec. Free MIT CLI — bring your own sp
 ## Start here — Free
 
 ```bash
-npx saymd setup
-npx saymd doctor
-npx saymd -o .ai/prompt.md --template feature --seconds 30
+npx saymd@0.1.2 setup
+npx saymd@0.1.2 doctor
+npx saymd@0.1.2 -o .ai/prompt.md --template feature --seconds 30
 ```
 
 Speak, press **Enter** to stop, then `@` `.ai/prompt.md` in Cursor, Claude Code, Codex, Copilot, Antigravity CLI, OpenCode, or any agent that can read Markdown.

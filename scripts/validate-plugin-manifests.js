@@ -95,4 +95,36 @@ if (fs.existsSync(path.join(ROOT, 'wrappers/gemini-cli'))) {
 }
 ok('broken Cursor/Gemini wrappers absent');
 
+// Claude community review rejects unpinned package runners (npx pkg / pkg@latest).
+const PINNED = 'npx saymd@0.1.2';
+const scanRoots = ['skills', 'commands', 'GEMINI.md', '.claude-plugin', '.codex-plugin', 'plugin.json'];
+const unpinned = [];
+function scanFile(rel) {
+  const abs = path.join(ROOT, rel);
+  if (!fs.existsSync(abs)) return;
+  const st = fs.statSync(abs);
+  if (st.isDirectory()) {
+    for (const name of fs.readdirSync(abs)) {
+      if (name === 'node_modules') continue;
+      scanFile(path.join(rel, name));
+    }
+    return;
+  }
+  if (!/\.(md|json|sh|js|ts|yml|yaml)$/.test(rel)) return;
+  const lines = fs.readFileSync(abs, 'utf8').split(/\r?\n/);
+  lines.forEach((line, i) => {
+    if (/\bnpx\s+saymd(?!@)/.test(line) || /\bsaymd@latest\b/.test(line)) {
+      unpinned.push(`${rel}:${i + 1}`);
+    } else if (/\bnpx\s+saymd@/.test(line) && !line.includes(PINNED)) {
+      unpinned.push(`${rel}:${i + 1}`);
+    }
+  });
+}
+for (const r of scanRoots) scanFile(r);
+if (unpinned.length) {
+  unpinned.forEach((m) => fail(`${m}: use ${PINNED} (exact pin required for Claude review)`));
+} else {
+  ok(`plugin text pins ${PINNED}`);
+}
+
 process.exit(failed ? 1 : 0);
