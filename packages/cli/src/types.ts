@@ -2,24 +2,19 @@ import { z } from 'zod';
 
 import type { SttProviderId } from './providers/types.js';
 
+const stringList = z
+  .union([z.array(z.string()), z.string()])
+  .transform((v) => (Array.isArray(v) ? v : [v]))
+  .optional();
+
 export const sectionsSchema = z.object({
   objective: z.string().optional(),
   context: z.string().optional(),
-  acceptanceCriteria: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
-    v === undefined ? undefined : Array.isArray(v) ? v : [v]
-  ),
-  openQuestions: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
-    v === undefined ? undefined : Array.isArray(v) ? v : [v]
-  ),
-  stepsToReproduce: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
-    v === undefined ? undefined : Array.isArray(v) ? v : [v]
-  ),
-  instructions: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
-    v === undefined ? undefined : Array.isArray(v) ? v : [v]
-  ),
-  constraints: z.union([z.array(z.string()), z.string()]).optional().transform((v) =>
-    v === undefined ? undefined : Array.isArray(v) ? v : [v]
-  ),
+  acceptanceCriteria: stringList,
+  openQuestions: stringList,
+  stepsToReproduce: stringList,
+  instructions: stringList,
+  constraints: stringList,
   expectedBehavior: z.string().optional(),
   actualBehavior: z.string().optional(),
 });

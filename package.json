@@ -11,6 +11,6 @@
     "validate:plugins": "node scripts/validate-plugin-manifests.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   }
 }
