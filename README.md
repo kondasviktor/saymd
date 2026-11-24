@@ -168,7 +168,7 @@ API keys stay on this machine. Audio is sent only to the STT provider you chose,
 
 ## Requirements
 
-- Node 20+
+- Node 24+ (`node --version`)
 - ffmpeg
 - macOS or Linux (Windows: WSL or `--file` only)
 

@@ -16,6 +16,14 @@ export async function runDoctor(): Promise<number> {
 
   console.log('saymd doctor\n');
 
+  const nodeMajor = Number(process.versions.node.split('.')[0]);
+  if (nodeMajor >= 24) {
+    console.log(`✓ Node ${process.versions.node}`);
+  } else {
+    console.log(`✗ Node ${process.versions.node} — saymd needs Node 24+ (https://nodejs.org)`);
+    ok = false;
+  }
+
   if (ffmpegExists()) {
     console.log('✓ ffmpeg found');
   } else {
