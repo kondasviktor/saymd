@@ -1,6 +1,6 @@
 import { rm } from 'node:fs/promises';
 
-import { resolveCompilerApiKey, resolveCompilerProvider } from './compiler/index.js';
+import { compilerKeyEnvName, resolveCompilerApiKey, resolveCompilerProvider } from './compiler/index.js';
 import { ffmpegExists, micBackendHint, recordMic, commandExists } from './audio.js';
 import {
   loadConfig,
@@ -8,8 +8,7 @@ import {
   resolveSttApiKey,
   sttKeyEnvName,
 } from './config.js';
-import { getProvider, providerLabel } from './providers/index.js';
-import { STT_ONLY_PROVIDERS } from './providers/types.js';
+import { getProvider, isKnownModel, providerLabel, resolveSttModel } from './providers/index.js';
 
 export async function runDoctor(): Promise<number> {
   let ok = true;
@@ -43,7 +42,11 @@ export async function runDoctor(): Promise<number> {
   const config = await loadConfig();
   const providerId = resolveProvider(config);
   const provider = getProvider(providerId);
-  console.log(`· STT provider: ${providerLabel(providerId)} (${provider.model})`);
+  const sttModel = resolveSttModel(providerId, config.models);
+  console.log(`· STT provider: ${providerLabel(providerId)} (${sttModel})`);
+  if (!isKnownModel(providerId, sttModel)) {
+    console.log(`! ${sttModel} isn't a model saymd knows for ${providerLabel(providerId)} — it will be tried as-is`);
+  }
 
   const sttKey = resolveSttApiKey(providerId, config);
   if (!sttKey) {
@@ -59,23 +62,23 @@ export async function runDoctor(): Promise<number> {
     }
   }
 
-  if (STT_ONLY_PROVIDERS.includes(providerId) || providerId === 'gemini' || providerId === 'openai') {
-    try {
-      const compilerProvider = resolveCompilerProvider(providerId, config);
-      const compilerKey = resolveCompilerApiKey(compilerProvider, config);
-      if (!compilerKey) {
-        const env = compilerProvider === 'gemini' ? 'GEMINI_API_KEY' : 'OPENAI_API_KEY';
-        console.log(`✗ ${env} not set (needed for prompt structuring) — run: saymd setup`);
-        ok = false;
-      } else {
-        const verifyProvider = getProvider(compilerProvider);
-        await verifyProvider.verifyApiKey(compilerKey);
-        console.log(`✓ Prompt compiler: ${compilerProvider} key valid`);
-      }
-    } catch (err) {
-      console.log(`✗ Compiler key: ${(err as Error).message}`);
+  try {
+    const compilerProvider = resolveCompilerProvider(providerId, config);
+    const compilerKey = resolveCompilerApiKey(compilerProvider, config);
+    if (!compilerKey) {
+      const env = compilerKeyEnvName(compilerProvider);
+      console.log(`✗ ${env} not set (needed for prompt structuring) — run: saymd setup`);
       ok = false;
+    } else if (compilerProvider === providerId && compilerKey === sttKey) {
+      console.log(`· Prompt compiler: ${compilerProvider} (same key as speech-to-text)`);
+    } else {
+      const verifyProvider = getProvider(compilerProvider);
+      await verifyProvider.verifyApiKey(compilerKey);
+      console.log(`✓ Prompt compiler: ${compilerProvider} key valid`);
     }
+  } catch (err) {
+    console.log(`✗ Compiler key: ${(err as Error).message}`);
+    ok = false;
   }
 
   if (ffmpegExists() && process.platform !== 'win32') {

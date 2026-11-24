@@ -7,29 +7,40 @@ import { printNextAfterSetup } from './help.js';
 import {
   loadConfig,
   resolveGeminiKey,
+  resolveGroqKey,
   resolveOpenaiKey,
+  resolveProvider,
   resolveSttApiKey,
   saveConfig,
   sttKeyEnvName,
   type SaymdConfig,
 } from './config.js';
-import { getProvider, listProviders } from './providers/index.js';
-import { STT_ONLY_PROVIDERS } from './providers/types.js';
+import { getProvider, isKnownModel, listProviders, resolveSttModel } from './providers/index.js';
+import { RECOMMENDED_PROVIDER, STT_ONLY_PROVIDERS, STT_PROVIDER_IDS } from './providers/types.js';
 import type { SttProviderId } from './providers/types.js';
 
 const execFileAsync = promisify(execFile);
 
 const PROVIDER_URLS: Record<SttProviderId, string> = {
+  groq: 'https://console.groq.com/keys',
   gemini: 'https://aistudio.google.com/app/apikey',
   openai: 'https://platform.openai.com/api-keys',
   deepgram: 'https://console.deepgram.com/',
   elevenlabs: 'https://elevenlabs.io/app/settings/api-keys',
 };
 
+const PROVIDER_NOTES: Partial<Record<SttProviderId, string>> = {
+  groq: 'recommended to start — free tier, no card',
+  openai: 'or gpt-4o-mini-transcribe at half the price',
+};
+
 type KeyChoice = 'clipboard' | 'hidden' | 'env' | 'keep';
 
 function setConfigKey(config: SaymdConfig, providerId: SttProviderId, key: string): void {
   switch (providerId) {
+    case 'groq':
+      config.groqApiKey = key;
+      break;
     case 'gemini':
       config.geminiApiKey = key;
       break;
@@ -202,21 +213,29 @@ export async function runSetup(): Promise<void> {
   console.log('saymd setup — Bring Your Own Key (BYOK)\n');
   console.log('Keys stay on your machine (~/.saymd/config.json mode 0600, or env). saymd never uploads them.\n');
   console.log('Choose your speech-to-text provider:\n');
+  const recommendedIdx = Math.max(0, providers.findIndex((p) => p.id === RECOMMENDED_PROVIDER));
   providers.forEach((p, i) => {
-    const rec = p.id === 'gemini' ? ' (recommended)' : '';
-    console.log(`  ${i + 1}. ${p.displayName} — ${p.model}${rec}`);
+    const note = PROVIDER_NOTES[p.id];
+    console.log(`  ${i + 1}. ${p.displayName} — ${p.model}${note ? ` (${note})` : ''}`);
   });
   console.log('');
 
   const rl = createInterface({ input, output });
-  const choice = await rl.question(`Provider [1-${providers.length}] (default 1): `);
-  const idx = choice.trim() ? Number(choice.trim()) - 1 : 0;
-  const provider = providers[idx] ?? providers[0];
+  const choice = await rl.question(
+    `Provider [1-${providers.length}] (default ${recommendedIdx + 1}): `
+  );
+  const idx = choice.trim() ? Number(choice.trim()) - 1 : recommendedIdx;
+  const provider = providers[idx] ?? providers[recommendedIdx];
   const providerId = provider.id;
   const envName = sttKeyEnvName(providerId);
 
   console.log(`\n${provider.displayName} key: ${PROVIDER_URLS[providerId]}`);
-  console.log('Typical 60-second dictation costs well under $0.01 on your key (BYOK).');
+  if (providerId === 'groq') {
+    console.log('Free tier: sign in, create a key, no card needed. Groq also structures the spec, so one key is enough.');
+    console.log('Whisper is the cheapest way to start; Gemini or ElevenLabs are more accurate if you need it.');
+  } else {
+    console.log('Typical 60-second dictation costs well under $0.01 on your key (BYOK).');
+  }
 
   const existingStt = resolveSttApiKey(providerId, config);
   const stt = await collectKey(rl, envName, existingStt);
@@ -238,14 +257,14 @@ export async function runSetup(): Promise<void> {
   config.provider = providerId;
 
   if (STT_ONLY_PROVIDERS.includes(providerId)) {
-    const hasCompiler = resolveGeminiKey(config) || resolveOpenaiKey(config);
+    const hasCompiler = resolveGeminiKey(config) || resolveOpenaiKey(config) || resolveGroqKey(config);
     if (!hasCompiler) {
       console.log(
-        '\nDeepgram and ElevenLabs are STT-only — saymd needs a Gemini or OpenAI key to turn the transcript into a prompt file.'
+        '\nDeepgram and ElevenLabs are STT-only — saymd needs a Gemini, OpenAI or Groq key to turn the transcript into a prompt file.'
       );
-      const compilerChoice = await rl.question('Compiler — 1) Gemini  2) OpenAI [1]: ');
-      const useOpenai = compilerChoice.trim() === '2';
-      const compilerId: SttProviderId = useOpenai ? 'openai' : 'gemini';
+      const compilerChoice = await rl.question('Compiler — 1) Gemini  2) OpenAI  3) Groq (free tier) [1]: ');
+      const compilerId: SttProviderId =
+        compilerChoice.trim() === '2' ? 'openai' : compilerChoice.trim() === '3' ? 'groq' : 'gemini';
       const compilerEnv = sttKeyEnvName(compilerId);
       console.log(`Get a key: ${PROVIDER_URLS[compilerId]}`);
       const compiler = await collectKey(rl, compilerEnv, undefined);
@@ -278,26 +297,32 @@ export async function runConfigShow(): Promise<void> {
   const config = await loadConfig();
   const flag = (v?: string) => (v?.trim() || undefined ? 'set (local)' : undefined);
   const env = (name: string) => (process.env[name]?.trim() ? 'set (env)' : undefined);
+  const groq = env('GROQ_API_KEY') || flag(config.groqApiKey) || 'not set';
   const gemini = env('GEMINI_API_KEY') || flag(config.geminiApiKey) || 'not set';
   const openai = env('OPENAI_API_KEY') || flag(config.openaiApiKey) || 'not set';
   const deepgram = env('DEEPGRAM_API_KEY') || flag(config.deepgramApiKey) || 'not set';
   const eleven = env('ELEVENLABS_API_KEY') || flag(config.elevenlabsApiKey) || 'not set';
+  const providerId = resolveProvider(config);
+  const model = resolveSttModel(providerId, config.models);
   console.log(`provider:   ${config.provider ?? 'gemini (default)'}
+model:      ${model}${config.models?.[providerId] ? ' (config)' : ''}
 config:     ~/.saymd/config.json
+GROQ:       ${groq}
 GEMINI:     ${gemini}
 OPENAI:     ${openai}
 DEEPGRAM:   ${deepgram}
 ELEVENLABS: ${eleven}
 
 Change provider: saymd config set provider openai
+Change model:    saymd config set model gpt-4o-mini-transcribe
 Re-enter keys:   saymd setup`);
 }
 
 export async function runConfigSet(key: string, value: string): Promise<void> {
   const config = await loadConfig();
   if (key === 'provider') {
-    if (!['gemini', 'openai', 'deepgram', 'elevenlabs'].includes(value)) {
-      console.error('Provider must be: gemini, openai, deepgram, or elevenlabs');
+    if (!(STT_PROVIDER_IDS as string[]).includes(value)) {
+      console.error(`Provider must be: ${STT_PROVIDER_IDS.join(', ')}`);
       process.exit(1);
     }
     config.provider = value as SttProviderId;
@@ -305,6 +330,26 @@ export async function runConfigSet(key: string, value: string): Promise<void> {
     console.log(`Default provider set to ${value}.`);
     return;
   }
-  console.error(`Unknown config key: ${key}. Supported: provider`);
+  if (key === 'model') {
+    const providerId = resolveProvider(config);
+    const models = { ...(config.models ?? {}) };
+    if (value === 'default') {
+      delete models[providerId];
+      config.models = models;
+      await saveConfig(config);
+      console.log(`${getProvider(providerId).displayName} model reset to ${getProvider(providerId).model}.`);
+      return;
+    }
+    models[providerId] = value;
+    config.models = models;
+    await saveConfig(config);
+    console.log(`${getProvider(providerId).displayName} model set to ${value}.`);
+    if (!isKnownModel(providerId, value)) {
+      const known = Object.keys(getProvider(providerId).knownModels ?? {}).join(', ');
+      console.log(`Note: saymd doesn't know this model for ${providerId}${known ? ` (known: ${known})` : ''}. It will be tried as-is.`);
+    }
+    return;
+  }
+  console.error(`Unknown config key: ${key}. Supported: provider, model`);
   process.exit(1);
 }

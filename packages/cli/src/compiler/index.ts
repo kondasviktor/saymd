@@ -1,7 +1,7 @@
-import type { SaymdConfig } from '../config.js';
+import { resolveGeminiKey, resolveGroqKey, resolveOpenaiKey, type SaymdConfig } from '../config.js';
 import type { SttProviderId } from '../providers/types.js';
 import { geminiCompiler } from './gemini.js';
-import { openaiCompiler } from './openai.js';
+import { groqCompiler, openaiCompiler } from './openai.js';
 import type { CompilerProviderId, PromptCompiler } from './types.js';
 
 export type { CompilerProviderId, PromptCompiler, StructuredResult, StructureOptions } from './types.js';
@@ -9,23 +9,27 @@ export type { CompilerProviderId, PromptCompiler, StructuredResult, StructureOpt
 const COMPILERS: Record<CompilerProviderId, PromptCompiler> = {
   gemini: geminiCompiler,
   openai: openaiCompiler,
+  groq: groqCompiler,
 };
 
 export function getCompiler(id: CompilerProviderId): PromptCompiler {
   return COMPILERS[id];
 }
 
-/** Pick compiler: same provider when gemini/openai; otherwise prefer Gemini key, then OpenAI. */
+/**
+ * Pick compiler: same provider when the STT provider also has an LLM (gemini, openai, groq);
+ * otherwise prefer a Gemini key, then OpenAI, then Groq.
+ */
 export function resolveCompilerProvider(
   sttProvider: SttProviderId,
   config: SaymdConfig
 ): CompilerProviderId {
-  if (sttProvider === 'gemini') return 'gemini';
-  if (sttProvider === 'openai') return 'openai';
+  if (sttProvider === 'gemini' || sttProvider === 'openai' || sttProvider === 'groq') return sttProvider;
   if (resolveGeminiKey(config)) return 'gemini';
   if (resolveOpenaiKey(config)) return 'openai';
+  if (resolveGroqKey(config)) return 'groq';
   throw new Error(
-    'Deepgram and ElevenLabs are STT-only. Add a Gemini or OpenAI key for prompt structuring:\n  saymd setup'
+    'Deepgram and ElevenLabs are STT-only. Add a Gemini, OpenAI or Groq key for prompt structuring:\n  saymd setup'
   );
 }
 
@@ -33,16 +37,18 @@ export function resolveCompilerApiKey(
   compilerProvider: CompilerProviderId,
   config: SaymdConfig
 ): string | undefined {
-  if (compilerProvider === 'gemini') return resolveGeminiKey(config);
-  return resolveOpenaiKey(config);
+  switch (compilerProvider) {
+    case 'gemini':
+      return resolveGeminiKey(config);
+    case 'openai':
+      return resolveOpenaiKey(config);
+    case 'groq':
+      return resolveGroqKey(config);
+  }
 }
 
-function resolveGeminiKey(config: SaymdConfig): string | undefined {
-  return process.env.GEMINI_API_KEY?.trim() || config.geminiApiKey?.trim() || undefined;
-}
-
-function resolveOpenaiKey(config: SaymdConfig): string | undefined {
-  return process.env.OPENAI_API_KEY?.trim() || config.openaiApiKey?.trim() || undefined;
+export function compilerKeyEnvName(compilerProvider: CompilerProviderId): string {
+  return `${compilerProvider.toUpperCase()}_API_KEY`;
 }
 
 export async function structureTranscript(
@@ -53,9 +59,7 @@ export async function structureTranscript(
   const compilerProvider = resolveCompilerProvider(sttProvider, config);
   const apiKey = resolveCompilerApiKey(compilerProvider, config);
   if (!apiKey) {
-    throw new Error(
-      `${compilerProvider === 'gemini' ? 'GEMINI' : 'OPENAI'}_API_KEY not set. Run: saymd setup`
-    );
+    throw new Error(`${compilerKeyEnvName(compilerProvider)} not set. Run: saymd setup`);
   }
   const compiler = getCompiler(compilerProvider);
   return compiler.structureTranscript({ ...opts, apiKey });

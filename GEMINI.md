@@ -17,7 +17,7 @@ npx saymd@0.1.2 setup
 npx saymd@0.1.2 doctor
 ```
 
-Bring Your Own Key (Gemini, OpenAI, Deepgram, or ElevenLabs). Audio goes to the provider you chose — not to saymd.app.
+Bring Your Own Key (Groq, Gemini, OpenAI, Deepgram, or ElevenLabs). Audio goes to the provider you chose — not to saymd.app.
 
 ## Record a prompt
 

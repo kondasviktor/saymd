@@ -38,6 +38,8 @@ export type TemplateId = 'default' | 'feature' | 'bug' | 'plan';
 export interface CliOptions {
   file?: string;
   provider?: SttProviderId;
+  /** STT model override, e.g. gpt-4o-mini-transcribe. */
+  model?: string;
   template: TemplateId;
   output: string;
   lang?: string;

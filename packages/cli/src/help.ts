@@ -10,7 +10,8 @@ export function printStartHere(): void {
 Start here — Free
 ─────────────────
 1) saymd setup
-   Choose a transcription provider (Gemini recommended) and add your API key.
+   Choose a transcription provider and add your API key.
+   Groq is recommended to start: free tier, no card needed.
    Clipboard or hidden paste — the key stays on this machine.
 
 2) saymd doctor
@@ -58,14 +59,16 @@ Providers — BYOK
 ────────────────
 You pay the speech-to-text provider on your own account.
 
-  Gemini                   recommended
-  OpenAI
-  Deepgram
-  ElevenLabs
+  Groq                     start here — free tier, no card
+  Gemini                   most accurate across 85+ languages
+  OpenAI                   --model gpt-4o-mini-transcribe for half the price
+  Deepgram                 speech-to-text only
+  ElevenLabs               speech-to-text only (Scribe v3)
 
   saymd setup              configure or change provider / key
   saymd config             show current provider (never prints the key)
   saymd config set provider openai
+  saymd config set model gpt-4o-mini-transcribe
 
 Pro — when you need more
 ────────────────────────
@@ -113,11 +116,13 @@ Quick start: saymd setup && saymd doctor && saymd -o .ai/prompt.md --template fe
 Usage
   saymd [--file audio] [options]
   saymd setup | doctor | help | config
-  saymd config set provider <gemini|openai|deepgram|elevenlabs>
+  saymd config set provider <groq|gemini|openai|deepgram|elevenlabs>
+  saymd config set model <model-id|default>
   saymd activate <activation-code>   # downloads Pro into ~/.saymd automatically
 
 Free options
-  --provider gemini|openai|deepgram|elevenlabs
+  --provider groq|gemini|openai|deepgram|elevenlabs
+  --model ID            STT model for this run, e.g. gpt-4o-mini-transcribe (OpenAI, half price)
   --template feature|bug|plan
                         feature: Objective, Context, Instructions, Constraints, Acceptance criteria
                         bug:     Objective, Context, Steps to reproduce, Expected / Actual

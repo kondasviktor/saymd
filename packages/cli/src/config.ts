@@ -12,6 +12,9 @@ export const LICENSE_PATH = join(SAYMD_DIR, 'license.json');
 
 export interface SaymdConfig {
   provider?: SttProviderId;
+  /** Per-provider STT model override, set with `saymd config set model <id>`. */
+  models?: Partial<Record<SttProviderId, string>>;
+  groqApiKey?: string;
   geminiApiKey?: string;
   openaiApiKey?: string;
   deepgramApiKey?: string;
@@ -98,6 +101,10 @@ export function resolveOpenaiKey(config: SaymdConfig): string | undefined {
   return process.env.OPENAI_API_KEY?.trim() || config.openaiApiKey?.trim() || undefined;
 }
 
+export function resolveGroqKey(config: SaymdConfig): string | undefined {
+  return process.env.GROQ_API_KEY?.trim() || config.groqApiKey?.trim() || undefined;
+}
+
 export function resolveDeepgramKey(config: SaymdConfig): string | undefined {
   return process.env.DEEPGRAM_API_KEY?.trim() || config.deepgramApiKey?.trim() || undefined;
 }
@@ -108,6 +115,8 @@ export function resolveElevenlabsKey(config: SaymdConfig): string | undefined {
 
 export function resolveSttApiKey(provider: SttProviderId, config: SaymdConfig): string | undefined {
   switch (provider) {
+    case 'groq':
+      return resolveGroqKey(config);
     case 'gemini':
       return resolveGeminiKey(config);
     case 'openai':
@@ -136,6 +145,8 @@ export function resolveApiKey(config: SaymdConfig): string | undefined {
 
 export function sttKeyEnvName(provider: SttProviderId): string {
   switch (provider) {
+    case 'groq':
+      return 'GROQ_API_KEY';
     case 'gemini':
       return 'GEMINI_API_KEY';
     case 'openai':
@@ -149,6 +160,8 @@ export function sttKeyEnvName(provider: SttProviderId): string {
 
 export function configKeyField(provider: SttProviderId): keyof SaymdConfig {
   switch (provider) {
+    case 'groq':
+      return 'groqApiKey';
     case 'gemini':
       return 'geminiApiKey';
     case 'openai':

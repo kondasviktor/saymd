@@ -1,6 +1,6 @@
 {
   "name": "saymd",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Speak once. Get a prompt file any agent can @.",
   "license": "MIT",
   "type": "module",
@@ -31,6 +31,8 @@
     "node": ">=24"
   },
   "keywords": [
+    "groq",
+    "whisper",
     "gemini",
     "openai",
     "deepgram",

@@ -3,37 +3,50 @@ import { sectionsSchema } from '../types.js';
 import { freeCompilerRules, freeCompilerReminder } from './rules.js';
 import type { PromptCompiler, StructureOptions } from './types.js';
 
-const ENRICH_MODEL = process.env.OPENAI_ENRICH_MODEL ?? 'gpt-4o-mini';
+import { openaiBaseUrl } from '../providers/openai.js';
+import { groqBaseUrl } from '../providers/groq.js';
+import { trimSlash } from '../providers/openai-compatible.js';
+import type { CompilerProviderId } from './types.js';
 
-function openaiBaseUrl(): string {
-  const base = process.env.OPENAI_BASE_URL?.trim() || 'https://api.openai.com/v1';
-  return base.replace(/\/$/, '');
+export interface OpenAiCompatibleCompilerConfig {
+  id: CompilerProviderId;
+  displayName: string;
+  baseUrl: () => string;
+  model: () => string;
+  /** Extra request body fields for a given model (e.g. reasoning_effort). */
+  extraBody?: (model: string) => Record<string, unknown>;
 }
 
-async function chatJson(apiKey: string, prompt: string): Promise<string> {
-  const res = await fetch(`${openaiBaseUrl()}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: ENRICH_MODEL,
-      temperature: 0.2,
-      response_format: { type: 'json_object' },
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`OpenAI structuring failed (${res.status}): ${body.slice(0, 200)}`);
-  }
-  const data = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
+type ChatJson = (apiKey: string, prompt: string) => Promise<string>;
+
+function makeChatJson(cfg: OpenAiCompatibleCompilerConfig): ChatJson {
+  return async (apiKey, prompt) => {
+    const model = cfg.model();
+    const res = await fetch(`${trimSlash(cfg.baseUrl())}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        temperature: 0.2,
+        response_format: { type: 'json_object' },
+        messages: [{ role: 'user', content: prompt }],
+        ...(cfg.extraBody?.(model) ?? {}),
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`${cfg.displayName} structuring failed (${res.status}): ${body.slice(0, 200)}`);
+    }
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    const text = data.choices?.[0]?.message?.content?.trim();
+    if (!text) throw new Error(`Empty JSON from ${cfg.displayName}.`);
+    return text;
   };
-  const text = data.choices?.[0]?.message?.content?.trim();
-  if (!text) throw new Error('Empty JSON from OpenAI.');
-  return text;
 }
 
 function buildPrompt(opts: StructureOptions): string {
@@ -54,6 +67,7 @@ ${structureSchemaHint(opts.template)}`;
 }
 
 async function parseStructureJson(
+  chatJson: ChatJson,
   apiKey: string,
   rawJson: string
 ): Promise<{ language: string; clean: string; sections: ReturnType<typeof sectionsSchema.parse> }> {
@@ -86,11 +100,33 @@ async function parseStructureJson(
   }
 }
 
-export const openaiCompiler: PromptCompiler = {
-  id: 'openai',
+/** Structurer for any OpenAI-compatible `/chat/completions` API with JSON mode. */
+export function createOpenAiCompatibleCompiler(cfg: OpenAiCompatibleCompilerConfig): PromptCompiler {
+  const chatJson = makeChatJson(cfg);
+  return {
+    id: cfg.id,
+    async structureTranscript(opts: StructureOptions) {
+      const rawJson = await chatJson(opts.apiKey, buildPrompt(opts));
+      return parseStructureJson(chatJson, opts.apiKey, rawJson);
+    },
+  };
+}
 
-  async structureTranscript(opts: StructureOptions) {
-    const rawJson = await chatJson(opts.apiKey, buildPrompt(opts));
-    return parseStructureJson(opts.apiKey, rawJson);
-  },
-};
+export const openaiCompiler = createOpenAiCompatibleCompiler({
+  id: 'openai',
+  displayName: 'OpenAI',
+  baseUrl: openaiBaseUrl,
+  model: () => process.env.OPENAI_ENRICH_MODEL?.trim() || 'gpt-4o-mini',
+});
+
+/** Default Groq structurer. Free tier, rate-limited; override with GROQ_STRUCTURE_MODEL. */
+export const GROQ_DEFAULT_STRUCTURE_MODEL = 'openai/gpt-oss-120b';
+
+export const groqCompiler = createOpenAiCompatibleCompiler({
+  id: 'groq',
+  displayName: 'Groq',
+  baseUrl: groqBaseUrl,
+  model: () => process.env.GROQ_STRUCTURE_MODEL?.trim() || GROQ_DEFAULT_STRUCTURE_MODEL,
+  // gpt-oss is a reasoning model; low effort keeps latency and free-tier tokens down.
+  extraBody: (model) => (model.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {}),
+});

@@ -49,10 +49,19 @@ function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey
       case '--provider': {
         const p = args.shift();
         if (!p || !isSttProviderId(p)) {
-          console.error('Provider must be: gemini, openai, deepgram, or elevenlabs');
+          console.error('Provider must be: groq, gemini, openai, deepgram, or elevenlabs');
           process.exit(1);
         }
         opts.provider = p;
+        break;
+      }
+      case '--model': {
+        const m = args.shift();
+        if (!m || m.startsWith('-')) {
+          console.error('Usage: --model <model-id>  (e.g. --model gpt-4o-mini-transcribe)');
+          process.exit(1);
+        }
+        opts.model = m;
         break;
       }
       case '--template':
@@ -155,7 +164,7 @@ async function main(): Promise<void> {
       return;
     }
     if (!parsed.configKey || !parsed.configValue) {
-      console.error('Usage: saymd config\n       saymd config set provider <gemini|openai|deepgram|elevenlabs>');
+      console.error('Usage: saymd config\n       saymd config set provider <groq|gemini|openai|deepgram|elevenlabs>\n       saymd config set model <model-id|default>');
       process.exit(1);
     }
     await runConfigSet(parsed.configKey, parsed.configValue);

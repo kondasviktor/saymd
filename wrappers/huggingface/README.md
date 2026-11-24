@@ -28,6 +28,6 @@ Agents execute. saymd delivers a usable spec — speak (or pass `--file`), get a
 2. Or install locally: `npx saymd@0.1.2 setup`
 3. Secondary: [GitHub](https://github.com/kondasviktor/saymd)
 
-**BYOK** — Bring Your Own Key (Gemini, OpenAI, Deepgram, or ElevenLabs). Audio goes to the provider you chose, not to saymd.app.
+**BYOK** — Bring Your Own Key (Groq, Gemini, OpenAI, Deepgram, or ElevenLabs). Audio goes to the provider you chose, not to saymd.app.
 
 Pro (`--continue`, `--review`, `--out`, vocab) is a separate commercial package on saymd.app.

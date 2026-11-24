@@ -18,7 +18,7 @@ Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separat
 - **85+ input languages** with automatic detection
 - Structured Markdown (not a raw transcript dump)
 - Templates: `feature`, `bug`, `plan` (or default headings)
-- Exact BYOK models: `gemini-3.5-transcribe`, `gpt-4o-transcribe`, `nova-3`, `scribe_v2`
+- Exact BYOK models: `whisper-large-v3-turbo` (Groq), `gemini-3.5-transcribe`, `gpt-4o-transcribe` / `gpt-4o-mini-transcribe`, `nova-3`, `scribe_v3`
 
 ## Start here — Free
 
@@ -118,30 +118,36 @@ saymd --seconds 30       # shorter first test
 
 **BYOK = Bring Your Own Key.** You create a key with the provider, paste it into `saymd setup`, and pay that provider directly. saymd never sells transcription credits.
 
-All four models below are available on **Free**:
+All five providers below are available on **Free**:
 
 | `--provider` | Exact model ID | What it does |
 |--------------|----------------|--------------|
-| `gemini` **(recommended)** | `gemini-3.5-transcribe` | Speech-to-text **and** Markdown structuring |
-| `openai` | `gpt-4o-transcribe` | Speech-to-text **and** Markdown structuring |
-| `deepgram` | `nova-3` | Speech-to-text only — also needs a Gemini or OpenAI key to structure Markdown |
-| `elevenlabs` | `scribe_v2` | Speech-to-text only — same as Deepgram |
+| `groq` **(start here)** | `whisper-large-v3-turbo` | Speech-to-text **and** Markdown structuring (`openai/gpt-oss-120b`). Free tier, no card needed. Cheapest and least accurate of the five |
+| `gemini` | `gemini-3.5-transcribe` | Speech-to-text **and** Markdown structuring. Best all-round accuracy across 85+ languages |
+| `openai` | `gpt-4o-transcribe`, or `gpt-4o-mini-transcribe` at half the price | Speech-to-text **and** Markdown structuring |
+| `deepgram` | `nova-3` | Speech-to-text only — also needs a Gemini, OpenAI or Groq key to structure Markdown |
+| `elevenlabs` | `scribe_v3` | Speech-to-text only — same as Deepgram. 90+ languages |
 
 ```bash
 saymd setup                              # pick provider + paste key
-saymd config                             # current provider (never prints the key)
+saymd config                             # current provider and model (never prints the key)
 saymd config set provider openai
+saymd config set model gpt-4o-mini-transcribe   # saved per provider; `default` resets it
+saymd --model gpt-4o-mini-transcribe --file memo.m4a   # one run only
 saymd --provider deepgram --file meeting.wav
 ```
 
+Model overrides also work through env vars: `GROQ_TRANSCRIBE_MODEL`, `GEMINI_TRANSCRIBE_MODEL`, `OPENAI_TRANSCRIBE_MODEL`, `DEEPGRAM_TRANSCRIBE_MODEL`, `ELEVENLABS_TRANSCRIBE_MODEL`. `GROQ_STRUCTURE_MODEL` changes the Groq structuring model.
+
 Keys live in `~/.saymd/config.json` (mode **0600**) or environment variables:
 
+- `GROQ_API_KEY`
 - `GEMINI_API_KEY`
 - `OPENAI_API_KEY`
 - `DEEPGRAM_API_KEY`
 - `ELEVENLABS_API_KEY`
 
-Get keys: [Google AI Studio](https://aistudio.google.com/app/apikey) · [OpenAI](https://platform.openai.com/api-keys) · [Deepgram](https://console.deepgram.com/) · [ElevenLabs](https://elevenlabs.io/)
+Get keys: [Groq](https://console.groq.com/keys) · [Google AI Studio](https://aistudio.google.com/app/apikey) · [OpenAI](https://platform.openai.com/api-keys) · [Deepgram](https://console.deepgram.com/) · [ElevenLabs](https://elevenlabs.io/)
 
 A typical ~60 second dictation is usually well under **$0.01** on your own key (provider pricing applies).
 

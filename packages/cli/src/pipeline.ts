@@ -12,7 +12,7 @@ import {
   resolveTextApiKey,
   sttKeyEnvName,
 } from './config.js';
-import { estimateCostUsd, getProvider, providerLabel } from './providers/index.js';
+import { estimateCostUsd, getProvider, isKnownModel, providerLabel, resolveSttModel } from './providers/index.js';
 import { sectionsToMarkdown } from './markdown.js';
 import { normalizeKnownAsr } from './asr-normalize.js';
 import { polishStructuredSections } from './structure-polish.js';
@@ -41,6 +41,12 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
   const sttApiKey = resolveSttApiKey(providerId, config);
   if (!sttApiKey) {
     throw new Error(`${sttKeyEnvName(providerId)} not set. Run: saymd setup`);
+  }
+  const sttModel = resolveSttModel(providerId, config.models, opts.model);
+  if (!isKnownModel(providerId, sttModel)) {
+    process.stderr.write(
+      `Note: ${sttModel} isn't a model saymd knows for ${providerLabel(providerId)} — trying it anyway; cost estimate uses the default rate.\n`
+    );
   }
 
   const projectCfg = await import('./config.js').then((m) => m.loadProjectConfig(cwd));
@@ -109,15 +115,16 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
     const { chunkPaths, tempDir } = await splitLongAudio(probe.localPath);
     chunkTemp = tempDir !== probe.tempDir ? tempDir : undefined;
 
-    process.stderr.write(`Transcribing via ${providerLabel(providerId)}…\n`);
+    process.stderr.write(`Transcribing via ${providerLabel(providerId)} (${sttModel})…\n`);
     const transcript =
       chunkPaths.length > 1
-        ? await provider.chunkAndTranscribe(sttApiKey, chunkPaths, probe.mimeType, lang)
+        ? await provider.chunkAndTranscribe(sttApiKey, chunkPaths, probe.mimeType, lang, sttModel)
         : await provider.transcribeFile(sttApiKey, {
             localPath: probe.localPath,
             mimeType: probe.mimeType,
             lang,
             durationSeconds: probe.durationSeconds,
+            model: sttModel,
           });
 
     const rawText = normalizeKnownAsr(transcript.text);
@@ -161,7 +168,7 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
       sections,
       markdown,
       durationSeconds,
-      estimatedCostUsd: estimateCostUsd(providerId, durationSeconds),
+      estimatedCostUsd: estimateCostUsd(providerId, durationSeconds, transcript.model, chunkPaths.length),
       provider: providerId,
       sttModel: transcript.model,
     };

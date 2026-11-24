@@ -3,9 +3,13 @@ import { readFile } from 'node:fs/promises';
 
 import type { TranscribeOptions, Transcript, TranscriptionProvider } from './types.js';
 
-const TRANSCRIBE_MODEL = process.env.GEMINI_TRANSCRIBE_MODEL ?? 'gemini-3.5-transcribe';
+const DEFAULT_MODEL = 'gemini-3.5-transcribe';
+function defaultModel(): string {
+  return process.env.GEMINI_TRANSCRIBE_MODEL?.trim() || DEFAULT_MODEL;
+}
 const VERIFY_MODEL = process.env.GEMINI_ENRICH_MODEL ?? 'gemini-3.5-flash-lite';
-const USD_PER_MIN = 0.005;
+/** Audio at 25 tokens/s plus transcript output tokens (see v2 unit economics). */
+const USD_PER_MIN = 0.0054;
 
 function languageName(code: string): string {
   const map: Record<string, string> = {
@@ -60,8 +64,12 @@ async function uploadAudio(client: GoogleGenAI, localPath: string, mimeType: str
 export const geminiProvider: TranscriptionProvider = {
   id: 'gemini',
   displayName: 'Google Gemini',
-  model: TRANSCRIBE_MODEL,
+  get model() {
+    return defaultModel();
+  },
   usdPerMinute: USD_PER_MIN,
+  knownModels: { [DEFAULT_MODEL]: USD_PER_MIN },
+  modelEnvVar: 'GEMINI_TRANSCRIBE_MODEL',
 
   async verifyApiKey(apiKey: string): Promise<void> {
     const client = new GoogleGenAI({ apiKey });
@@ -74,13 +82,14 @@ export const geminiProvider: TranscriptionProvider = {
 
   async transcribeFile(apiKey: string, opts: TranscribeOptions): Promise<Transcript> {
     const client = new GoogleGenAI({ apiKey });
+    const model = opts.model?.trim() || defaultModel();
     const audio = await uploadAudio(client, opts.localPath, opts.mimeType);
     const langHint =
       opts.lang && opts.lang !== 'auto'
         ? `The spoken language is ${languageName(opts.lang)} (${opts.lang}). Transcribe in that language.`
         : 'Detect the spoken language automatically and transcribe in that language.';
     const response = await client.models.generateContent({
-      model: TRANSCRIBE_MODEL,
+      model,
       contents: [
         {
           role: 'user',
@@ -105,7 +114,7 @@ Keep tech terms like OAuth, Next.js, App Router, session cookie in their usual E
         }
       ),
       provider: 'gemini',
-      model: TRANSCRIBE_MODEL,
+      model,
       durationSeconds: opts.durationSeconds,
     };
   },
@@ -114,17 +123,18 @@ Keep tech terms like OAuth, Next.js, App Router, session cookie in their usual E
     apiKey: string,
     chunkPaths: string[],
     mimeType: string,
-    lang?: string
+    lang?: string,
+    model?: string
   ): Promise<Transcript> {
     const parts: string[] = [];
     for (const p of chunkPaths) {
-      const t = await geminiProvider.transcribeFile(apiKey, { localPath: p, mimeType, lang });
+      const t = await geminiProvider.transcribeFile(apiKey, { localPath: p, mimeType, lang, model });
       parts.push(t.text);
     }
     return {
       text: parts.join('\n'),
       provider: 'gemini',
-      model: TRANSCRIBE_MODEL,
+      model: model?.trim() || defaultModel(),
     };
   },
 };
