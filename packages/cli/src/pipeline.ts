@@ -127,16 +127,19 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
     const { chunkPaths, tempDir } = await splitLongAudio(probe.localPath);
     chunkTemp = tempDir !== probe.tempDir ? tempDir : undefined;
 
+    // Pro vocabulary also biases recognition where the provider supports it.
+    const sttVocab = isPro ? vocab : [];
     process.stderr.write(`Transcribing via ${providerLabel(providerId)} (${sttModel})…\n`);
     const transcript =
       chunkPaths.length > 1
-        ? await provider.chunkAndTranscribe(sttApiKey, chunkPaths, probe.mimeType, lang, sttModel)
+        ? await provider.chunkAndTranscribe(sttApiKey, chunkPaths, probe.mimeType, lang, sttModel, sttVocab)
         : await provider.transcribeFile(sttApiKey, {
             localPath: probe.localPath,
             mimeType: probe.mimeType,
             lang,
             durationSeconds: probe.durationSeconds,
             model: sttModel,
+            vocabulary: sttVocab,
           });
 
     const rawText = normalizeKnownAsr(transcript.text);

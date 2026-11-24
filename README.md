@@ -123,7 +123,7 @@ All five providers below are available on **Free**:
 | `--provider` | Exact model ID | What it does |
 |--------------|----------------|--------------|
 | `groq` **(start here)** | `whisper-large-v3-turbo` | Speech-to-text **and** Markdown structuring (`openai/gpt-oss-120b`). Free tier, no card needed. Cheapest and least accurate of the five |
-| `gemini` | `gemini-3.5-transcribe` | Speech-to-text **and** Markdown structuring. Best all-round accuracy across 85+ languages |
+| `gemini` | `gemini-3.5-transcribe` | Speech-to-text (Interactions API, with `saymd` and your Pro vocabulary as custom vocabulary) **and** Markdown structuring (`gemini-3.1-flash-lite`). Best all-round accuracy across 85+ languages |
 | `openai` | `gpt-4o-transcribe`, or `gpt-4o-mini-transcribe` at half the price | Speech-to-text **and** Markdown structuring |
 | `deepgram` | `nova-3` | Speech-to-text only — also needs a Gemini, OpenAI or Groq key to structure Markdown |
 | `elevenlabs` | `scribe_v3` | Speech-to-text only — same as Deepgram. 90+ languages |
@@ -137,7 +137,7 @@ saymd --model gpt-4o-mini-transcribe --file memo.m4a   # one run only
 saymd --provider deepgram --file meeting.wav
 ```
 
-Model overrides also work through env vars: `GROQ_TRANSCRIBE_MODEL`, `GEMINI_TRANSCRIBE_MODEL`, `OPENAI_TRANSCRIBE_MODEL`, `DEEPGRAM_TRANSCRIBE_MODEL`, `ELEVENLABS_TRANSCRIBE_MODEL`. `GROQ_STRUCTURE_MODEL` changes the Groq structuring model.
+Model overrides also work through env vars: `GROQ_TRANSCRIBE_MODEL`, `GEMINI_TRANSCRIBE_MODEL`, `OPENAI_TRANSCRIBE_MODEL`, `DEEPGRAM_TRANSCRIBE_MODEL`, `ELEVENLABS_TRANSCRIBE_MODEL`. `GROQ_STRUCTURE_MODEL` and `GEMINI_ENRICH_MODEL` change the structuring model for Groq and Gemini. `GROQ_BASE_URL`, `GEMINI_BASE_URL` and `OPENAI_BASE_URL` point a provider at a gateway.
 
 Keys live in `~/.saymd/config.json` (mode **0600**) or environment variables:
 

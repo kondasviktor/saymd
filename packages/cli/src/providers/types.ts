@@ -15,6 +15,8 @@ export interface TranscribeOptions {
   durationSeconds?: number;
   /** STT model override (`--model`, env or `saymd config set model`). */
   model?: string;
+  /** Terms to bias recognition towards (providers that support it; Gemini Transcribe). */
+  vocabulary?: string[];
 }
 
 export interface TranscriptionProvider {
@@ -37,7 +39,8 @@ export interface TranscriptionProvider {
     chunkPaths: string[],
     mimeType: string,
     lang?: string,
-    model?: string
+    model?: string,
+    vocabulary?: string[]
   ): Promise<Transcript>;
 }
 

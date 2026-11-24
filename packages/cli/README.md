@@ -59,7 +59,7 @@ You pay the STT provider. Keys in `~/.saymd/config.json` (0600) or env — never
 | `--provider` | Exact model ID |
 |--------------|----------------|
 | `groq` (start here: free tier, no card) | `whisper-large-v3-turbo`; structures with `openai/gpt-oss-120b` |
-| `gemini` | `gemini-3.5-transcribe` |
+| `gemini` | `gemini-3.5-transcribe`; structures with `gemini-3.1-flash-lite` |
 | `openai` | `gpt-4o-transcribe` or `gpt-4o-mini-transcribe` (half the price) |
 | `deepgram` | `nova-3` (needs Gemini, OpenAI or Groq for structuring) |
 | `elevenlabs` | `scribe_v3` (needs Gemini, OpenAI or Groq for structuring) |

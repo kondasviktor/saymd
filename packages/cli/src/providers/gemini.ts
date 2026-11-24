@@ -1,13 +1,13 @@
-import { GoogleGenAI } from '@google/genai';
+import type { GoogleGenAI } from '@google/genai';
 import { readFile } from 'node:fs/promises';
 
+import { geminiClient, geminiTextModel } from './gemini-client.js';
 import type { TranscribeOptions, Transcript, TranscriptionProvider } from './types.js';
 
 const DEFAULT_MODEL = 'gemini-3.5-transcribe';
 function defaultModel(): string {
   return process.env.GEMINI_TRANSCRIBE_MODEL?.trim() || DEFAULT_MODEL;
 }
-const VERIFY_MODEL = process.env.GEMINI_ENRICH_MODEL ?? 'gemini-3.5-flash-lite';
 /** Audio at 25 tokens/s plus transcript output tokens (see v2 unit economics). */
 const USD_PER_MIN = 0.0054;
 
@@ -61,6 +61,38 @@ async function uploadAudio(client: GoogleGenAI, localPath: string, mimeType: str
   return { uri: uploaded.uri, mimeType: uploaded.mimeType ?? mimeType };
 }
 
+/** Dedicated speech-to-text models (gemini-3.5-transcribe) run on the Interactions API. */
+export function isDedicatedTranscribeModel(model: string): boolean {
+  return /(^|\/)gemini-[\d.]+-transcribe(?!-live)/.test(model);
+}
+
+/** Terms to bias recognition towards: the product name plus Pro vocabulary. Max 1,000. */
+export function transcribeVocabulary(vocabulary?: string[]): string[] {
+  return [...new Set(['saymd', ...(vocabulary ?? [])].map((t) => t.trim()).filter(Boolean))].slice(0, 1000);
+}
+
+async function transcribeWithInteractions(
+  client: GoogleGenAI,
+  model: string,
+  audio: { uri: string; mimeType: string },
+  lang?: string,
+  vocabulary?: string[]
+): Promise<string> {
+  const interaction = await client.interactions.create({
+    model,
+    input: [{ type: 'audio', uri: audio.uri, mime_type: audio.mimeType }],
+    generation_config: {
+      transcription_config: {
+        ...(lang && lang !== 'auto' ? { language_codes: [lang] } : {}),
+        custom_vocabulary: transcribeVocabulary(vocabulary),
+      },
+    },
+  });
+  const text = interaction.output_text?.trim();
+  if (!text) throw new Error('Gemini returned no transcription text.');
+  return text;
+}
+
 export const geminiProvider: TranscriptionProvider = {
   id: 'gemini',
   displayName: 'Google Gemini',
@@ -72,18 +104,27 @@ export const geminiProvider: TranscriptionProvider = {
   modelEnvVar: 'GEMINI_TRANSCRIBE_MODEL',
 
   async verifyApiKey(apiKey: string): Promise<void> {
-    const client = new GoogleGenAI({ apiKey });
+    const client = geminiClient(apiKey);
     await client.models.generateContent({
-      model: VERIFY_MODEL,
+      model: geminiTextModel(),
       contents: 'Reply {"ok":true} as JSON only.',
       config: { responseMimeType: 'application/json', maxOutputTokens: 16 },
     });
   },
 
   async transcribeFile(apiKey: string, opts: TranscribeOptions): Promise<Transcript> {
-    const client = new GoogleGenAI({ apiKey });
+    const client = geminiClient(apiKey);
     const model = opts.model?.trim() || defaultModel();
     const audio = await uploadAudio(client, opts.localPath, opts.mimeType);
+    if (isDedicatedTranscribeModel(model)) {
+      return {
+        text: await transcribeWithInteractions(client, model, audio, opts.lang, opts.vocabulary),
+        provider: 'gemini',
+        model,
+        durationSeconds: opts.durationSeconds,
+      };
+    }
+    // General Gemini models (e.g. --model gemini-3.1-flash-lite): prompt-based transcription.
     const langHint =
       opts.lang && opts.lang !== 'auto'
         ? `The spoken language is ${languageName(opts.lang)} (${opts.lang}). Transcribe in that language.`
@@ -124,11 +165,12 @@ Keep tech terms like OAuth, Next.js, App Router, session cookie in their usual E
     chunkPaths: string[],
     mimeType: string,
     lang?: string,
-    model?: string
+    model?: string,
+    vocabulary?: string[]
   ): Promise<Transcript> {
     const parts: string[] = [];
     for (const p of chunkPaths) {
-      const t = await geminiProvider.transcribeFile(apiKey, { localPath: p, mimeType, lang, model });
+      const t = await geminiProvider.transcribeFile(apiKey, { localPath: p, mimeType, lang, model, vocabulary });
       parts.push(t.text);
     }
     return {
