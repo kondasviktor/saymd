@@ -86,7 +86,7 @@ Audio goes only to the provider you chose, with your key. [Privacy](https://saym
 
 ## Platforms
 
-macOS + Linux. Windows: WSL or `--file` only. Node 20+, ffmpeg.
+macOS + Linux. Windows: WSL or `--file` only. Node 24+, ffmpeg.
 
 ```bash
 saymd help
