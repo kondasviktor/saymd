@@ -119,6 +119,7 @@ Usage
   saymd config set provider <groq|gemini|openai|deepgram|elevenlabs>
   saymd config set model <model-id|default>
   saymd activate <activation-code>   # downloads Pro into ~/.saymd automatically
+  saymd mcp config [claude|cursor|codex|gemini|vscode]   # agent settings for the MCP server
 
 Free options
   --provider groq|gemini|openai|deepgram|elevenlabs
@@ -142,6 +143,8 @@ Pro options → ${PRO_URL}
   --split [dir]         one recording → ordered task files with depends_on + README index
                         (default dir: .ai/tasks; new tasks are numbered after existing ones)
   --ground              ground the spec in this repo: real @paths, checked against disk
+  saymd mcp             MCP server for agents: list_inbox, get_item, list_tasks, mark_done
+                        (saymd mcp --check shows what it would serve)
 
 BYOK: keys in ~/.saymd/config.json or env. Never paste keys into chat.
 Privacy: ${PRIVACY}

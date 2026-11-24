@@ -18,13 +18,23 @@ import {
 } from './pro-gate.js';
 import { importProModule } from './pro-install.js';
 import { printHelp, printNextAfterSetup, printStartHere } from './help.js';
+import { cliVersion, MCP_CLIENTS, printMcpConfig } from './mcp-config.js';
 import { resolveUserPath } from './paths.js';
 import { runConfigSet, runConfigShow, runSetup } from './setup.js';
 import { isSttProviderId, loadConfig, resolveSttApiKey, resolveTextApiKey, resolveProvider, sttKeyEnvName } from './config.js';
 import type { CliOptions, SaymdResult, TemplateId } from './types.js';
 
-function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey?: string; configKey?: string; configValue?: string } {
-  const opts: CliOptions & { command?: string; activateKey?: string; configKey?: string; configValue?: string } = {
+type ParsedArgs = CliOptions & {
+  command?: string;
+  activateKey?: string;
+  configKey?: string;
+  configValue?: string;
+  /** `saymd mcp …` arguments, passed through untouched. */
+  mcpArgs?: string[];
+};
+
+function parseArgs(argv: string[]): ParsedArgs {
+  const opts: ParsedArgs = {
     template: 'default',
     output: '.ai/prompt.md',
     raw: false,
@@ -42,6 +52,9 @@ function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey
     opts.command = args.shift();
     if (opts.command === 'activate' && args[0]) {
       opts.activateKey = args.shift();
+    }
+    if (opts.command === 'mcp') {
+      opts.mcpArgs = args.splice(0);
     }
     if (opts.command === 'config' && args[0] === 'set') {
       args.shift();
@@ -197,6 +210,38 @@ async function writeSplit(
   printCostLine(result);
 }
 
+/**
+ * `saymd mcp`            serve this repo's voice inbox over stdio (Pro)
+ * `saymd mcp config [c]` print agent settings (free)
+ * `saymd mcp --check`    list what the server would serve, then exit (Pro)
+ */
+async function runMcp(args: string[], cwd: string): Promise<void> {
+  if (args[0] === 'config') {
+    printMcpConfig(args[1]);
+    return;
+  }
+  const rootIdx = args.indexOf('--root');
+  const root = rootIdx >= 0 ? resolveUserPath(cwd, args[rootIdx + 1] ?? '.') : undefined;
+  const known = new Set(['--check', '--root', ...(rootIdx >= 0 ? [args[rootIdx + 1]] : [])]);
+  const unknown = args.filter((a) => !known.has(a));
+  if (unknown.length) {
+    console.error(`Unknown argument: ${unknown[0]}\nUsage: saymd mcp [--root dir] [--check] | saymd mcp config [${MCP_CLIENTS.join('|')}]`);
+    process.exit(1);
+  }
+  const pro = await requireProModule('mcp', 'startMcpServer', 'listTasks', 'listInbox', 'findRepoRoot');
+  if (args.includes('--check')) {
+    const repo = root ?? (await pro.findRepoRoot(cwd));
+    const tasks = await pro.listTasks(repo);
+    const inbox = await pro.listInbox(repo);
+    console.log(`saymd mcp would serve ${repo}`);
+    console.log(`  tasks: ${tasks.tasks.length} (${tasks.counts.done} done)${tasks.next ? ` · next: ${tasks.next}` : ''}`);
+    console.log(`  inbox: ${inbox.length} item${inbox.length === 1 ? '' : 's'}`);
+    console.log(`Settings for your agent: saymd mcp config`);
+    return;
+  }
+  await pro.startMcpServer({ cwd, root, version: cliVersion() });
+}
+
 async function main(): Promise<void> {
   const parsed = parseArgs(process.argv.slice(2));
   const cwd = process.cwd();
@@ -222,6 +267,10 @@ async function main(): Promise<void> {
       process.exit(1);
     }
     await runConfigSet(parsed.configKey, parsed.configValue);
+    return;
+  }
+  if (parsed.command === 'mcp') {
+    await runMcp(parsed.mcpArgs ?? [], cwd);
     return;
   }
   if (parsed.command === 'activate') {

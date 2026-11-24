@@ -1,7 +1,7 @@
 import { loadLicense, saveLicense, type SaymdLicense } from './config.js';
 import { ensureProInstalled, importProModule } from './pro-install.js';
 
-export type ProFeature = 'continue' | 'review' | 'out' | 'split' | 'ground';
+export type ProFeature = 'continue' | 'review' | 'out' | 'split' | 'ground' | 'mcp';
 
 export const PRO_UPGRADE_URL = 'https://saymd.app/pricing.html';
 
@@ -62,11 +62,12 @@ export function printProGate(feature: ProFeature): void {
     out: 'Speak in one language, write the prompt in another (e.g. --out en).',
     split: 'Turn one long recording into ordered task files (.ai/tasks/01-…, 02-…) with dependencies.',
     ground: 'Ground the spec in your repo: real @paths, checked against disk.',
+    mcp: 'Let Claude Code, Codex and Cursor pull voice tasks themselves: list_tasks, get_item, mark_done.',
   };
   const tip = tips[feature];
 
   console.error(`
---${feature} is Pro.
+${feature === 'mcp' ? 'saymd mcp' : `--${feature}`} is Pro.
 
 ${tip}
 

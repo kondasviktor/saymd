@@ -94,4 +94,17 @@ declare module '@saymd/pro' {
     meta?: { created?: string; source?: string; language?: string }
   ): Promise<{ dir: string; written: TaskFile[]; all: TaskFile[] }>;
   export const PRO_FEATURES: readonly string[];
+
+  // --- 0.2.0: saymd mcp ---
+  export function findRepoRoot(cwd: string): Promise<string>;
+  export function listTasks(root: string): Promise<{
+    tasks: Array<{ id: string; path: string; title: string; status: string; depends_on: string[]; ready: boolean }>;
+    next: string | null;
+    counts: { todo: number; in_progress: number; done: number };
+  }>;
+  export function listInbox(
+    root: string,
+    opts?: { status?: string }
+  ): Promise<Array<{ id: string; path: string; title: string; status: string; created?: string; source: string }>>;
+  export function startMcpServer(opts: { cwd: string; root?: string; version?: string }): Promise<void>;
 }

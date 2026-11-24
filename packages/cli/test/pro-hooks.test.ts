@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
@@ -64,4 +66,38 @@ test('--help lists the Pro --split and --ground flags', () => {
   assert.equal(r.status, 0);
   assert.match(r.stdout, /--split \[dir\]/);
   assert.match(r.stdout, /--ground/);
+});
+
+test('mcpConfig pins the exact CLI version for every agent', async () => {
+  const { mcpConfig, MCP_CLIENTS, cliVersion } = await import('../src/mcp-config.js');
+  assert.match(cliVersion(), /^\d+\.\d+\.\d+$/);
+  assert.match(mcpConfig('claude', '9.9.9'), /claude mcp add --scope project saymd -- npx -y saymd@9\.9\.9 mcp/);
+  const cursor = JSON.parse(mcpConfig('cursor', '9.9.9').split('\n').slice(1).join('\n'));
+  assert.deepEqual(cursor, { mcpServers: { saymd: { command: 'npx', args: ['-y', 'saymd@9.9.9', 'mcp'] } } });
+  assert.match(mcpConfig('codex', '9.9.9'), /\[mcp_servers\.saymd\]\ncommand = "npx"\nargs = \["-y","saymd@9\.9\.9","mcp"\]/);
+  const vscode = JSON.parse(mcpConfig('vscode', '9.9.9').split('\n').slice(1).join('\n'));
+  assert.equal(vscode.servers.saymd.type, 'stdio');
+  assert.deepEqual([...MCP_CLIENTS], ['claude', 'cursor', 'codex', 'gemini', 'vscode']);
+});
+
+test('saymd mcp without Pro exits 1 and keeps stdout empty', () => {
+  const home = mkdtempSync(join(tmpdir(), 'saymd-free-'));
+  try {
+    const r = spawnSync(process.execPath, ['--import', import.meta.resolve('tsx'), CLI, 'mcp'], {
+      encoding: 'utf8',
+      env: { PATH: process.env.PATH, HOME: home },
+      input: '',
+    });
+    assert.equal(r.status, 1);
+    assert.equal(r.stdout, '');
+    assert.match(r.stderr, /saymd mcp is Pro/);
+    const cfg = spawnSync(process.execPath, ['--import', import.meta.resolve('tsx'), CLI, 'mcp', 'config', 'cursor'], {
+      encoding: 'utf8',
+      env: { PATH: process.env.PATH, HOME: home },
+    });
+    assert.equal(cfg.status, 0);
+    assert.match(cfg.stdout, /\.cursor\/mcp\.json/);
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
 });
