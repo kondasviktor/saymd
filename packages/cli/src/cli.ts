@@ -4,6 +4,7 @@ import { dirname } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 
 import { cleanupAudio } from './audio.js';
+import { describeError } from './errors.js';
 import { runDoctor } from './doctor.js';
 import { printCostLine, runPipeline } from './pipeline.js';
 import { activateLicense, hasValidLicense, requireCrossLang, requirePro, runContinue, runReview } from './pro-gate.js';
@@ -305,6 +306,6 @@ ${notEnglish ? `\nSpoke ${lang}? Pro can write the next spec in English:\n  saym
 }
 
 main().catch((err) => {
-  console.error((err as Error).message || err);
+  console.error(describeError(err));
   process.exit(1);
 });
