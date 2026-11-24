@@ -27,6 +27,11 @@ export function recoverContextFromTranscript(raw: string, sections: SaymdSection
   return sections;
 }
 
+/** ASR product-name fixes only — for split tasks, where whole-transcript context recovery does not apply. */
+export function polishTaskSections(sections: SaymdSections): SaymdSections {
+  return mapStrings(sections, normalizeKnownAsr);
+}
+
 /**
  * Deterministic polish after the LLM — ASR product-name fixes and missing Context recovery.
  */

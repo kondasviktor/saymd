@@ -36,4 +36,62 @@ declare module '@saymd/pro' {
     outLang: string;
     template?: 'default' | 'feature' | 'bug' | 'plan';
   }): Promise<Record<string, unknown>>;
+
+  // --- 0.2.0: --ground ---
+  export interface RepoMap {
+    root: string;
+    files: string[];
+    truncated: boolean;
+    package?: { name?: string; scripts: string[]; dependencies: string[]; devDependencies: string[] };
+    schemas: { prisma: string[]; sqlTables: string[]; openapi: string[] };
+    agentDocs: Record<string, string[]>;
+  }
+  export interface PathCheck {
+    referenced: string[];
+    found: string[];
+    newFiles: string[];
+    missing: string[];
+  }
+  export function buildRepoMap(cwd: string, opts?: { maxFiles?: number }): Promise<RepoMap>;
+  export function formatRepoMap(map: RepoMap, budgetChars?: number): string;
+  export function groundAddendum(mapText: string): string;
+  export function checkPaths(
+    sections: Record<string, unknown>,
+    root: string,
+    map?: Partial<Pick<RepoMap, 'package' | 'files'>>
+  ): Promise<PathCheck>;
+  export function flagPaths<T extends Record<string, unknown>>(sections: T, check: PathCheck, lang?: string): T;
+
+  // --- 0.2.0: --split ---
+  export interface DraftTask {
+    slug: string;
+    title: string;
+    depends_on: string[];
+    sections: Record<string, unknown>;
+  }
+  export interface TaskFile {
+    id: string;
+    title: string;
+    depends_on: string[];
+    status: 'todo' | 'in_progress' | 'done';
+    file: string;
+    body: string;
+  }
+  export function splitTasks(opts: {
+    llm: (prompt: string) => Promise<string>;
+    raw: string;
+    rules?: string;
+    maxTasks?: number;
+  }): Promise<{ language: string; summary: string; tasks: DraftTask[] }>;
+  export function planTaskFiles(
+    dir: string,
+    drafts: DraftTask[],
+    meta?: { created?: string; source?: string; language?: string }
+  ): Promise<{ files: Array<{ name: string; content: string; task: TaskFile }>; existing: TaskFile[] }>;
+  export function writeTaskFiles(
+    dir: string,
+    drafts: DraftTask[],
+    meta?: { created?: string; source?: string; language?: string }
+  ): Promise<{ dir: string; written: TaskFile[]; all: TaskFile[] }>;
+  export const PRO_FEATURES: readonly string[];
 }

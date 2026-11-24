@@ -6,14 +6,22 @@ import { mkdir } from 'node:fs/promises';
 import { cleanupAudio } from './audio.js';
 import { describeError } from './errors.js';
 import { runDoctor } from './doctor.js';
-import { printCostLine, runPipeline } from './pipeline.js';
-import { activateLicense, hasValidLicense, requireCrossLang, requirePro, runContinue, runReview } from './pro-gate.js';
+import { printCostLine, printPathLine, runPipeline } from './pipeline.js';
+import {
+  activateLicense,
+  hasValidLicense,
+  requireCrossLang,
+  requirePro,
+  requireProModule,
+  runContinue,
+  runReview,
+} from './pro-gate.js';
 import { importProModule } from './pro-install.js';
 import { printHelp, printNextAfterSetup, printStartHere } from './help.js';
 import { resolveUserPath } from './paths.js';
 import { runConfigSet, runConfigShow, runSetup } from './setup.js';
 import { isSttProviderId, loadConfig, resolveSttApiKey, resolveTextApiKey, resolveProvider, sttKeyEnvName } from './config.js';
-import type { CliOptions, TemplateId } from './types.js';
+import type { CliOptions, SaymdResult, TemplateId } from './types.js';
 
 function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey?: string; configKey?: string; configValue?: string } {
   const opts: CliOptions & { command?: string; activateKey?: string; configKey?: string; configValue?: string } = {
@@ -25,6 +33,7 @@ function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey
     json: false,
     diff: false,
     dryRun: false,
+    ground: false,
     recordSeconds: 0,
   };
 
@@ -99,6 +108,12 @@ function parseArgs(argv: string[]): CliOptions & { command?: string; activateKey
       case '--continue':
         opts.continue = args[0]?.startsWith('-') ? opts.output : (args.shift() ?? opts.output);
         break;
+      case '--split':
+        opts.split = args[0] && !args[0].startsWith('-') ? args.shift()! : '.ai/tasks';
+        break;
+      case '--ground':
+        opts.ground = true;
+        break;
       case '--review':
         opts.review = args[0]?.startsWith('-') ? opts.output : (args.shift() ?? opts.output);
         break;
@@ -144,6 +159,44 @@ async function copyClipboard(text: string): Promise<void> {
   }
 }
 
+/** Write (or preview) --split tasks and print what an agent should run first. */
+async function writeSplit(
+  result: SaymdResult,
+  dirArg: string,
+  cwd: string,
+  opts: { dryRun: boolean; stdout: boolean; json: boolean }
+): Promise<void> {
+  const pro = await requireProModule('split', 'writeTaskFiles', 'planTaskFiles');
+  const dir = resolveUserPath(cwd, dirArg);
+  const drafts = (result.tasks ?? []).map((t) => ({ ...t, sections: t.sections as Record<string, unknown> }));
+  const meta = {
+    created: new Date().toISOString().slice(0, 10),
+    source: 'voice',
+    language: result.language,
+  };
+
+  if (opts.dryRun || opts.stdout || opts.json) {
+    const plan = await pro.planTaskFiles(dir, drafts, meta);
+    if (opts.json) {
+      console.log(JSON.stringify({ ...result, files: plan.files.map((f) => ({ name: f.name, content: f.content })) }, null, 2));
+    } else {
+      if (opts.dryRun) console.log(`[dry-run] ${dirArg}`);
+      for (const f of plan.files) console.log(`===== ${f.name}\n${f.content}`);
+    }
+  } else {
+    const written = await pro.writeTaskFiles(dir, drafts, meta);
+    const rel = dirArg.replace(/\/$/, '');
+    console.log(`Wrote ${written.written.length} task${written.written.length === 1 ? '' : 's'} to ${rel}/ (${result.language})`);
+    for (const t of written.written) {
+      const deps = t.depends_on.length ? `  ← ${t.depends_on.join(', ')}` : '';
+      console.log(`  ${t.file}  ${t.title}${deps}`);
+    }
+    console.log(`Index: ${rel}/README.md  ·  Start with: @${rel}/${written.written[0]?.file ?? 'README.md'}`);
+  }
+  printPathLine(result.paths);
+  printCostLine(result);
+}
+
 async function main(): Promise<void> {
   const parsed = parseArgs(process.argv.slice(2));
   const cwd = process.cwd();
@@ -186,6 +239,11 @@ async function main(): Promise<void> {
   if (!resolveSttApiKey(providerId, config) && !parsed.review) {
     printStartHere();
     console.error(`Missing ${sttKeyEnvName(providerId)} — run step 1 above.`);
+    process.exit(1);
+  }
+
+  if (parsed.split && (parsed.continue || parsed.review)) {
+    console.error('--split cannot be combined with --continue or --review.');
     process.exit(1);
   }
 
@@ -247,6 +305,11 @@ async function main(): Promise<void> {
   try {
     const result = await runPipeline(parsed, cwd);
 
+    if (parsed.split && result.tasks) {
+      await writeSplit(result, parsed.split, cwd, parsed);
+      return;
+    }
+
     if (parsed.raw) {
       console.log(result.raw);
       printCostLine(result);
@@ -276,6 +339,7 @@ async function main(): Promise<void> {
     }
 
     if (parsed.clipboard) await copyClipboard(result.markdown);
+    printPathLine(result.paths);
     printCostLine(result);
 
     if (

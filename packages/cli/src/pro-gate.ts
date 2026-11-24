@@ -1,7 +1,7 @@
 import { loadLicense, saveLicense, type SaymdLicense } from './config.js';
 import { ensureProInstalled, importProModule } from './pro-install.js';
 
-export type ProFeature = 'continue' | 'review' | 'out';
+export type ProFeature = 'continue' | 'review' | 'out' | 'split' | 'ground';
 
 export const PRO_UPGRADE_URL = 'https://saymd.app/pricing.html';
 
@@ -56,12 +56,14 @@ export async function requirePro(feature: ProFeature): Promise<boolean> {
 }
 
 export function printProGate(feature: ProFeature): void {
-  const tip =
-    feature === 'continue'
-      ? 'Add more speech into the same markdown file without starting over.'
-      : feature === 'review'
-        ? 'Gap-check an existing spec before you hand it to an agent.'
-        : 'Speak in one language, write the prompt in another (e.g. --out en).';
+  const tips: Record<ProFeature, string> = {
+    continue: 'Add more speech into the same markdown file without starting over.',
+    review: 'Gap-check an existing spec before you hand it to an agent.',
+    out: 'Speak in one language, write the prompt in another (e.g. --out en).',
+    split: 'Turn one long recording into ordered task files (.ai/tasks/01-…, 02-…) with dependencies.',
+    ground: 'Ground the spec in your repo: real @paths, checked against disk.',
+  };
+  const tip = tips[feature];
 
   console.error(`
 --${feature} is Pro.
@@ -118,6 +120,32 @@ export async function activateLicense(rawKey: string): Promise<void> {
 
 async function importPro(): Promise<typeof import('@saymd/pro') | null> {
   return importProModule();
+}
+
+type ProModule = typeof import('@saymd/pro');
+
+/**
+ * Licensed Pro module that has the given export. Exits with an upgrade hint when the license
+ * is missing, or an update hint when the installed Pro predates the feature.
+ */
+export async function requireProModule<K extends keyof ProModule>(
+  feature: ProFeature,
+  ...exportsNeeded: K[]
+): Promise<ProModule> {
+  if (!(await requirePro(feature))) process.exit(1);
+  const pro = await importPro();
+  if (!pro) {
+    console.error('@saymd/pro not installed. Run: saymd activate <activation-code>');
+    process.exit(1);
+  }
+  const missing = exportsNeeded.filter((k) => typeof pro[k] === 'undefined');
+  if (missing.length) {
+    console.error(
+      `--${feature} needs a newer Pro. Update it with your activation code:\n  saymd activate <activation-code>`
+    );
+    process.exit(1);
+  }
+  return pro;
 }
 
 export async function runContinue(opts: {

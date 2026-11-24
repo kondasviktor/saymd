@@ -71,6 +71,10 @@ ${structureSchemaHint(opts.template)}`;
 export const geminiCompiler: PromptCompiler = {
   id: 'gemini',
 
+  async generateJson(apiKey: string, prompt: string) {
+    return generateJson(new GoogleGenAI({ apiKey }), prompt);
+  },
+
   async structureTranscript(opts: StructureOptions) {
     const client = new GoogleGenAI({ apiKey: opts.apiKey });
     const rawJson = await generateJson(client, buildPrompt(opts));

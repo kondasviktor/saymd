@@ -20,4 +20,6 @@ export interface StructureOptions {
 export interface PromptCompiler {
   id: CompilerProviderId;
   structureTranscript(opts: StructureOptions): Promise<StructuredResult>;
+  /** Raw JSON-mode completion; used by Pro (--split) with the same provider and key. */
+  generateJson(apiKey: string, prompt: string): Promise<string>;
 }

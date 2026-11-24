@@ -157,10 +157,15 @@ Upgrade at [saymd.app](https://saymd.app) (**€39/year** · **€5/month**), th
 
 ```bash
 saymd activate <activation-code>   # downloads @saymd/pro into ~/.saymd automatically
+saymd --split --ground --file walk.m4a   # one long memo → .ai/tasks/01-db.md, 02-api.md … + README index
+saymd --ground -o .ai/prompt.md    # one spec that references real @paths, checked against disk
 saymd --continue .ai/prompt.md     # add more speech; merge into the same spec
 saymd --review .ai/prompt.md       # missing requirements, constraints, acceptance criteria
 saymd --out en                     # speak one language → write the spec in another
 ```
+
+- **`--split [dir]`** writes one task per pull request, foundations first, each with `depends_on` frontmatter and `status: todo`, plus a `README.md` index with the run order. A later split adds tasks after the existing ones; nothing is overwritten.
+- **`--ground`** builds a local map of the repo — file paths (`.gitignore` respected), `package.json`, Prisma / SQL / OpenAPI names and `AGENTS.md` / `CLAUDE.md` headings, never source code — and puts it in the prompt. Every `@path` in the result is checked on disk; missing ones are flagged in **Open questions**.
 
 `.saymd/vocab.txt` — project names, APIs, acronyms (one per line). Ignored on Free.
 

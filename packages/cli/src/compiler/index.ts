@@ -51,6 +51,18 @@ export function compilerKeyEnvName(compilerProvider: CompilerProviderId): string
   return `${compilerProvider.toUpperCase()}_API_KEY`;
 }
 
+/** JSON-mode LLM on the structuring provider, for Pro features such as --split. */
+export function createJsonLlm(
+  sttProvider: SttProviderId,
+  config: SaymdConfig
+): { provider: CompilerProviderId; llm: (prompt: string) => Promise<string> } {
+  const provider = resolveCompilerProvider(sttProvider, config);
+  const apiKey = resolveCompilerApiKey(provider, config);
+  if (!apiKey) throw new Error(`${compilerKeyEnvName(provider)} not set. Run: saymd setup`);
+  const compiler = getCompiler(provider);
+  return { provider, llm: (prompt) => compiler.generateJson(apiKey, prompt) };
+}
+
 export async function structureTranscript(
   sttProvider: SttProviderId,
   config: SaymdConfig,

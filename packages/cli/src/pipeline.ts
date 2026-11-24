@@ -3,7 +3,8 @@ import { dirname } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 
 import { cleanupAudio, normalizeAudio, recordMic, splitLongAudio } from './audio.js';
-import { structureTranscript } from './compiler/index.js';
+import { createJsonLlm, structureTranscript } from './compiler/index.js';
+import { freeCompilerRules } from './compiler/rules.js';
 import {
   loadVocab,
   resolveSttApiKey,
@@ -15,9 +16,9 @@ import {
 import { estimateCostUsd, getProvider, isKnownModel, providerLabel, resolveSttModel } from './providers/index.js';
 import { sectionsToMarkdown } from './markdown.js';
 import { normalizeKnownAsr } from './asr-normalize.js';
-import { polishStructuredSections } from './structure-polish.js';
+import { polishStructuredSections, polishTaskSections } from './structure-polish.js';
 import { resolveUserPath } from './paths.js';
-import type { CliOptions, SaymdResult, SaymdSections } from './types.js';
+import type { CliOptions, PathSummary, SaymdResult, SaymdSections, SplitTask } from './types.js';
 import type { SttProviderId } from './providers/types.js';
 import {
   FREE_MAX_SECONDS,
@@ -25,6 +26,7 @@ import {
   PRO_UPGRADE_URL,
   getProCompilerAddendum,
   getProRecordingLimits,
+  requireProModule,
 } from './pro-gate.js';
 import { importProModule } from './pro-install.js';
 
@@ -65,7 +67,17 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
       `.saymd/config.json "out" is Pro — ignored this run. Upgrade → ${PRO_UPGRADE_URL}\n`
     );
   }
-  const proAddendum = isPro ? await getProCompilerAddendum({ vocab, outLang }) : '';
+  let proAddendum = isPro ? await getProCompilerAddendum({ vocab, outLang }) : '';
+
+  // --ground: build the repo map before recording so a problem shows up before you speak.
+  let ground: Awaited<ReturnType<typeof prepareGround>> | undefined;
+  if (opts.ground) {
+    ground = await prepareGround(cwd);
+    proAddendum = [proAddendum, ground.addendum].filter(Boolean).join('\n\n');
+  }
+  if (opts.split) {
+    await requireProModule('split', 'splitTasks', 'writeTaskFiles', 'planTaskFiles');
+  }
   const maxMic = proLimits?.maxMicSeconds ?? FREE_MAX_SECONDS;
   const maxFile = proLimits?.maxFileSeconds ?? FREE_MAX_SECONDS;
   const defaultMic = proLimits?.defaultSeconds ?? FREE_MAX_SECONDS;
@@ -128,6 +140,42 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
           });
 
     const rawText = normalizeKnownAsr(transcript.text);
+    const base = {
+      raw: rawText,
+      durationSeconds: probe.durationSeconds,
+      estimatedCostUsd: estimateCostUsd(providerId, probe.durationSeconds, transcript.model, chunkPaths.length),
+      provider: providerId,
+      sttModel: transcript.model,
+    };
+
+    if (opts.split) {
+      const pro = await requireProModule('split', 'splitTasks');
+      const { llm } = createJsonLlm(providerId, config);
+      process.stderr.write('Splitting into tasks…\n');
+      const split = await pro.splitTasks({
+        llm,
+        raw: rawText,
+        rules: [proAddendum, freeCompilerRules()].filter(Boolean).join('\n\n'),
+      });
+      const language = outLang && outLang !== 'same' ? outLang : split.language;
+      const tasks: SplitTask[] = [];
+      const paths: PathSummary = { found: [], newFiles: [], missing: [] };
+      for (const t of split.tasks) {
+        let sections = polishTaskSections(t.sections as SaymdSections);
+        if (ground) sections = await ground.check(sections, language, paths);
+        tasks.push({ slug: t.slug, title: normalizeKnownAsr(t.title), depends_on: t.depends_on, sections });
+      }
+      return {
+        ...base,
+        clean: rawText,
+        language,
+        sections: {},
+        markdown: tasks.map((t, i) => `${i + 1}. ${t.title}`).join('\n') + '\n',
+        tasks,
+        summary: split.summary,
+        paths: ground ? dedupePaths(paths) : undefined,
+      };
+    }
 
     process.stderr.write('Structuring into markdown…\n');
     const structured = await structureTranscript(providerId, config, {
@@ -157,20 +205,21 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
       }
     }
 
-    const markdown = normalizeKnownAsr(sectionsToMarkdown(sections, opts.template));
-    const durationSeconds = probe.durationSeconds;
     const language = outLang && outLang !== 'same' ? outLang : structured.language;
+    let paths: PathSummary | undefined;
+    if (ground) {
+      paths = { found: [], newFiles: [], missing: [] };
+      sections = await ground.check(sections, language, paths);
+    }
+    const markdown = normalizeKnownAsr(sectionsToMarkdown(sections, opts.template));
 
     return {
-      raw: rawText,
+      ...base,
       clean: normalizeKnownAsr(structured.clean || rawText),
       language,
       sections,
       markdown,
-      durationSeconds,
-      estimatedCostUsd: estimateCostUsd(providerId, durationSeconds, transcript.model, chunkPaths.length),
-      provider: providerId,
-      sttModel: transcript.model,
+      paths,
     };
   } finally {
     if (!opts.file) {
@@ -178,6 +227,51 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
     }
     void chunkTemp;
   }
+}
+
+/** Build the repo map and a checker that flags @paths missing on disk. */
+async function prepareGround(cwd: string) {
+  const pro = await requireProModule(
+    'ground',
+    'buildRepoMap',
+    'formatRepoMap',
+    'groundAddendum',
+    'checkPaths',
+    'flagPaths'
+  );
+  const map = await pro.buildRepoMap(cwd);
+  process.stderr.write(
+    `Grounding in repo map: ${map.files.length} files${map.truncated ? ' (truncated)' : ''}` +
+      `${prismaModels(map.schemas.prisma)}…\n`
+  );
+  return {
+    map,
+    addendum: pro.groundAddendum(pro.formatRepoMap(map)),
+    async check(sections: SaymdSections, language: string, acc: PathSummary): Promise<SaymdSections> {
+      const result = await pro.checkPaths(sections as Record<string, unknown>, map.root, map);
+      acc.found.push(...result.found);
+      acc.newFiles.push(...result.newFiles);
+      acc.missing.push(...result.missing);
+      return pro.flagPaths(sections as Record<string, unknown>, result, language) as SaymdSections;
+    },
+  };
+}
+
+function prismaModels(entries: string[]): string {
+  const n = entries.filter((e) => e.startsWith('model ')).length;
+  return n ? `, ${n} Prisma model${n === 1 ? '' : 's'}` : '';
+}
+
+function dedupePaths(p: PathSummary): PathSummary {
+  return { found: [...new Set(p.found)], newFiles: [...new Set(p.newFiles)], missing: [...new Set(p.missing)] };
+}
+
+/** One stderr line for --ground. */
+export function printPathLine(paths: PathSummary | undefined): void {
+  if (!paths) return;
+  const parts = [`${paths.found.length} found`, `${paths.newFiles.length} new`, `${paths.missing.length} missing`];
+  console.error(`@paths checked against disk: ${parts.join(', ')}`);
+  for (const p of paths.missing) console.error(`  ✗ @${p} — not found; flagged in Open questions`);
 }
 
 export async function writeOutput(

@@ -74,10 +74,12 @@ saymd --provider deepgram --file meeting.wav
 
 ## Pro
 
-`--continue`, `--review`, `--out`, `.saymd/vocab.txt`, and longer recordings require [saymd.app](https://saymd.app) (€39/yr · €5/mo).
+`--split`, `--ground`, `--continue`, `--review`, `--out`, `.saymd/vocab.txt`, and longer recordings require [saymd.app](https://saymd.app) (€39/yr · €5/mo).
 
 ```bash
 saymd activate <activation-code>
+saymd --split --ground --file walk.m4a   # ordered task files in .ai/tasks/ with depends_on
+saymd --ground -o .ai/prompt.md          # spec with real @paths, checked against disk
 saymd --continue .ai/prompt.md
 saymd --review .ai/prompt.md
 saymd --out en

@@ -21,6 +21,19 @@ export const sectionsSchema = z.object({
 
 export type SaymdSections = z.infer<typeof sectionsSchema>;
 
+export interface SplitTask {
+  slug: string;
+  title: string;
+  depends_on: string[];
+  sections: SaymdSections;
+}
+
+export interface PathSummary {
+  found: string[];
+  newFiles: string[];
+  missing: string[];
+}
+
 export interface SaymdResult {
   raw: string;
   clean: string;
@@ -31,6 +44,11 @@ export interface SaymdResult {
   estimatedCostUsd: number;
   provider: SttProviderId;
   sttModel: string;
+  /** Pro --split: ordered draft tasks (numbered when written). */
+  tasks?: SplitTask[];
+  summary?: string;
+  /** Pro --ground: @path check against disk. */
+  paths?: PathSummary;
 }
 
 export type TemplateId = 'default' | 'feature' | 'bug' | 'plan';
@@ -52,5 +70,9 @@ export interface CliOptions {
   dryRun: boolean;
   continue?: string;
   review?: string;
+  /** Pro: task directory for --split (default .ai/tasks). */
+  split?: string;
+  /** Pro: ground the spec in a local repo map. */
+  ground: boolean;
   recordSeconds: number;
 }

@@ -139,6 +139,9 @@ Pro options → ${PRO_URL}
   --continue [file]     merge new speech into an existing spec
   --review [file]       missing requirements, constraints, acceptance criteria
   --out CODE            cross-language output (e.g. speak HU, write EN)
+  --split [dir]         one recording → ordered task files with depends_on + README index
+                        (default dir: .ai/tasks; new tasks are numbered after existing ones)
+  --ground              ground the spec in this repo: real @paths, checked against disk
 
 BYOK: keys in ~/.saymd/config.json or env. Never paste keys into chat.
 Privacy: ${PRIVACY}

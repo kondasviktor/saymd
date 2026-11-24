@@ -105,6 +105,7 @@ export function createOpenAiCompatibleCompiler(cfg: OpenAiCompatibleCompilerConf
   const chatJson = makeChatJson(cfg);
   return {
     id: cfg.id,
+    generateJson: chatJson,
     async structureTranscript(opts: StructureOptions) {
       const rawJson = await chatJson(opts.apiKey, buildPrompt(opts));
       return parseStructureJson(chatJson, opts.apiKey, rawJson);
