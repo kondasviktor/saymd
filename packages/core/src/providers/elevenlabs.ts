@@ -1,5 +1,4 @@
-import { readFile } from 'node:fs/promises';
-
+import { loadAudio } from './audio-input.js';
 import type { TranscribeOptions, Transcript, TranscriptionProvider } from './types.js';
 
 const DEFAULT_MODEL = 'scribe_v3';
@@ -36,11 +35,11 @@ export const elevenlabsProvider: TranscriptionProvider = {
   },
 
   async transcribeFile(apiKey: string, opts: TranscribeOptions): Promise<Transcript> {
-    const buffer = await readFile(opts.localPath);
+    const { buffer, filename } = await loadAudio(opts);
     const blob = new Blob([buffer], { type: opts.mimeType });
     const form = new FormData();
     const model = opts.model?.trim() || defaultModel();
-    form.append('file', blob, opts.localPath.split('/').pop() ?? 'audio');
+    form.append('file', blob, filename);
     form.append('model_id', model);
     if (opts.lang && opts.lang !== 'auto') {
       form.append('language_code', opts.lang);

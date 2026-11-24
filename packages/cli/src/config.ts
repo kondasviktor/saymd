@@ -2,8 +2,7 @@ import { mkdir, readFile, writeFile, chmod, access, rm } from 'node:fs/promises'
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-import type { SttProviderId } from './providers/types.js';
-import { STT_PROVIDER_IDS } from './providers/types.js';
+import { STT_PROVIDER_IDS, type ProviderKeys, type SttProviderId } from '@saymd/core';
 
 export const SAYMD_DIR = join(homedir(), '.saymd');
 export const CONFIG_PATH = join(SAYMD_DIR, 'config.json');
@@ -126,6 +125,16 @@ export function resolveSttApiKey(provider: SttProviderId, config: SaymdConfig): 
     case 'elevenlabs':
       return resolveElevenlabsKey(config);
   }
+}
+
+/** Every provider key the user has (env first, then ~/.saymd/config.json), for @saymd/core. */
+export function providerKeys(config: SaymdConfig): ProviderKeys {
+  const keys: ProviderKeys = {};
+  for (const id of STT_PROVIDER_IDS) {
+    const key = resolveSttApiKey(id, config);
+    if (key) keys[id] = key;
+  }
+  return keys;
 }
 
 /** Text-model key for Pro --continue/--review.

@@ -19,6 +19,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "@saymd/core": "0.2.0",
     "@google/genai": "^2.31.0",
     "zod": "^4.6.7"
   },

@@ -9,7 +9,12 @@ export interface Transcript {
 }
 
 export interface TranscribeOptions {
-  localPath: string;
+  /** Path to an audio file (CLI). Either this or `data`. */
+  localPath?: string;
+  /** Audio bytes (cloud, e.g. a Telegram voice note). Either this or `localPath`. */
+  data?: Uint8Array;
+  /** File name sent to the provider; defaults to the path's base name or "audio". */
+  filename?: string;
   mimeType: string;
   lang?: string;
   durationSeconds?: number;

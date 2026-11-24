@@ -6,8 +6,9 @@ import { dirname, join } from 'node:path';
 import { after, before, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { isDedicatedTranscribeModel, transcribeVocabulary } from '../src/providers/gemini.js';
-import { startGeminiMock, type GeminiMock } from './gemini-mock.js';
+import { isDedicatedTranscribeModel, transcribeVocabulary } from '@saymd/core';
+
+import { startGeminiMock, type GeminiMock } from '../../core/test/gemini-mock.js';
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'cli.ts');
 const TSX = import.meta.resolve('tsx');

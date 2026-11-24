@@ -1,6 +1,6 @@
 import type { GoogleGenAI } from '@google/genai';
-import { readFile } from 'node:fs/promises';
 
+import { loadAudio } from './audio-input.js';
 import { geminiClient, geminiTextModel } from './gemini-client.js';
 import type { TranscribeOptions, Transcript, TranscriptionProvider } from './types.js';
 
@@ -50,12 +50,13 @@ function extractTranscriptionText(response: {
   throw new Error('Gemini returned no transcription text.');
 }
 
-async function uploadAudio(client: GoogleGenAI, localPath: string, mimeType: string) {
-  const buffer = await readFile(localPath);
+async function uploadAudio(client: GoogleGenAI, opts: TranscribeOptions) {
+  const { buffer, filename } = await loadAudio(opts);
+  const mimeType = opts.mimeType;
   const blob = new Blob([buffer], { type: mimeType });
   const uploaded = await client.files.upload({
     file: blob,
-    config: { mimeType, displayName: localPath.split('/').pop() ?? 'audio' },
+    config: { mimeType, displayName: filename },
   });
   if (!uploaded.uri) throw new Error('File upload failed.');
   return { uri: uploaded.uri, mimeType: uploaded.mimeType ?? mimeType };
@@ -115,7 +116,7 @@ export const geminiProvider: TranscriptionProvider = {
   async transcribeFile(apiKey: string, opts: TranscribeOptions): Promise<Transcript> {
     const client = geminiClient(apiKey);
     const model = opts.model?.trim() || defaultModel();
-    const audio = await uploadAudio(client, opts.localPath, opts.mimeType);
+    const audio = await uploadAudio(client, opts);
     if (isDedicatedTranscribeModel(model)) {
       return {
         text: await transcribeWithInteractions(client, model, audio, opts.lang, opts.vocabulary),

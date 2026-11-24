@@ -1,5 +1,4 @@
-import { readFile } from 'node:fs/promises';
-
+import { loadAudio } from './audio-input.js';
 import type { TranscribeOptions, Transcript, TranscriptionProvider } from './types.js';
 
 const DEFAULT_MODEL = 'nova-3';
@@ -40,7 +39,7 @@ export const deepgramProvider: TranscriptionProvider = {
   },
 
   async transcribeFile(apiKey: string, opts: TranscribeOptions): Promise<Transcript> {
-    const buffer = await readFile(opts.localPath);
+    const { buffer } = await loadAudio(opts);
     const model = opts.model?.trim() || defaultModel();
     const res = await fetch(buildListenUrl(model, opts.lang), {
       method: 'POST',

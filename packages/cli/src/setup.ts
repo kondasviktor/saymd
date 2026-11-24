@@ -15,9 +15,16 @@ import {
   sttKeyEnvName,
   type SaymdConfig,
 } from './config.js';
-import { getProvider, isKnownModel, listProviders, resolveSttModel } from './providers/index.js';
-import { RECOMMENDED_PROVIDER, STT_ONLY_PROVIDERS, STT_PROVIDER_IDS } from './providers/types.js';
-import type { SttProviderId } from './providers/types.js';
+import {
+  getProvider,
+  isKnownModel,
+  listProviders,
+  RECOMMENDED_PROVIDER,
+  resolveSttModel,
+  STT_ONLY_PROVIDERS,
+  STT_PROVIDER_IDS,
+  type SttProviderId,
+} from '@saymd/core';
 
 const execFileAsync = promisify(execFile);
 

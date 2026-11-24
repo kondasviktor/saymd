@@ -1,14 +1,22 @@
 import { rm } from 'node:fs/promises';
 
-import { compilerKeyEnvName, resolveCompilerApiKey, resolveCompilerProvider } from './compiler/index.js';
+import {
+  compilerKeyEnvName,
+  getProvider,
+  isKnownModel,
+  providerLabel,
+  resolveCompilerApiKey,
+  resolveCompilerProvider,
+  resolveSttModel,
+} from '@saymd/core';
 import { ffmpegExists, micBackendHint, recordMic, commandExists } from './audio.js';
 import {
   loadConfig,
+  providerKeys,
   resolveProvider,
   resolveSttApiKey,
   sttKeyEnvName,
 } from './config.js';
-import { getProvider, isKnownModel, providerLabel, resolveSttModel } from './providers/index.js';
 
 export async function runDoctor(): Promise<number> {
   let ok = true;
@@ -63,8 +71,9 @@ export async function runDoctor(): Promise<number> {
   }
 
   try {
-    const compilerProvider = resolveCompilerProvider(providerId, config);
-    const compilerKey = resolveCompilerApiKey(compilerProvider, config);
+    const keys = providerKeys(config);
+    const compilerProvider = resolveCompilerProvider(providerId, keys);
+    const compilerKey = resolveCompilerApiKey(compilerProvider, keys);
     if (!compilerKey) {
       const env = compilerKeyEnvName(compilerProvider);
       console.log(`✗ ${env} not set (needed for prompt structuring) — run: saymd setup`);

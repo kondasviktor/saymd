@@ -124,15 +124,15 @@ test('resolveCompilerProvider matches STT provider when it has an LLM', () => {
 test('resolveCompilerProvider prefers gemini, then openai, then groq for STT-only providers', async () => {
   await withCleanEnv(() => {
     assert.equal(
-      resolveCompilerProvider('deepgram', { geminiApiKey: 'g', groqApiKey: 'q', deepgramApiKey: 'd' }),
+      resolveCompilerProvider('deepgram', { gemini: 'g', groq: 'q', deepgram: 'd' }),
       'gemini'
     );
     assert.equal(
-      resolveCompilerProvider('elevenlabs', { openaiApiKey: 'o', groqApiKey: 'q', elevenlabsApiKey: 'e' }),
+      resolveCompilerProvider('elevenlabs', { openai: 'o', groq: 'q', elevenlabs: 'e' }),
       'openai'
     );
-    assert.equal(resolveCompilerProvider('elevenlabs', { groqApiKey: 'q', elevenlabsApiKey: 'e' }), 'groq');
-    assert.throws(() => resolveCompilerProvider('deepgram', { deepgramApiKey: 'd' }), /Groq/);
+    assert.equal(resolveCompilerProvider('elevenlabs', { groq: 'q', elevenlabs: 'e' }), 'groq');
+    assert.throws(() => resolveCompilerProvider('deepgram', { deepgram: 'd' }), /Groq/);
   });
 });
 

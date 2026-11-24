@@ -6,8 +6,7 @@ import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { createJsonLlm } from '../src/compiler/index.js';
-import { polishTaskSections } from '../src/structure-polish.js';
+import { createJsonLlm, polishTaskSections } from '@saymd/core';
 
 const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'cli.ts');
 
@@ -27,7 +26,7 @@ test('createJsonLlm uses the structuring provider and key (Groq, JSON mode)', as
     return new Response(JSON.stringify({ choices: [{ message: { content: '{"tasks":[]}' } }] }));
   }) as typeof fetch;
   try {
-    const { provider, llm } = createJsonLlm('groq', { groqApiKey: 'gsk_cfg' });
+    const { provider, llm } = createJsonLlm('groq', { groq: 'gsk_cfg' });
     assert.equal(provider, 'groq');
     assert.equal(await llm('split this'), '{"tasks":[]}');
     assert.equal(seen?.url, 'https://api.groq.com/openai/v1/chat/completions');
@@ -48,7 +47,7 @@ test('createJsonLlm needs a structuring key for STT-only providers', () => {
   delete process.env.OPENAI_API_KEY;
   delete process.env.GROQ_API_KEY;
   try {
-    assert.throws(() => createJsonLlm('deepgram', { deepgramApiKey: 'd' }), /STT-only/);
+    assert.throws(() => createJsonLlm('deepgram', { deepgram: 'd' }), /STT-only/);
   } finally {
     const names = ['GEMINI_API_KEY', 'OPENAI_API_KEY', 'GROQ_API_KEY'];
     saved.forEach((v, i) => v !== undefined && (process.env[names[i]] = v));

@@ -3,23 +3,32 @@ import { dirname } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 
 import { cleanupAudio, normalizeAudio, recordMic, splitLongAudio } from './audio.js';
-import { createJsonLlm, structureTranscript } from './compiler/index.js';
-import { freeCompilerRules } from './compiler/rules.js';
+import {
+  compileSpec,
+  createJsonLlm,
+  estimateCostUsd,
+  freeCompilerRules,
+  getProvider,
+  isKnownModel,
+  normalizeKnownAsr,
+  polishStructuredSections,
+  polishTaskSections,
+  providerLabel,
+  renderSpec,
+  resolveSttModel,
+  type SttProviderId,
+} from '@saymd/core';
 import {
   loadVocab,
   resolveSttApiKey,
   loadConfig,
+  providerKeys,
   resolveProvider,
   resolveTextApiKey,
   sttKeyEnvName,
 } from './config.js';
-import { estimateCostUsd, getProvider, isKnownModel, providerLabel, resolveSttModel } from './providers/index.js';
-import { sectionsToMarkdown } from './markdown.js';
-import { normalizeKnownAsr } from './asr-normalize.js';
-import { polishStructuredSections, polishTaskSections } from './structure-polish.js';
 import { resolveUserPath } from './paths.js';
 import type { CliOptions, PathSummary, SaymdResult, SaymdSections, SplitTask } from './types.js';
-import type { SttProviderId } from './providers/types.js';
 import {
   FREE_MAX_SECONDS,
   PRO_MAX_MIC_SECONDS,
@@ -153,7 +162,7 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
 
     if (opts.split) {
       const pro = await requireProModule('split', 'splitTasks');
-      const { llm } = createJsonLlm(providerId, config);
+      const { llm } = createJsonLlm(providerId, providerKeys(config));
       process.stderr.write('Splitting into tasks…\n');
       const split = await pro.splitTasks({
         llm,
@@ -181,17 +190,15 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
     }
 
     process.stderr.write('Structuring into markdown…\n');
-    const structured = await structureTranscript(providerId, config, {
+    // Same structuring as Pro Cloud: @saymd/core compileSpec.
+    const structured = await compileSpec({
+      sttProvider: providerId,
+      keys: providerKeys(config),
       raw: rawText,
       template: opts.template,
-      proAddendum,
+      addendum: proAddendum,
     });
-
-    let sections: SaymdSections = polishStructuredSections(
-      rawText,
-      structured.sections,
-      opts.template
-    );
+    let sections: SaymdSections = structured.sections;
 
     if (isPro && outLang && outLang !== 'same') {
       const textKey = resolveTextApiKey(config);
@@ -214,11 +221,11 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
       paths = { found: [], newFiles: [], missing: [] };
       sections = await ground.check(sections, language, paths);
     }
-    const markdown = normalizeKnownAsr(sectionsToMarkdown(sections, opts.template));
+    const markdown = renderSpec(sections, opts.template);
 
     return {
       ...base,
-      clean: normalizeKnownAsr(structured.clean || rawText),
+      clean: structured.clean,
       language,
       sections,
       markdown,

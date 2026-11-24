@@ -1,25 +1,7 @@
-import { z } from 'zod';
+import type { SaymdSections, SttProviderId, TemplateId } from '@saymd/core';
 
-import type { SttProviderId } from './providers/types.js';
-
-const stringList = z
-  .union([z.array(z.string()), z.string()])
-  .transform((v) => (Array.isArray(v) ? v : [v]))
-  .optional();
-
-export const sectionsSchema = z.object({
-  objective: z.string().optional(),
-  context: z.string().optional(),
-  acceptanceCriteria: stringList,
-  openQuestions: stringList,
-  stepsToReproduce: stringList,
-  instructions: stringList,
-  constraints: stringList,
-  expectedBehavior: z.string().optional(),
-  actualBehavior: z.string().optional(),
-});
-
-export type SaymdSections = z.infer<typeof sectionsSchema>;
+export { sectionsSchema } from '@saymd/core';
+export type { SaymdSections, TemplateId } from '@saymd/core';
 
 export interface SplitTask {
   slug: string;
@@ -50,8 +32,6 @@ export interface SaymdResult {
   /** Pro --ground: @path check against disk. */
   paths?: PathSummary;
 }
-
-export type TemplateId = 'default' | 'feature' | 'bug' | 'plan';
 
 export interface CliOptions {
   file?: string;

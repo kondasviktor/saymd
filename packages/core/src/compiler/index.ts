@@ -1,10 +1,12 @@
-import { resolveGeminiKey, resolveGroqKey, resolveOpenaiKey, type SaymdConfig } from '../config.js';
 import type { SttProviderId } from '../providers/types.js';
 import { geminiCompiler } from './gemini.js';
 import { groqCompiler, openaiCompiler } from './openai.js';
 import type { CompilerProviderId, PromptCompiler } from './types.js';
 
 export type { CompilerProviderId, PromptCompiler, StructuredResult, StructureOptions } from './types.js';
+
+/** API keys by provider. The CLI fills this from its config file and env; the cloud from its server key. */
+export type ProviderKeys = Partial<Record<SttProviderId, string>>;
 
 const COMPILERS: Record<CompilerProviderId, PromptCompiler> = {
   gemini: geminiCompiler,
@@ -20,31 +22,18 @@ export function getCompiler(id: CompilerProviderId): PromptCompiler {
  * Pick compiler: same provider when the STT provider also has an LLM (gemini, openai, groq);
  * otherwise prefer a Gemini key, then OpenAI, then Groq.
  */
-export function resolveCompilerProvider(
-  sttProvider: SttProviderId,
-  config: SaymdConfig
-): CompilerProviderId {
+export function resolveCompilerProvider(sttProvider: SttProviderId, keys: ProviderKeys): CompilerProviderId {
   if (sttProvider === 'gemini' || sttProvider === 'openai' || sttProvider === 'groq') return sttProvider;
-  if (resolveGeminiKey(config)) return 'gemini';
-  if (resolveOpenaiKey(config)) return 'openai';
-  if (resolveGroqKey(config)) return 'groq';
+  if (keys.gemini) return 'gemini';
+  if (keys.openai) return 'openai';
+  if (keys.groq) return 'groq';
   throw new Error(
     'Deepgram and ElevenLabs are STT-only. Add a Gemini, OpenAI or Groq key for prompt structuring:\n  saymd setup'
   );
 }
 
-export function resolveCompilerApiKey(
-  compilerProvider: CompilerProviderId,
-  config: SaymdConfig
-): string | undefined {
-  switch (compilerProvider) {
-    case 'gemini':
-      return resolveGeminiKey(config);
-    case 'openai':
-      return resolveOpenaiKey(config);
-    case 'groq':
-      return resolveGroqKey(config);
-  }
+export function resolveCompilerApiKey(compilerProvider: CompilerProviderId, keys: ProviderKeys): string | undefined {
+  return keys[compilerProvider]?.trim() || undefined;
 }
 
 export function compilerKeyEnvName(compilerProvider: CompilerProviderId): string {
@@ -54,10 +43,10 @@ export function compilerKeyEnvName(compilerProvider: CompilerProviderId): string
 /** JSON-mode LLM on the structuring provider, for Pro features such as --split. */
 export function createJsonLlm(
   sttProvider: SttProviderId,
-  config: SaymdConfig
+  keys: ProviderKeys
 ): { provider: CompilerProviderId; llm: (prompt: string) => Promise<string> } {
-  const provider = resolveCompilerProvider(sttProvider, config);
-  const apiKey = resolveCompilerApiKey(provider, config);
+  const provider = resolveCompilerProvider(sttProvider, keys);
+  const apiKey = resolveCompilerApiKey(provider, keys);
   if (!apiKey) throw new Error(`${compilerKeyEnvName(provider)} not set. Run: saymd setup`);
   const compiler = getCompiler(provider);
   return { provider, llm: (prompt) => compiler.generateJson(apiKey, prompt) };
@@ -65,11 +54,11 @@ export function createJsonLlm(
 
 export async function structureTranscript(
   sttProvider: SttProviderId,
-  config: SaymdConfig,
+  keys: ProviderKeys,
   opts: Omit<import('./types.js').StructureOptions, 'apiKey'>
 ): Promise<import('./types.js').StructuredResult> {
-  const compilerProvider = resolveCompilerProvider(sttProvider, config);
-  const apiKey = resolveCompilerApiKey(compilerProvider, config);
+  const compilerProvider = resolveCompilerProvider(sttProvider, keys);
+  const apiKey = resolveCompilerApiKey(compilerProvider, keys);
   if (!apiKey) {
     throw new Error(`${compilerKeyEnvName(compilerProvider)} not set. Run: saymd setup`);
   }

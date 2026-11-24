@@ -1,5 +1,4 @@
-import { readFile } from 'node:fs/promises';
-
+import { loadAudio } from './audio-input.js';
 import type { SttProviderId, TranscribeOptions, Transcript, TranscriptionProvider } from './types.js';
 
 export interface OpenAiCompatibleSttConfig {
@@ -55,11 +54,11 @@ export function createOpenAiCompatibleStt(cfg: OpenAiCompatibleSttConfig): Trans
     },
 
     async transcribeFile(apiKey: string, opts: TranscribeOptions): Promise<Transcript> {
-      const buffer = await readFile(opts.localPath);
+      const { buffer, filename } = await loadAudio(opts);
       const blob = new Blob([buffer], { type: opts.mimeType });
       const form = new FormData();
       const model = opts.model?.trim() || defaultModel();
-      form.append('file', blob, opts.localPath.split('/').pop() ?? 'audio');
+      form.append('file', blob, filename);
       form.append('model', model);
       form.append('response_format', 'json');
       if (opts.lang && opts.lang !== 'auto') {
