@@ -46,8 +46,7 @@ This repo is the plugin package (shared skill + slash commands). The Free CLI st
 | **Claude Code** | `claude plugin marketplace add kondasviktor/saymd` then install **saymd**. Or submit/install from the community catalog after approval. |
 | **Codex** | Listed in the [OpenAI Plugins Directory](https://chatgpt.com/plugins/plugins_6aa7de5bf4f48191b8eb88fcf33e2f24) (ChatGPT + Codex). Manifest: `.codex-plugin/plugin.json` |
 | **Grok Build** | DIY: `grok plugin marketplace add kondasviktor/saymd` then install **saymd**. Official catalog PR pending ([xai-org/plugin-marketplace](https://github.com/xai-org/plugin-marketplace)). Manifest: `.grok-plugin/plugin.json` |
-| **Antigravity CLI** (`agy`) | `agy plugin install https://github.com/kondasviktor/saymd` (root `plugin.json` + `skills/`). Google retired Gemini CLI for personal accounts in June 2026; this is the replacement. |
-| **Gemini CLI** (enterprise / API-key only) | `gemini extensions install https://github.com/kondasviktor/saymd` or `agy plugin import gemini` if you already had the extension. |
+| **Antigravity CLI** (`agy`) | `agy plugin install https://github.com/kondasviktor/saymd` (root `plugin.json` + `skills/`). |
 
 Slash commands: `/saymd`, `/saymd-feature`, `/saymd-bug`, `/saymd-plan`, `/saymd-continue`, `/saymd-review`, `/saymd-out`.
 

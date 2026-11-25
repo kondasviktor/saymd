@@ -38,7 +38,6 @@ function assertNoDotDot(obj, label) {
 
 const files = [
   'plugin.json',
-  'gemini-extension.json',
   '.cursor-plugin/plugin.json',
   '.claude-plugin/plugin.json',
   '.claude-plugin/marketplace.json',
@@ -80,10 +79,13 @@ for (const c of cmds) {
 
 const rootPlugin = readJson('plugin.json');
 if (rootPlugin && rootPlugin.name !== 'saymd') fail('plugin.json name must be saymd');
-else if (rootPlugin) ok('plugin.json name=saymd (Antigravity + Agent Plugins)');
+else if (rootPlugin) ok('plugin.json name=saymd (Antigravity CLI plugin)');
 
-if (!fs.existsSync(path.join(ROOT, 'GEMINI.md'))) fail('missing GEMINI.md');
-else ok('GEMINI.md (Antigravity still loads this as workspace context)');
+// Gemini CLI is retired; Antigravity CLI uses plugin.json + skills/ (+ mcp_config.json, rules/).
+for (const legacy of ['gemini-extension.json', 'GEMINI.md']) {
+  if (fs.existsSync(path.join(ROOT, legacy))) fail(`${legacy} is Gemini CLI only (retired) — remove it`);
+}
+ok('no Gemini CLI files (gemini-extension.json, GEMINI.md)');
 if (!fs.existsSync(path.join(ROOT, 'assets/logo.svg'))) fail('missing assets/logo.svg');
 else ok('assets/logo.svg');
 
@@ -97,7 +99,7 @@ ok('broken Cursor/Gemini wrappers absent');
 
 // Claude community review rejects unpinned package runners (npx pkg / pkg@latest).
 const PINNED = 'npx saymd@0.1.2';
-const scanRoots = ['skills', 'commands', 'GEMINI.md', '.claude-plugin', '.codex-plugin', 'plugin.json'];
+const scanRoots = ['skills', 'commands', '.claude-plugin', '.codex-plugin', 'plugin.json'];
 const unpinned = [];
 function scanFile(rel) {
   const abs = path.join(ROOT, rel);
