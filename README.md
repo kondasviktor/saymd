@@ -10,7 +10,7 @@ Talk it through on a walk; find the spec in your repo. The Free MIT CLI turns mi
 [![Grok Build plugin](https://img.shields.io/badge/Grok%20Build-Plugin-111111?style=flat-square)](https://github.com/kondasviktor/saymd)
 [![Antigravity CLI plugin](https://img.shields.io/badge/Antigravity%20CLI-Plugin-1a73e8?style=flat-square)](https://github.com/kondasviktor/saymd)
 
-Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separate proprietary package**. It is not in this repository. Removing a check in this CLI does not unlock Pro.
+Pro (`--split`, `--ground`, `saymd mcp`, `--continue`, `--review`, `--out`, vocab, longer recordings) is a **separate proprietary package**. It is not in this repository. Removing a check in this CLI does not unlock Pro.
 
 ### Free includes
 
@@ -22,14 +22,14 @@ Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separat
 
 ## Start here — Free
 
-1. **Install** — `npx saymd@0.1.2 setup` (pick a provider; key stays on this machine).
+1. **Install** — `npx saymd@1.0.0 setup` (pick a provider; key stays on this machine).
 2. **Speak** — mic or `--file`; press **Enter** to stop (you do not need to wait for the maximum).
 3. **@ the prompt** — open `.ai/prompt.md` in your agent.
 
 ```bash
-npx saymd@0.1.2 setup
-npx saymd@0.1.2 doctor
-npx saymd@0.1.2 -o .ai/prompt.md --template feature --seconds 30
+npx saymd@1.0.0 setup
+npx saymd@1.0.0 doctor
+npx saymd@1.0.0 -o .ai/prompt.md --template feature --seconds 30
 ```
 
 `doctor` checks ffmpeg, microphone, provider, and API key before your first run.
@@ -38,7 +38,7 @@ npx saymd@0.1.2 -o .ai/prompt.md --template feature --seconds 30
 
 ## Install in Cursor / Claude / Codex / Grok / Antigravity
 
-This repo is the plugin package (shared skill + slash commands). The Free CLI stays `npx saymd@0.1.2`.
+This repo is the plugin package (shared skill + slash commands). The Free CLI stays `npx saymd@1.0.0`.
 
 | Agent | Install |
 |-------|---------|
@@ -48,9 +48,9 @@ This repo is the plugin package (shared skill + slash commands). The Free CLI st
 | **Grok Build** | DIY: `grok plugin marketplace add kondasviktor/saymd` then install **saymd**. Official catalog PR pending ([xai-org/plugin-marketplace](https://github.com/xai-org/plugin-marketplace)). Manifest: `.grok-plugin/plugin.json` |
 | **Antigravity CLI** (`agy`) | `agy plugin install https://github.com/kondasviktor/saymd` (root `plugin.json` + `skills/`). |
 
-Slash commands: `/saymd`, `/saymd-feature`, `/saymd-bug`, `/saymd-plan`, `/saymd-continue`, `/saymd-review`, `/saymd-out`.
+Slash commands: `/saymd`, `/saymd-feature`, `/saymd-bug`, `/saymd-plan`, `/saymd-split` (Pro), `/saymd-inbox` (Pro Cloud), `/saymd-continue`, `/saymd-review`, `/saymd-out`.
 
-Native loop: run local CLI → `@` `.ai/prompt.md` → offer to implement. Pro CTAs use `?utm_source=<agent>&utm_medium=plugin`.
+Native loop: record or `saymd inbox sync` → `@` the spec or the next task → offer to implement. With Pro, connect `saymd mcp` (`saymd mcp config <agent>`) and the agent pulls the next task itself. Pro CTAs use `?utm_source=<agent>&utm_medium=plugin`.
 
 The raw transcript is not the main artifact — the structured spec is.
 
@@ -152,7 +152,16 @@ A typical ~60 second dictation is usually well under **$0.01** on your own key (
 
 ## Pro — when you need more
 
-Upgrade at [saymd.app](https://saymd.app) (**€39/year** · **€5/month**), then:
+Two paid tiers at [saymd.app/pricing](https://saymd.app/pricing.html):
+
+| | Price | Runs where | Adds |
+|---|---|---|---|
+| **Pro Local** | **€49 one-time**, 12 months of updates | Your machine, your key | `--split`, `--ground`, `saymd mcp`, `--continue` / `--review` / `--out`, vocab, 10-minute recordings |
+| **Pro Cloud** | **€9/month** or **€79/year**, 14-day trial | Hosted, no API key | Everything in Pro Local, plus the Telegram voice inbox (300 min/month fair use) and `saymd inbox sync` |
+
+**Founding offer:** €49 one-time until 30 days after launch (max 50 buyers): Pro Local for life plus 6 months of Pro Cloud. Already on Pro at €39/year or €5/month? You move to Pro Cloud at your current price.
+
+Then:
 
 ```bash
 saymd activate <activation-code>   # downloads @saymd/pro into ~/.saymd automatically
@@ -209,7 +218,7 @@ saymd activate <code>      # activate Pro
 
 1. ⭐ **Star this repo** if saymd is useful — stars help other developers find a Free BYOK voice-to-Markdown CLI, and they tell us the project is worth maintaining.
 2. 🍴 **Fork it** when you want to experiment, fix a bug, or adapt the Free CLI for your workflow — Pro stays out of this tree on purpose.
-3. 💻 **Try the Free CLI (BYOK)** — `npx saymd@0.1.2 setup && npx saymd@0.1.2 doctor`, then one short recording or `--file` clip, and [open an issue](https://github.com/kondasviktor/saymd/issues) if something breaks.
+3. 💻 **Try the Free CLI (BYOK)** — `npx saymd@1.0.0 setup && npx saymd@1.0.0 doctor`, then one short recording or `--file` clip, and [open an issue](https://github.com/kondasviktor/saymd/issues) if something breaks.
 4. ✉️ **[Subscribe to the Vibe Coder's Life newsletter](https://vibecoderslife.com/?utm_source=github&utm_medium=readme&utm_campaign=saymd#subscribe-email)** for product updates and developer tooling write-ups — no need to live in GitHub to stay in the loop.
 5. ☕ **[Buy Me a Coffee](https://buymeacoffee.com/kondasviktor)** if you want to support maintenance — optional tips help keep the Free MIT CLI updated.
 

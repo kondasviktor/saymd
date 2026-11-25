@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>saymd — Voice to structured Markdown prompts</title>
-  <meta name="description" content="Free MIT CLI: turn speech into structured Markdown prompts for AI coding agents. BYOK. Not a hosted demo." />
+  <title>saymd — voice inbox for your repo</title>
+  <meta name="description" content="Voice inbox for your repo: voice notes become repo-grounded specs and task queues for any coding agent. Free MIT CLI, BYOK. Not a hosted demo." />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -12,14 +12,14 @@
   <header>
     <p class="kicker">Free MIT CLI · BYOK</p>
     <h1>saymd</h1>
-    <p class="slogan">Speak once. Get a prompt file any agent can @.</p>
+    <p class="slogan">Voice inbox for your repo.</p>
     <p class="lead">
-      Agents execute. saymd delivers a usable spec — structured Markdown from messy speech,
-      ready for Cursor, Claude Code, Codex, Copilot, Antigravity CLI, OpenCode, and more.
+      Talk it through on a walk; find the spec in your repo. Voice notes become repo-grounded specs and
+      ordered task files for Claude Code, Codex, Cursor, Copilot, Antigravity CLI, OpenCode, and more.
     </p>
     <div class="callout">
       <strong>Not a hosted demo.</strong> This Hugging Face Space only points to the CLI.
-      Audio and keys stay with the STT provider you choose — not here, and not on saymd.app.
+      On Free and Pro Local, audio goes only to the speech-to-text provider you choose, with your key.
     </div>
     <div class="actions">
       <a class="btn btn-primary" href="https://saymd.app/?utm_source=huggingface&amp;utm_medium=space&amp;utm_campaign=saymd">Open saymd.app</a>
@@ -31,13 +31,13 @@
   <section id="install">
     <h2>Install → Speak → @prompt.md</h2>
     <ol class="steps">
-      <li><strong>Install</strong> — <code>npx saymd setup</code></li>
+      <li><strong>Install</strong> — <code>npx saymd@1.0.0 setup</code></li>
       <li><strong>Speak</strong> — mic or <code>--file</code>; get <code>.ai/prompt.md</code></li>
       <li><strong>@ the prompt</strong> — open it in your agent</li>
     </ol>
-    <pre class="terminal"><code>npx saymd setup
-npx saymd doctor
-npx saymd -o .ai/prompt.md --template feature --seconds 30</code></pre>
+    <pre class="terminal"><code>npx saymd@1.0.0 setup
+npx saymd@1.0.0 doctor
+npx saymd@1.0.0 -o .ai/prompt.md --template feature --seconds 30</code></pre>
   </section>
 
   <section>
@@ -48,8 +48,12 @@ npx saymd -o .ai/prompt.md --template feature --seconds 30</code></pre>
         <p>Objective, Context, Instructions, Constraints — not a raw transcript dump.</p>
       </article>
       <article class="card">
-        <h3>Agent-independent</h3>
-        <p>One prompt file you can version, share, and reuse across tools.</p>
+        <h3>Task queues (Pro)</h3>
+        <p><code>--split --ground</code>: one long memo becomes <code>.ai/tasks/01-db.md</code>, <code>02-api.md</code> … with real file paths; <code>saymd mcp</code> lets your agent pull the next one.</p>
+      </article>
+      <article class="card">
+        <h3>From your phone (Pro Cloud)</h3>
+        <p>Send a voice note to the saymd Telegram bot; <code>saymd inbox sync</code> drops it into your repo. No API key.</p>
       </article>
       <article class="card">
         <h3>BYOK models</h3>
@@ -60,7 +64,7 @@ npx saymd -o .ai/prompt.md --template feature --seconds 30</code></pre>
 
   <aside class="cta">
     <h2>Free CLI is MIT. Pro is separate.</h2>
-    <p class="note">Core CLI is open source. Pro adds <code>--continue</code>, <code>--review</code>, cross-language <code>--out</code>, and project vocab.</p>
+    <p class="note">Pro Local (€49 one-time) adds <code>--split</code>, <code>--ground</code>, <code>saymd mcp</code>, <code>--continue</code>, <code>--review</code> and <code>--out</code>. Pro Cloud (€9/month or €79/year, 14-day trial) adds the Telegram voice inbox.</p>
     <div class="actions">
       <a class="btn btn-primary" href="https://saymd.app/?utm_source=huggingface&amp;utm_medium=space&amp;utm_campaign=saymd">saymd.app</a>
       <a class="btn" href="https://github.com/kondasviktor/saymd">Star on GitHub</a>

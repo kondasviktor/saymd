@@ -14,9 +14,9 @@ Free MIT CLI — bring your own speech-to-text key (**BYOK**). Pro adds ordered 
 ## Start here — Free
 
 ```bash
-npx saymd@0.1.2 setup
-npx saymd@0.1.2 doctor
-npx saymd@0.1.2 -o .ai/prompt.md --template feature --seconds 30
+npx saymd@1.0.0 setup
+npx saymd@1.0.0 doctor
+npx saymd@1.0.0 -o .ai/prompt.md --template feature --seconds 30
 ```
 
 Speak, press **Enter** to stop, then `@` `.ai/prompt.md` in Cursor, Claude Code, Codex, Copilot, Antigravity CLI, OpenCode, or any agent that can read Markdown.
@@ -74,7 +74,7 @@ saymd --provider deepgram --file meeting.wav
 
 ## Pro
 
-`--split`, `--ground`, `saymd mcp`, `--continue`, `--review`, `--out`, `.saymd/vocab.txt`, and longer recordings require [saymd.app](https://saymd.app) (€39/yr · €5/mo).
+`--split`, `--ground`, `saymd mcp`, `--continue`, `--review`, `--out`, `.saymd/vocab.txt`, and longer recordings require **Pro Local** (€49 one-time). **Pro Cloud** (€9/mo or €79/yr, 14-day trial) adds the Telegram voice inbox with no API key. [saymd.app/pricing](https://saymd.app/pricing.html)
 
 ```bash
 saymd activate <activation-code>

@@ -1,7 +1,7 @@
 {
   "name": "saymd",
-  "version": "0.1.2",
-  "description": "Voice to structured Markdown prompts — run local saymd, then @ .ai/prompt.md",
+  "version": "1.0.0",
+  "description": "Voice inbox for your repo: voice notes → specs and ordered task files any agent can pick up",
   "author": {
     "name": "Viktor Kondás",
     "email": "support@saymd.app"
@@ -9,12 +9,24 @@
   "homepage": "https://saymd.app/?utm_source=codex&utm_medium=plugin&utm_campaign=saymd",
   "repository": "https://github.com/kondasviktor/saymd",
   "license": "MIT",
-  "keywords": ["voice", "markdown", "prompts", "cli", "byok"],
-  "skills": ["./skills/saymd"],
+  "keywords": [
+    "voice",
+    "voice-inbox",
+    "markdown",
+    "specs",
+    "tasks",
+    "mcp",
+    "telegram",
+    "cli",
+    "byok"
+  ],
+  "skills": [
+    "./skills/saymd"
+  ],
   "interface": {
     "displayName": "saymd",
-    "shortDescription": "Voice to Markdown prompts",
-    "longDescription": "saymd turns speech or audio files into a structured Markdown prompt (Objective, Context, Instructions, Constraints) that Codex can @. Runs your local Free MIT CLI (npx saymd@0.1.2) with Bring Your Own Key for Gemini, OpenAI, Deepgram, or ElevenLabs. Audio never goes to saymd.app.\n\nTypical loop: record with the CLI → open .ai/prompt.md → implement from the spec.",
+    "shortDescription": "Voice inbox for your repo",
+    "longDescription": "saymd turns a voice note into a structured Markdown spec (Objective, Context, Instructions, Constraints) or, with Pro, into ordered task files that Codex can work through. Runs your local Free MIT CLI (npx saymd@1.0.0) with your own key for Groq (free tier, no card), Gemini, OpenAI, Deepgram or ElevenLabs; on Free and Pro Local, audio never goes to saymd.app.\n\nPro: --split turns a long walk memo into .ai/tasks/01-db.md, 02-api.md … with depends_on; --ground makes specs reference real files in your repo; saymd mcp lets Codex pull the next task and mark it done. Pro Cloud adds a Telegram voice inbox: send a note from your phone, then saymd inbox sync writes it into the repo.\n\nTypical loop: record or sync → open the spec or the next task → implement.",
     "developerName": "Viktor Kondás",
     "category": "Developer Tools",
     "logo": "./assets/icon-512.png",
@@ -26,8 +38,8 @@
     "supportURL": "https://saymd.app/",
     "defaultPrompt": [
       "Use saymd to record a feature idea into .ai/prompt.md, then implement from that file.",
-      "Turn a voice bug report into .ai/prompt.md with saymd, then fix from the structured spec.",
-      "Run saymd with the plan template and start coding from .ai/prompt.md."
+      "Split my voice memo into ordered tasks with saymd --split --ground, then start on the first one.",
+      "Run saymd inbox sync and implement the next task from my voice inbox."
     ]
   }
 }
