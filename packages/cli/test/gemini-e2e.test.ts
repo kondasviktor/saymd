@@ -93,6 +93,7 @@ test('Free Gemini: Files API upload → Interactions transcribe → Flash-Lite J
     'POST /upload/v1beta/files',
     'POST /upload-session/1',
     'POST /v1beta/interactions',
+    'DELETE /v1beta/files/mock1',
     'POST /v1beta/models/gemini-3.1-flash-lite:generateContent',
   ]);
   for (const q of mock.requests) assert.equal(q.apiKey, 'AIza-mock-key');
@@ -111,7 +112,7 @@ test('Free Gemini: Files API upload → Interactions transcribe → Flash-Lite J
     custom_vocabulary: ['saymd'],
   });
 
-  const structure = mock.requests[3].json as {
+  const structure = mock.requests[4].json as {
     contents: Array<{ parts: Array<{ text: string }> }>;
     generationConfig: { responseMimeType: string };
   };

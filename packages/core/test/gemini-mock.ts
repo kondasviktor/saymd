@@ -68,6 +68,10 @@ export async function startGeminiMock(opts: {
       );
       return;
     }
+    if (req.method === 'DELETE' && path.startsWith('/v1beta/files/')) {
+      res.end('{}');
+      return;
+    }
     if (req.method === 'GET' && path.startsWith('/v1beta/files/')) {
       res.end(JSON.stringify({ name: path.slice('/v1beta/'.length), uri: `${base}${path}`, mimeType: 'audio/wav', state: 'ACTIVE' }));
       return;

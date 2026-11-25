@@ -79,6 +79,10 @@ test('transcribeAudio + compileSpec on Gemini: bytes upload, Interactions, Flash
     assert.equal(t.raw, 'Add a CSV export button for admins.');
     const start = mock.requests.find((q) => q.path === '/upload/v1beta/files')?.json as { file: { mimeType: string; displayName: string } };
     assert.deepEqual(start.file, { mimeType: 'audio/ogg', displayName: 'voice.ogg', sizeBytes: '1234' } as never);
+    assert.ok(
+      mock.requests.some((q) => q.method === 'DELETE' && q.path === '/v1beta/files/mock1'),
+      'the uploaded audio is deleted from Gemini right after transcription'
+    );
 
     const spec = await compileSpec({ sttProvider: 'gemini', keys: { gemini: 'AIza-mock' }, raw: t.raw, template: 'feature' });
     assert.equal(spec.language, 'en');
@@ -113,4 +117,18 @@ test('the CLI writes byte-identical Markdown to @saymd/core for the same input',
   } finally {
     await rm(work, { recursive: true, force: true });
   }
+});
+
+test('Gemini upload is deleted even when transcription fails', async () => {
+  await withGemini('', async (mock) => {
+    await assert.rejects(
+      transcribeAudio({
+        provider: 'gemini',
+        apiKey: 'AIza-mock',
+        audio: { data: new Uint8Array(10), filename: 'voice.ogg', mimeType: 'audio/ogg' },
+      }),
+      /no transcription text/
+    );
+    assert.ok(mock.requests.some((q) => q.method === 'DELETE' && q.path === '/v1beta/files/mock1'));
+  });
 });

@@ -58,8 +58,8 @@ async function uploadAudio(client: GoogleGenAI, opts: TranscribeOptions) {
     file: blob,
     config: { mimeType, displayName: filename },
   });
-  if (!uploaded.uri) throw new Error('File upload failed.');
-  return { uri: uploaded.uri, mimeType: uploaded.mimeType ?? mimeType };
+  if (!uploaded.uri || !uploaded.name) throw new Error('File upload failed.');
+  return { uri: uploaded.uri, mimeType: uploaded.mimeType ?? mimeType, name: uploaded.name };
 }
 
 /** Dedicated speech-to-text models (gemini-3.5-transcribe) run on the Interactions API. */
@@ -94,6 +94,56 @@ async function transcribeWithInteractions(
   return text;
 }
 
+async function transcribeUploaded(
+  client: GoogleGenAI,
+  model: string,
+  audio: { uri: string; mimeType: string; name: string },
+  opts: TranscribeOptions
+): Promise<Transcript> {
+  if (isDedicatedTranscribeModel(model)) {
+    return {
+      text: await transcribeWithInteractions(client, model, audio, opts.lang, opts.vocabulary),
+      provider: 'gemini',
+      model,
+      durationSeconds: opts.durationSeconds,
+    };
+  }
+  // General Gemini models (e.g. --model gemini-3.1-flash-lite): prompt-based transcription.
+  const langHint =
+    opts.lang && opts.lang !== 'auto'
+      ? `The spoken language is ${languageName(opts.lang)} (${opts.lang}). Transcribe in that language.`
+      : 'Detect the spoken language automatically and transcribe in that language.';
+  const response = await client.models.generateContent({
+    model,
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          { fileData: { fileUri: audio.uri, mimeType: audio.mimeType } },
+          {
+            text: `Transcribe this audio verbatim for a developer prompt dictation tool.
+${langHint}
+If the speaker means the product saymd (often pronounced "say M D"), spell it "saymd" — not Saint, Saint MD, or Saint Pro.
+Keep tech terms like OAuth, Next.js, App Router, session cookie in their usual English spelling.`,
+          },
+        ],
+      },
+    ],
+    config: { temperature: 0.2 },
+  });
+  return {
+    text: extractTranscriptionText(
+      response as {
+        candidates?: Array<{ content?: { parts?: Array<Record<string, unknown>> } }>;
+        text?: string;
+      }
+    ),
+    provider: 'gemini',
+    model,
+    durationSeconds: opts.durationSeconds,
+  };
+}
+
 export const geminiProvider: TranscriptionProvider = {
   id: 'gemini',
   displayName: 'Google Gemini',
@@ -117,48 +167,12 @@ export const geminiProvider: TranscriptionProvider = {
     const client = geminiClient(apiKey);
     const model = opts.model?.trim() || defaultModel();
     const audio = await uploadAudio(client, opts);
-    if (isDedicatedTranscribeModel(model)) {
-      return {
-        text: await transcribeWithInteractions(client, model, audio, opts.lang, opts.vocabulary),
-        provider: 'gemini',
-        model,
-        durationSeconds: opts.durationSeconds,
-      };
+    try {
+      return await transcribeUploaded(client, model, audio, opts);
+    } finally {
+      // Privacy: the Files API keeps uploads for 48 h. Delete ours as soon as the transcript is back.
+      await client.files.delete({ name: audio.name }).catch(() => undefined);
     }
-    // General Gemini models (e.g. --model gemini-3.1-flash-lite): prompt-based transcription.
-    const langHint =
-      opts.lang && opts.lang !== 'auto'
-        ? `The spoken language is ${languageName(opts.lang)} (${opts.lang}). Transcribe in that language.`
-        : 'Detect the spoken language automatically and transcribe in that language.';
-    const response = await client.models.generateContent({
-      model,
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { fileData: { fileUri: audio.uri, mimeType: audio.mimeType } },
-            {
-              text: `Transcribe this audio verbatim for a developer prompt dictation tool.
-${langHint}
-If the speaker means the product saymd (often pronounced "say M D"), spell it "saymd" — not Saint, Saint MD, or Saint Pro.
-Keep tech terms like OAuth, Next.js, App Router, session cookie in their usual English spelling.`,
-            },
-          ],
-        },
-      ],
-      config: { temperature: 0.2 },
-    });
-    return {
-      text: extractTranscriptionText(
-        response as {
-          candidates?: Array<{ content?: { parts?: Array<Record<string, unknown>> } }>;
-          text?: string;
-        }
-      ),
-      provider: 'gemini',
-      model,
-      durationSeconds: opts.durationSeconds,
-    };
   },
 
   async chunkAndTranscribe(
