@@ -124,3 +124,22 @@ test('saymd inbox sync and project add without Pro exit 1 before any network cal
     rmSync(home, { recursive: true, force: true });
   }
 });
+
+test('an unknown command fails with the command list instead of starting a recording; readme = help', () => {
+  const home = mkdtempSync(join(tmpdir(), 'saymd-free-'));
+  try {
+    const run = (...args: string[]) =>
+      spawnSync(process.execPath, ['--import', import.meta.resolve('tsx'), CLI, ...args], { encoding: 'utf8', env: { PATH: process.env.PATH, HOME: home }, input: '' });
+    const typo = run('inbx', 'sync');
+    assert.equal(typo.status, 1);
+    assert.match(typo.stderr, /Unknown command: inbx/);
+    assert.match(typo.stderr, /Commands: help, setup, doctor, config, activate, mcp, inbox, project/);
+    const readme = run('readme');
+    assert.equal(readme.status, 0);
+    assert.match(readme.stdout, /voice inbox for your repo/);
+    assert.match(readme.stdout, /Pro Cloud — no API key/);
+    assert.equal(readme.stderr, '');
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});

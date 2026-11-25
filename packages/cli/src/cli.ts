@@ -34,6 +34,8 @@ type ParsedArgs = CliOptions & {
   mcpArgs?: string[];
 };
 
+const COMMANDS = ['help', 'readme', 'setup', 'doctor', 'config', 'activate', 'mcp', 'inbox', 'project'];
+
 function parseArgs(argv: string[]): ParsedArgs {
   const opts: ParsedArgs = {
     template: 'default',
@@ -50,7 +52,14 @@ function parseArgs(argv: string[]): ParsedArgs {
 
   const args = [...argv];
   if (args[0] && !args[0].startsWith('-')) {
-    opts.command = args.shift();
+    opts.command = args.shift()!;
+    if (!COMMANDS.includes(opts.command)) {
+      // Never fall through to recording on a typo (e.g. "saymd inbx sync").
+      console.error(
+        `Unknown command: ${opts.command}\nCommands: ${COMMANDS.filter((c) => c !== 'readme').join(', ')}\nStart here: saymd help · all options: saymd --help`
+      );
+      process.exit(1);
+    }
     if (opts.command === 'activate' && args[0]) {
       opts.activateKey = args.shift();
     }
@@ -247,7 +256,7 @@ async function main(): Promise<void> {
   const parsed = parseArgs(process.argv.slice(2));
   const cwd = process.cwd();
 
-  if (parsed.command === 'help') {
+  if (parsed.command === 'help' || parsed.command === 'readme') {
     printStartHere();
     return;
   }
