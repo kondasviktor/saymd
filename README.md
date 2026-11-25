@@ -1,8 +1,8 @@
 # saymd
 
-**Speak once. Get a prompt file any agent can @.**
+**Voice inbox for your repo — voice notes become repo-grounded specs and task queues for any coding agent.**
 
-Agents execute. saymd delivers a usable spec — a Free MIT CLI that turns microphone speech or audio files into structured Markdown prompts. You bring your own speech-to-text key (**BYOK**). saymd does not host audio or sell transcription minutes.
+Talk it through on a walk; find the spec in your repo. The Free MIT CLI turns microphone speech or audio files into structured Markdown specs with your own speech-to-text key (**BYOK**). Pro splits a long memo into ordered task files grounded in your repo and serves them to agents over MCP; Pro Cloud adds a Telegram voice inbox with no API key.
 
 **Works with:** Cursor · Claude Code · Codex · Grok Build · GitHub Copilot · Antigravity CLI · OpenCode (and any agent that can `@` a Markdown file).
 

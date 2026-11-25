@@ -1,7 +1,7 @@
 {
   "name": "saymd",
   "version": "0.2.0",
-  "description": "Speak once. Get a prompt file any agent can @.",
+  "description": "Voice inbox for your repo — voice notes become repo-grounded specs and task queues for any coding agent.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -45,7 +45,12 @@
     "claude",
     "speech-to-text",
     "ai-agent",
-    "byok"
+    "byok",
+    "mcp",
+    "telegram",
+    "voice-inbox",
+    "codex",
+    "antigravity"
   ],
   "repository": {
     "type": "git",

@@ -1,8 +1,8 @@
 # saymd
 
-**Speak once. Get a prompt file any agent can @.**
+**Voice inbox for your repo — voice notes become repo-grounded specs and task queues for any coding agent.**
 
-Agents execute. saymd delivers a usable spec. Free MIT CLI — bring your own speech-to-text key (**BYOK**). Works with Cursor · Claude Code · Codex · GitHub Copilot · Antigravity CLI · OpenCode. Pro is a **separate proprietary package** (`@saymd/pro`) — not in this package.
+Free MIT CLI — bring your own speech-to-text key (**BYOK**). Pro adds ordered task files, repo grounding and an MCP server; Pro Cloud adds a Telegram voice inbox. Works with Cursor · Claude Code · Codex · GitHub Copilot · Antigravity CLI · OpenCode. Pro is a **separate proprietary package** (`@saymd/pro`) — not in this package.
 
 ### Free includes
 

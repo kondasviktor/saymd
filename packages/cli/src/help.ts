@@ -5,7 +5,7 @@ const PRIVACY = 'https://saymd.app/privacy.html';
 
 /** Human onboarding — `saymd help` */
 export function printStartHere(): void {
-  console.log(`saymd — Speak once. Get a prompt file any agent can @.
+  console.log(`saymd — voice inbox for your repo. Voice notes become specs and task files any agent can pick up.
 
 Start here — Free
 ─────────────────
@@ -70,28 +70,37 @@ You pay the speech-to-text provider on your own account.
   saymd config set provider openai
   saymd config set model gpt-4o-mini-transcribe
 
-Pro — when you need more
-────────────────────────
-  saymd --continue .ai/prompt.md
-      add more speech and merge it into the same spec
+Pro Local — your own key, on this machine
+─────────────────────────────────────────
+  saymd activate <code>
+      unlock Pro (the code is in your purchase email)
 
-  saymd --review .ai/prompt.md
-      find missing requirements, constraints, and acceptance criteria
+  saymd --split --ground --file walk.m4a
+      one long memo → ordered task files in .ai/tasks/ (01-db.md, 02-api.md …)
+      with depends_on and real @paths from this repo
 
-  saymd --out en
-      speak one language → write the spec in another
+  saymd --ground -o .ai/prompt.md
+      one spec that references real files, checked on disk
 
-  .saymd/vocab.txt
-      project names, APIs, acronyms, terminology (one per line)
+  saymd mcp config claude          (or cursor, codex, antigravity, vscode)
+      let your agent pull the tasks itself: list_tasks, get_item, mark_done, list_inbox
 
-  longer recordings
-      up to ${PRO_MAX_MIC_SECONDS / 60} minutes per recording
+  Also: --continue, --review, --out en, .saymd/vocab.txt, recordings up to ${PRO_MAX_MIC_SECONDS / 60} minutes
+
+Pro Cloud — no API key, voice notes from your phone
+───────────────────────────────────────────────────
+  1) Send /link <activation code> to the saymd Telegram bot, then a voice note
+  2) saymd project add --map     register this repo so notes can be grounded in it
+  3) saymd inbox sync            pull ready notes into .ai/inbox/ or .ai/tasks/
+
+  saymd project remove           delete this repo's project and map from saymd.app
 
 Privacy
 ───────
-API keys stay on this machine (~/.saymd/config.json, mode 0600).
-Audio is sent only to the STT provider you chose, using your key.
-saymd does not receive your audio, transcripts, or prompt files.
+Free and Pro Local: API keys stay on this machine (~/.saymd/config.json, mode 0600).
+Audio goes only to the STT provider you chose, using your key; saymd.app never receives it.
+Pro Cloud: saymd.app transcribes your Telegram notes without storing the audio, and
+deletes a note once you sync or discard it, or after 30 days.
   ${PRIVACY}
 
 Useful commands
@@ -100,6 +109,7 @@ Useful commands
   saymd doctor             check your installation
   saymd setup              configure or change provider / API key
   saymd activate <code>    activate Pro (downloads Pro automatically)
+  saymd inbox sync         Pro Cloud: pull Telegram notes into this repo
 
   Pro     ${PRO_URL}
   GitHub  ${GITHUB}
@@ -108,7 +118,7 @@ Useful commands
 
 /** Conventional flag reference — `saymd --help` */
 export function printHelp(): void {
-  console.log(`saymd — Speak once. Get a prompt file any agent can @.
+  console.log(`saymd — voice inbox for your repo. Voice notes become specs and task files any agent can pick up.
 
 Onboarding:  saymd help
 Quick start: saymd setup && saymd doctor && saymd -o .ai/prompt.md --template feature --seconds 30
@@ -162,7 +172,7 @@ Next
   saymd -o .ai/prompt.md --template feature --seconds 30
 
 Speak, press Enter, then @ the file in your agent.
-Later: saymd --continue .ai/prompt.md  (Pro → ${PRO_URL})
+Pro: saymd --split --ground --file memo.m4a  → ordered task files (${PRO_URL})
 
 Provider saved: ${providerId}
 `);
