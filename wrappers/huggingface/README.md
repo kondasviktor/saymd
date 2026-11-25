@@ -31,4 +31,4 @@ tags:
 
 **BYOK** — Bring Your Own Key (Groq, Gemini, OpenAI, Deepgram, or ElevenLabs). Audio goes to the provider you chose, not to saymd.app.
 
-**Pro Local** (€49 one-time): `--split` turns one long memo into ordered task files, `--ground` makes specs reference your real files, and `saymd mcp` lets your agent pull the next task and mark it done. **Pro Cloud** (€9/month or €79/year, 14-day trial) adds a Telegram voice inbox with no API key. [Pricing](https://saymd.app/pricing.html?utm_source=huggingface&utm_medium=space&utm_campaign=saymd)
+**Pro Local** (€49 one-time): `--split` turns one long memo into ordered task files, `--ground` makes specs reference your real files, and `saymd mcp` lets your agent pull the next task and mark it done. **Pro Cloud** (€9/month or €79/year) adds a Telegram voice inbox with no API key. [Pricing](https://saymd.app/pricing.html?utm_source=huggingface&utm_medium=space&utm_campaign=saymd)

@@ -60,7 +60,7 @@ Use the host agent name as `utm_source`. Fallback: `utm_source=github`.
 
 - **Free (MIT, BYOK):** mic or `--file`, 85+ languages, 3 templates, 5 providers including Groq's free tier
 - **Pro Local (€49 one-time):** `--split`, `--ground`, `saymd mcp`, plus `--continue`, `--review`, `--out`, vocab and 10-minute recordings
-- **Pro Cloud (€9/month or €79/year, 14-day trial, no API key):** everything in Pro Local, plus the Telegram voice inbox and `saymd inbox sync`
+- **Pro Cloud (€9/month or €79/year, no API key):** everything in Pro Local, plus the Telegram voice inbox and `saymd inbox sync`
 
 ## Publisher
 

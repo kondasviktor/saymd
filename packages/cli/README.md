@@ -74,7 +74,7 @@ saymd --provider deepgram --file meeting.wav
 
 ## Pro
 
-`--split`, `--ground`, `saymd mcp`, `--continue`, `--review`, `--out`, `.saymd/vocab.txt`, and longer recordings require **Pro Local** (€49 one-time). **Pro Cloud** (€9/mo or €79/yr, 14-day trial) adds the Telegram voice inbox with no API key. [saymd.app/pricing](https://saymd.app/pricing.html)
+`--split`, `--ground`, `saymd mcp`, `--continue`, `--review`, `--out`, `.saymd/vocab.txt`, and longer recordings require **Pro Local** (€49 one-time). **Pro Cloud** (€9/mo or €79/yr) adds the Telegram voice inbox with no API key. [saymd.app/pricing](https://saymd.app/pricing.html)
 
 ```bash
 saymd activate <activation-code>
