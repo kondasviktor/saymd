@@ -1,11 +1,12 @@
 /**
  * Pro Cloud from the CLI:
- *   saymd project add [--name <name>] [--map | --no-map]   register this repo (optional repo map upload)
+ *   saymd project add [--name <name>] [--map | --no-map]   register this repo (optional repo map upload; --no-map deletes it)
+ *   saymd project remove                                    delete this repo's project and map from saymd.app
  *   saymd inbox sync [--dry-run] [--no-refresh]             pull Telegram specs into .ai/inbox/ or .ai/tasks/
  * Signs in with the license `saymd activate` saved (~/.saymd/license.json). SAYMD_API_URL overrides saymd.app.
  */
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { basename, join } from 'node:path';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { basename, dirname, join } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
 
@@ -110,7 +111,8 @@ export async function runProjectAdd(args: string[], cwd: string): Promise<void> 
   const map = withMap ? await uploadableMap(root) : undefined;
   const { project } = await cloudFetch<{ project: { id: number; name: string; hasMap: boolean } }>('/api/cloud-projects', {
     method: 'POST',
-    body: { name, ...(map ? { map } : {}) },
+    // map: null deletes a map uploaded earlier, so opting out takes effect on saymd.app too.
+    body: { name, map: map ?? null },
   });
   await mkdir(join(root, '.saymd'), { recursive: true });
   await writeFile(join(root, PROJECT_FILE), JSON.stringify({ id: project.id, name: project.name, map: withMap } satisfies ProjectFile, null, 2) + '\n');
@@ -119,9 +121,30 @@ export async function runProjectAdd(args: string[], cwd: string): Promise<void> 
   console.log(
     map
       ? `Repo map uploaded: ${map.files.length} paths${map.truncated ? ' (truncated)' : ''}. It refreshes on every saymd inbox sync.`
-      : 'No repo map uploaded (run saymd project add --map to ground specs in this repo).'
+      : 'No repo map on saymd.app (run saymd project add --map to ground specs in this repo).'
   );
   console.log('In Telegram, tap 📁 Project under a note to send it here, then run: saymd inbox sync');
+}
+
+/** The nearest folder at or above cwd with .saymd/project.json. Works without Pro: removing data never needs a plan. */
+async function findProjectRoot(cwd: string): Promise<string | null> {
+  for (let dir = cwd; ; dir = dirname(dir)) {
+    if (await readProjectFile(dir)) return dir;
+    if (dirname(dir) === dir) return null;
+  }
+}
+
+export async function runProjectRemove(args: string[], cwd: string): Promise<void> {
+  const root = await findProjectRoot(cwd);
+  const name = (flagValue(args, '--name') ?? (root ? (await readProjectFile(root))?.name : undefined))?.trim();
+  if (!name) throw new Error('No saymd project here. Run it in a repo registered with saymd project add, or pass --name <name>.');
+  const { removed } = await cloudFetch<{ removed: { id: number; name: string } }>('/api/cloud-projects', {
+    method: 'DELETE',
+    body: { name },
+  });
+  if (root) await rm(join(root, PROJECT_FILE), { force: true });
+  console.log(`Project "${removed.name}" and its repo map are deleted from saymd.app.`);
+  console.log('Notes you had sent to it stay in your inbox, unassigned. Files already in .ai/ are untouched.');
 }
 
 export async function runInboxSync(args: string[], cwd: string): Promise<void> {

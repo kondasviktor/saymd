@@ -18,7 +18,7 @@ import {
 } from './pro-gate.js';
 import { importProModule } from './pro-install.js';
 import { printHelp, printNextAfterSetup, printStartHere } from './help.js';
-import { runInboxSync, runProjectAdd } from './cloud.js';
+import { runInboxSync, runProjectAdd, runProjectRemove } from './cloud.js';
 import { cliVersion, MCP_CLIENTS, printMcpConfig } from './mcp-config.js';
 import { resolveUserPath } from './paths.js';
 import { runConfigSet, runConfigShow, runSetup } from './setup.js';
@@ -278,7 +278,10 @@ async function main(): Promise<void> {
     const [sub, ...rest] = parsed.mcpArgs ?? [];
     if (parsed.command === 'inbox' && sub === 'sync') return runInboxSync(rest, cwd);
     if (parsed.command === 'project' && sub === 'add') return runProjectAdd(rest, cwd);
-    console.error('Usage: saymd inbox sync [--dry-run] [--no-refresh]\n       saymd project add [--name <name>] [--map | --no-map]');
+    if (parsed.command === 'project' && sub === 'remove') return runProjectRemove(rest, cwd);
+    console.error(
+      'Usage: saymd inbox sync [--dry-run] [--no-refresh]\n       saymd project add [--name <name>] [--map | --no-map]\n       saymd project remove [--name <name>]'
+    );
     process.exit(1);
   }
   if (parsed.command === 'activate') {

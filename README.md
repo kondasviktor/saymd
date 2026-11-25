@@ -176,9 +176,10 @@ With a Pro Cloud plan, send the saymd Telegram bot a voice note on a walk. It an
 ```bash
 saymd project add --map   # register this repo; optionally upload its repo map (paths and names, never source code or the folder location)
 saymd inbox sync          # pull ready notes into .ai/inbox/ (specs) or .ai/tasks/ (split notes); --dry-run to preview
+saymd project remove      # delete this repo's project and map from saymd.app (--no-map on add deletes just the map)
 ```
 
-Sync refreshes the uploaded map, writes each note once (a repeat sync never duplicates), then tells the server, which drops the transcript.
+Sync refreshes the uploaded map, writes each note once (a repeat sync never duplicates), then tells the server, which deletes the note's content. Notes never synced are deleted after 30 days.
 
 `.saymd/vocab.txt` — project names, APIs, acronyms (one per line). Also biases Gemini transcription. Ignored on Free.
 
@@ -186,7 +187,7 @@ Pro implementation ships as `@saymd/pro` from a **private** repo. This MIT tree 
 
 ## Privacy
 
-API keys stay on this machine. Audio is sent only to the STT provider you chose, using your key. saymd does not receive your audio, transcripts, or prompt files. Pro Cloud is the exception you opt in to: Telegram voice notes are processed on saymd.app, and a transcript is kept only until the note is synced or discarded.
+API keys stay on this machine. Audio is sent only to the STT provider you chose, using your key. saymd does not receive your audio, transcripts, or prompt files. Pro Cloud is the exception you opt in to: Telegram voice notes are processed on saymd.app: audio is never stored, and a note's content is deleted once it is synced or discarded, or after 30 days.
 
 [Privacy policy](https://saymd.app/privacy.html)
 
