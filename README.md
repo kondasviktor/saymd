@@ -156,10 +156,10 @@ Two paid tiers at [saymd.app/pricing](https://saymd.app/pricing.html):
 
 | | Price | Runs where | Adds |
 |---|---|---|---|
-| **Pro Local** | **€49 one-time**, 12 months of updates | Your machine, your key | `--split`, `--ground`, `saymd mcp`, `--continue` / `--review` / `--out`, vocab, 10-minute recordings |
+| **Pro Local** | **€49 one-time**, 12 months of updates (keeps working after) | Your machine, your key | `--split`, `--ground`, `saymd mcp`, `--continue` / `--review` / `--out`, vocab, 10-minute recordings |
 | **Pro Cloud** | **€9/month** or **€79/year**, cancel anytime | Hosted, no API key | Everything in Pro Local, plus the Telegram voice inbox (300 min/month fair use) and `saymd inbox sync` |
 
-**Founding offer:** €49 one-time until 30 days after launch (max 50 buyers): Pro Local for life plus 6 months of Pro Cloud. Already on Pro at €39/year or €5/month? You move to Pro Cloud at your current price.
+**Founding offer:** €49 one-time until 30 days after launch (max 50 buyers): Pro Local for life with lifetime updates, plus 6 months of Pro Cloud. Pro Cloud includes Pro Local while it is paid. Already on Pro at €39/year or €5/month? You move to Pro Cloud at your current price.
 
 Then:
 

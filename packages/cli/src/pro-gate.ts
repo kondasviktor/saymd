@@ -17,9 +17,14 @@ function isShortActivationCode(raw: string): boolean {
   return n.length >= 16 && n.length <= 32 && /^[a-zA-Z0-9]+$/.test(n) && !raw.includes('.');
 }
 
-async function exchangeActivationCode(
-  code: string
-): Promise<{ licenseKey: string; proVersion?: string }> {
+interface ActivationResult {
+  licenseKey: string;
+  proVersion?: string;
+  latestVersion?: string;
+  updatesUntil?: string;
+}
+
+async function exchangeActivationCode(code: string): Promise<ActivationResult> {
   const res = await fetch(ACTIVATE_API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -28,29 +33,65 @@ async function exchangeActivationCode(
   const data = (await res.json()) as {
     licenseKey?: string;
     error?: string;
-    pro?: { version?: string };
+    pro?: { version?: string; latestVersion?: string; updatesUntil?: string };
   };
   if (!res.ok || !data.licenseKey) {
     console.error(data.error || 'Activation failed. Check your code or email support@saymd.app.');
     process.exit(1);
   }
-  return { licenseKey: data.licenseKey, proVersion: data.pro?.version };
+  return {
+    licenseKey: data.licenseKey,
+    proVersion: data.pro?.version,
+    latestVersion: data.pro?.latestVersion,
+    updatesUntil: data.pro?.updatesUntil,
+  };
 }
 
-export async function hasValidLicense(): Promise<boolean> {
+type LicenseCheck =
+  | { ok: true }
+  | { ok: false; reason: 'missing' | 'invalid' }
+  | { ok: false; reason: 'expired'; validUntil: string }
+  | { ok: false; reason: 'updates_ended'; updatesUntil: string; releasedAt: string };
+
+async function checkLicense(): Promise<LicenseCheck> {
   const license = await loadLicense();
-  if (!license?.key || !license.signature) return false;
+  if (!license?.key || !license.signature) return { ok: false, reason: 'missing' };
   try {
     const pro = await importPro();
-    if (!pro) return false;
-    return pro.verifyLicense(license);
+    if (!pro) return { ok: false, reason: 'missing' };
+    if (typeof pro.licenseStatus === 'function') return pro.licenseStatus(license);
+    return pro.verifyLicense(license) ? { ok: true } : { ok: false, reason: 'invalid' };
   } catch {
-    return false;
+    return { ok: false, reason: 'invalid' };
   }
 }
 
+export async function hasValidLicense(): Promise<boolean> {
+  return (await checkLicense()).ok;
+}
+
+const day = (iso: string) => String(iso).slice(0, 10);
+
 export async function requirePro(feature: ProFeature): Promise<boolean> {
-  if (await hasValidLicense()) return true;
+  const check = await checkLicense();
+  if (check.ok) return true;
+  if (check.reason === 'updates_ended') {
+    // Pro Local: this Pro build is newer than the license's 12 months of updates.
+    console.error(`
+Your Pro Local updates ended on ${day(check.updatesUntil)}, and this Pro build was released on ${day(check.releasedAt)}.
+
+Reinstall the last Pro version your license includes:  saymd activate <activation-code>
+Or buy Pro Local again for 12 more months of updates:  ${PRO_UPGRADE_URL}
+`);
+    return false;
+  }
+  if (check.reason === 'expired') {
+    console.error(`
+Your saymd plan ended on ${day(check.validUntil)}, so Pro features have stopped (Pro Cloud includes Pro Local only while it is paid).
+The Free CLI keeps working with your own key. Renew Pro Cloud, or buy Pro Local once: ${PRO_UPGRADE_URL}
+`);
+    return false;
+  }
   printProGate(feature);
   return false;
 }
@@ -82,6 +123,7 @@ Then:    saymd activate <activation-code>
 export async function activateLicense(rawKey: string): Promise<void> {
   let licenseRaw = rawKey.trim();
   let proVersion: string | undefined;
+  let activation: ActivationResult | undefined;
 
   if (isShortActivationCode(licenseRaw)) {
     const exchanged = await exchangeActivationCode(licenseRaw);
@@ -95,6 +137,7 @@ export async function activateLicense(rawKey: string): Promise<void> {
     }
     licenseRaw = exchanged.licenseKey;
     proVersion = exchanged.proVersion;
+    activation = exchanged;
   } else {
     // Full license key paste — Pro must already be resolvable (link or prior install).
     const existing = await importPro();
@@ -112,13 +155,31 @@ export async function activateLicense(rawKey: string): Promise<void> {
     process.exit(1);
   }
   const license = pro.parseLicenseKey(licenseRaw);
-  if (!pro.verifyLicense(license)) {
-    console.error('Invalid activation code.');
+  const status = typeof pro.licenseStatus === 'function' ? pro.licenseStatus(license) : { ok: pro.verifyLicense(license) };
+  if (!status.ok) {
+    console.error(
+      'reason' in status && status.reason === 'expired'
+        ? `This license ended on ${day(status.validUntil)}. Renew at ${PRO_UPGRADE_URL}`
+        : 'Invalid activation code.'
+    );
     process.exit(1);
   }
   await saveLicense(license as SaymdLicense);
   const verNote = proVersion ? ` · Pro ${proVersion}` : '';
-  console.log(`Activated Pro (${license.plan}) until ${license.validUntil}${verNote}.`);
+  const lifetime = license.plan === 'local' || license.plan === 'founding';
+  const until = lifetime ? 'for life' : `until ${day(license.validUntil)}`;
+  const updates = license.updatesUntil
+    ? ` · updates until ${day(license.updatesUntil)}`
+    : license.plan === 'founding'
+      ? ' · lifetime updates'
+      : '';
+  console.log(`Activated Pro (${license.plan}) ${until}${verNote}${updates}.`);
+  if (activation?.latestVersion && activation.proVersion && activation.latestVersion !== activation.proVersion && activation.updatesUntil) {
+    console.log(
+      `Pro ${activation.latestVersion} is out; your 12 months of updates ended on ${day(activation.updatesUntil)}, so Pro ${activation.proVersion} is installed.\n` +
+        `Buy Pro Local again for 12 more months of updates: ${PRO_UPGRADE_URL}`
+    );
+  }
 }
 
 async function importPro(): Promise<typeof import('@saymd/pro') | null> {
@@ -143,8 +204,12 @@ export async function requireProModule<K extends keyof ProModule>(
   }
   const missing = exportsNeeded.filter((k) => typeof pro[k] === 'undefined');
   if (missing.length) {
+    const license = await loadLicense();
     console.error(
-      `--${feature} needs a newer Pro. Update it with your activation code:\n  saymd activate <activation-code>`
+      license?.updatesUntil
+        ? `--${feature} needs a newer Pro than your Pro Local license includes (updates until ${day(license.updatesUntil)}).\n` +
+            `Buy Pro Local again for 12 more months of updates: ${PRO_UPGRADE_URL}`
+        : `--${feature} needs a newer Pro. Update it with your activation code:\n  saymd activate <activation-code>`
     );
     process.exit(1);
   }

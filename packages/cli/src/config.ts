@@ -28,10 +28,12 @@ export interface SaymdState {
 
 export interface SaymdLicense {
   email: string;
-  plan: 'annual' | 'monthly';
+  plan: 'local' | 'founding' | 'cloud_monthly' | 'cloud_annual' | 'annual' | 'monthly';
   validUntil: string;
   key: string;
   signature: string;
+  /** Pro Local: end of the 12 months of updates (also inside the signed key, which is what counts). */
+  updatesUntil?: string;
 }
 
 export async function ensureSaymdDir(): Promise<void> {

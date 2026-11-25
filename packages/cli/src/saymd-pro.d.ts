@@ -1,13 +1,24 @@
 declare module '@saymd/pro' {
   export interface SaymdLicenseFile {
     email: string;
-    plan: 'annual' | 'monthly';
+    plan: 'local' | 'founding' | 'cloud_monthly' | 'cloud_annual' | 'annual' | 'monthly';
     validUntil: string;
     key: string;
     signature: string;
+    updatesUntil?: string;
   }
 
+  export type LicenseStatus =
+    | { ok: true }
+    | { ok: false; reason: 'invalid' }
+    | { ok: false; reason: 'expired'; validUntil: string }
+    | { ok: false; reason: 'updates_ended'; updatesUntil: string; releasedAt: string };
+
   export function verifyLicense(license: SaymdLicenseFile): boolean;
+  /** 1.0.0+: why a license does not unlock this Pro build (absent in older Pro). */
+  export const licenseStatus: ((license: SaymdLicenseFile) => LicenseStatus) | undefined;
+  export const PRO_VERSION: string | undefined;
+  export const PRO_RELEASED_AT: string | undefined;
   export function parseLicenseKey(raw: string): SaymdLicenseFile;
   export function detectTemplate(markdown: string): 'default' | 'feature' | 'bug' | 'plan';
   export function mergeContinue(opts: {
