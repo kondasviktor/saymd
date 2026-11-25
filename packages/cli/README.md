@@ -84,6 +84,8 @@ saymd mcp config claude                  # agent settings; tools: list_tasks, ge
 saymd --continue .ai/prompt.md
 saymd --review .ai/prompt.md
 saymd --out en
+saymd project add --map                  # Pro Cloud: register this repo for Telegram voice notes
+saymd inbox sync                         # Pro Cloud: pull Telegram specs/tasks into .ai/inbox/ and .ai/tasks/
 ```
 
 ## Privacy

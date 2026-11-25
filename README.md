@@ -169,13 +169,24 @@ saymd --out en                     # speak one language → write the spec in an
 
 - **`saymd mcp`** is an MCP server your agent starts in the repo. Tools: `list_tasks` (the queue in run order, with the next ready task), `get_item`, `mark_done` (sets `status: done`, updates the index, returns the next task) and `list_inbox` (voice specs in `.ai/inbox/` and `.ai/prompt.md`). Agents pull voice work themselves, no `@` tagging needed. `saymd mcp --check` shows what it would serve.
 
+### Pro Cloud — voice notes from Telegram
+
+With a Pro Cloud plan, send the saymd Telegram bot a voice note on a walk. It answers with the spec, plus buttons: **✂️ Split into tasks**, **📁 Project** (ground the spec in one of your repos) and **🗑 Discard**. Back at the laptop:
+
+```bash
+saymd project add --map   # register this repo; optionally upload its repo map (paths and names, never source code or the folder location)
+saymd inbox sync          # pull ready notes into .ai/inbox/ (specs) or .ai/tasks/ (split notes); --dry-run to preview
+```
+
+Sync refreshes the uploaded map, writes each note once (a repeat sync never duplicates), then tells the server, which drops the transcript.
+
 `.saymd/vocab.txt` — project names, APIs, acronyms (one per line). Also biases Gemini transcription. Ignored on Free.
 
 Pro implementation ships as `@saymd/pro` from a **private** repo. This MIT tree only has a dynamic import and a paywall message.
 
 ## Privacy
 
-API keys stay on this machine. Audio is sent only to the STT provider you chose, using your key. saymd does not receive your audio, transcripts, or prompt files.
+API keys stay on this machine. Audio is sent only to the STT provider you chose, using your key. saymd does not receive your audio, transcripts, or prompt files. Pro Cloud is the exception you opt in to: Telegram voice notes are processed on saymd.app, and a transcript is kept only until the note is synced or discarded.
 
 [Privacy policy](https://saymd.app/privacy.html)
 

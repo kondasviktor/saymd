@@ -18,6 +18,7 @@ import {
 } from './pro-gate.js';
 import { importProModule } from './pro-install.js';
 import { printHelp, printNextAfterSetup, printStartHere } from './help.js';
+import { runInboxSync, runProjectAdd } from './cloud.js';
 import { cliVersion, MCP_CLIENTS, printMcpConfig } from './mcp-config.js';
 import { resolveUserPath } from './paths.js';
 import { runConfigSet, runConfigShow, runSetup } from './setup.js';
@@ -53,7 +54,7 @@ function parseArgs(argv: string[]): ParsedArgs {
     if (opts.command === 'activate' && args[0]) {
       opts.activateKey = args.shift();
     }
-    if (opts.command === 'mcp') {
+    if (opts.command === 'mcp' || opts.command === 'inbox' || opts.command === 'project') {
       opts.mcpArgs = args.splice(0);
     }
     if (opts.command === 'config' && args[0] === 'set') {
@@ -272,6 +273,13 @@ async function main(): Promise<void> {
   if (parsed.command === 'mcp') {
     await runMcp(parsed.mcpArgs ?? [], cwd);
     return;
+  }
+  if (parsed.command === 'inbox' || parsed.command === 'project') {
+    const [sub, ...rest] = parsed.mcpArgs ?? [];
+    if (parsed.command === 'inbox' && sub === 'sync') return runInboxSync(rest, cwd);
+    if (parsed.command === 'project' && sub === 'add') return runProjectAdd(rest, cwd);
+    console.error('Usage: saymd inbox sync [--dry-run] [--no-refresh]\n       saymd project add [--name <name>] [--map | --no-map]');
+    process.exit(1);
   }
   if (parsed.command === 'activate') {
     if (!parsed.activateKey) {

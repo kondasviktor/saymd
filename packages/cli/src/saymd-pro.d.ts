@@ -107,4 +107,11 @@ declare module '@saymd/pro' {
     opts?: { status?: string }
   ): Promise<Array<{ id: string; path: string; title: string; status: string; created?: string; source: string }>>;
   export function startMcpServer(opts: { cwd: string; root?: string; version?: string }): Promise<void>;
+
+  // --- 0.2.0: saymd inbox sync ---
+  export function readTasks(dir: string): Promise<Array<TaskFile & { source?: string }>>;
+  export function writeInboxItem(
+    root: string,
+    item: { id: string; title: string; markdown: string; created?: string; language?: string; template?: string; source?: string }
+  ): Promise<{ path: string; written: boolean }>;
 }

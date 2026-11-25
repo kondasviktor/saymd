@@ -143,6 +143,8 @@ Pro options → ${PRO_URL}
   --split [dir]         one recording → ordered task files with depends_on + README index
                         (default dir: .ai/tasks; new tasks are numbered after existing ones)
   --ground              ground the spec in this repo: real @paths, checked against disk
+  saymd project add     register this repo with Pro Cloud (--map uploads paths + headings, never code)
+  saymd inbox sync      pull Telegram voice notes into .ai/inbox/ (or .ai/tasks/ when split)
   saymd mcp             MCP server for agents: list_inbox, get_item, list_tasks, mark_done
                         (saymd mcp --check shows what it would serve)
 

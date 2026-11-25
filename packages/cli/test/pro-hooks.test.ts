@@ -103,3 +103,24 @@ test('saymd mcp without Pro exits 1 and keeps stdout empty', () => {
     rmSync(home, { recursive: true, force: true });
   }
 });
+
+test('saymd inbox sync and project add without Pro exit 1 before any network call', () => {
+  const home = mkdtempSync(join(tmpdir(), 'saymd-free-'));
+  try {
+    for (const [args, msg] of [
+      [['inbox', 'sync'], /saymd inbox sync is Pro/],
+      [['project', 'add', '--map'], /saymd project add is Pro/],
+    ] as const) {
+      const r = spawnSync(process.execPath, ['--import', import.meta.resolve('tsx'), CLI, ...args], {
+        encoding: 'utf8',
+        // An unreachable API: a request would fail with a different error.
+        env: { PATH: process.env.PATH, HOME: home, SAYMD_API_URL: 'http://127.0.0.1:9' },
+        input: '',
+      });
+      assert.equal(r.status, 1);
+      assert.match(r.stderr, msg);
+    }
+  } finally {
+    rmSync(home, { recursive: true, force: true });
+  }
+});
