@@ -10,7 +10,7 @@ export function cliVersion(): string {
   }
 }
 
-export const MCP_CLIENTS = ['claude', 'cursor', 'codex', 'gemini', 'vscode'] as const;
+export const MCP_CLIENTS = ['claude', 'cursor', 'codex', 'antigravity', 'vscode'] as const;
 export type McpClient = (typeof MCP_CLIENTS)[number];
 
 /** Ready-to-paste MCP settings for each agent. The server runs in the agent's project folder. */
@@ -32,8 +32,9 @@ ${JSON.stringify({ mcpServers: { saymd: server } }, null, 2)}`;
 [mcp_servers.saymd]
 command = "npx"
 args = ${JSON.stringify(args)}`;
-    case 'gemini':
-      return `# Gemini CLI — .gemini/settings.json in your repo:
+    case 'antigravity':
+      return `# Antigravity CLI / App / IDE — .agents/mcp_config.json in your repo
+# (or ~/.gemini/config/mcp_config.json for every project; /mcp in agy shows its status):
 ${JSON.stringify({ mcpServers: { saymd: server } }, null, 2)}`;
     case 'vscode':
       return `# VS Code / GitHub Copilot — .vscode/mcp.json in your repo:

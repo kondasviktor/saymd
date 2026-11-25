@@ -119,7 +119,7 @@ Usage
   saymd config set provider <groq|gemini|openai|deepgram|elevenlabs>
   saymd config set model <model-id|default>
   saymd activate <activation-code>   # downloads Pro into ~/.saymd automatically
-  saymd mcp config [claude|cursor|codex|gemini|vscode]   # agent settings for the MCP server
+  saymd mcp config [claude|cursor|codex|antigravity|vscode]   # agent settings for the MCP server
 
 Free options
   --provider groq|gemini|openai|deepgram|elevenlabs

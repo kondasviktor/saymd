@@ -159,7 +159,7 @@ Upgrade at [saymd.app](https://saymd.app) (**€39/year** · **€5/month**), th
 saymd activate <activation-code>   # downloads @saymd/pro into ~/.saymd automatically
 saymd --split --ground --file walk.m4a   # one long memo → .ai/tasks/01-db.md, 02-api.md … + README index
 saymd --ground -o .ai/prompt.md    # one spec that references real @paths, checked against disk
-saymd mcp config claude            # settings for Claude Code, Cursor, Codex, Gemini CLI, VS Code
+saymd mcp config claude            # settings for Claude Code, Cursor, Codex, Antigravity CLI, VS Code
 saymd --continue .ai/prompt.md     # add more speech; merge into the same spec
 saymd --review .ai/prompt.md       # missing requirements, constraints, acceptance criteria
 saymd --out en                     # speak one language → write the spec in another

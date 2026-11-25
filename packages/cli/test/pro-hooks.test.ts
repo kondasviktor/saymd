@@ -76,7 +76,10 @@ test('mcpConfig pins the exact CLI version for every agent', async () => {
   assert.match(mcpConfig('codex', '9.9.9'), /\[mcp_servers\.saymd\]\ncommand = "npx"\nargs = \["-y","saymd@9\.9\.9","mcp"\]/);
   const vscode = JSON.parse(mcpConfig('vscode', '9.9.9').split('\n').slice(1).join('\n'));
   assert.equal(vscode.servers.saymd.type, 'stdio');
-  assert.deepEqual([...MCP_CLIENTS], ['claude', 'cursor', 'codex', 'gemini', 'vscode']);
+  assert.deepEqual([...MCP_CLIENTS], ['claude', 'cursor', 'codex', 'antigravity', 'vscode']);
+  const agy = JSON.parse(mcpConfig('antigravity', '9.9.9').split('\n').slice(2).join('\n'));
+  assert.deepEqual(agy, { mcpServers: { saymd: { command: 'npx', args: ['-y', 'saymd@9.9.9', 'mcp'] } } });
+  assert.match(mcpConfig('antigravity', '9.9.9'), /\.agents\/mcp_config\.json/);
 });
 
 test('saymd mcp without Pro exits 1 and keeps stdout empty', () => {
