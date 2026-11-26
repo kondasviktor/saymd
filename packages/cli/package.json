@@ -1,5 +1,6 @@
 {
   "name": "saymd",
+  "mcpName": "io.github.kondasviktor/saymd",
   "version": "0.2.0",
   "description": "Voice inbox for your repo — voice notes become repo-grounded specs and task queues for any coding agent.",
   "license": "MIT",

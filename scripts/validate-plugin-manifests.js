@@ -144,6 +144,16 @@ for (const f of ['.claude-plugin/marketplace.json', '.grok-plugin/marketplace.js
 }
 ok(`manifest versions = ${PINNED_VERSION}`);
 
+// MCP Registry: server.json follows the pinned version and matches the npm package's mcpName.
+const serverJson = readJson('server.json');
+const cliPkg = readJson('packages/cli/package.json');
+if (serverJson && cliPkg) {
+  if (serverJson.name !== cliPkg.mcpName) fail(`server.json name ${serverJson.name} must equal packages/cli mcpName ${cliPkg.mcpName}`);
+  if (serverJson.version !== PINNED_VERSION || serverJson.packages?.[0]?.version !== PINNED_VERSION) fail(`server.json versions must be ${PINNED_VERSION}`);
+  if ((serverJson.description || '').length > 100) fail('server.json description over 100 characters (registry limit)');
+  ok('server.json matches mcpName and the pinned version');
+}
+
 // The retired v1 tagline must not come back into listings.
 const v1 = [];
 for (const f of ['plugin.json', '.claude-plugin/marketplace.json', '.grok-plugin/marketplace.json', 'skills/saymd/SKILL.md', 'README.md', 'packages/cli/README.md', 'wrappers/huggingface/index.html', 'wrappers/huggingface/README.md']) {
