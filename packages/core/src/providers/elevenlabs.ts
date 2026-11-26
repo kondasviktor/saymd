@@ -1,15 +1,28 @@
-import { readFile } from 'node:fs/promises';
-
+import { loadAudio } from './audio-input.js';
 import type { TranscribeOptions, Transcript, TranscriptionProvider } from './types.js';
 
-const TRANSCRIBE_MODEL = process.env.ELEVENLABS_TRANSCRIBE_MODEL ?? 'scribe_v2';
-const USD_PER_MIN = 0.006;
+const DEFAULT_MODEL = 'scribe_v3';
+/** Scribe v3: $0.20/hr list price; v2 kept for anyone pinning it. */
+const KNOWN_MODELS: Record<string, number> = {
+  scribe_v3: 0.0033,
+  scribe_v2: 0.0067,
+};
+
+function defaultModel(): string {
+  return process.env.ELEVENLABS_TRANSCRIBE_MODEL?.trim() || DEFAULT_MODEL;
+}
 
 export const elevenlabsProvider: TranscriptionProvider = {
   id: 'elevenlabs',
   displayName: 'ElevenLabs',
-  model: TRANSCRIBE_MODEL,
-  usdPerMinute: USD_PER_MIN,
+  get model() {
+    return defaultModel();
+  },
+  get usdPerMinute() {
+    return KNOWN_MODELS[defaultModel()] ?? KNOWN_MODELS[DEFAULT_MODEL];
+  },
+  knownModels: KNOWN_MODELS,
+  modelEnvVar: 'ELEVENLABS_TRANSCRIBE_MODEL',
 
   async verifyApiKey(apiKey: string): Promise<void> {
     const res = await fetch('https://api.elevenlabs.io/v1/user', {
@@ -22,11 +35,12 @@ export const elevenlabsProvider: TranscriptionProvider = {
   },
 
   async transcribeFile(apiKey: string, opts: TranscribeOptions): Promise<Transcript> {
-    const buffer = await readFile(opts.localPath);
+    const { buffer, filename } = await loadAudio(opts);
     const blob = new Blob([buffer], { type: opts.mimeType });
     const form = new FormData();
-    form.append('file', blob, opts.localPath.split('/').pop() ?? 'audio');
-    form.append('model_id', TRANSCRIBE_MODEL);
+    const model = opts.model?.trim() || defaultModel();
+    form.append('file', blob, filename);
+    form.append('model_id', model);
     if (opts.lang && opts.lang !== 'auto') {
       form.append('language_code', opts.lang);
     }
@@ -46,7 +60,7 @@ export const elevenlabsProvider: TranscriptionProvider = {
       text: data.text.trim(),
       language: data.language_code,
       provider: 'elevenlabs',
-      model: TRANSCRIBE_MODEL,
+      model,
       durationSeconds: opts.durationSeconds,
     };
   },
@@ -55,17 +69,18 @@ export const elevenlabsProvider: TranscriptionProvider = {
     apiKey: string,
     chunkPaths: string[],
     mimeType: string,
-    lang?: string
+    lang?: string,
+    model?: string
   ): Promise<Transcript> {
     const parts: string[] = [];
     for (const p of chunkPaths) {
-      const t = await elevenlabsProvider.transcribeFile(apiKey, { localPath: p, mimeType, lang });
+      const t = await elevenlabsProvider.transcribeFile(apiKey, { localPath: p, mimeType, lang, model });
       parts.push(t.text);
     }
     return {
       text: parts.join('\n'),
       provider: 'elevenlabs',
-      model: TRANSCRIBE_MODEL,
+      model: model?.trim() || defaultModel(),
     };
   },
 };

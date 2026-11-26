@@ -1,7 +1,7 @@
 import type { TemplateId } from '../types.js';
 import { sectionsSchema } from '../types.js';
 
-export type CompilerProviderId = 'gemini' | 'openai';
+export type CompilerProviderId = 'gemini' | 'openai' | 'groq' | 'openrouter';
 
 export interface StructuredResult {
   language: string;
@@ -20,4 +20,6 @@ export interface StructureOptions {
 export interface PromptCompiler {
   id: CompilerProviderId;
   structureTranscript(opts: StructureOptions): Promise<StructuredResult>;
+  /** Raw JSON-mode completion; used by Pro (--split) with the same provider and key. */
+  generateJson(apiKey: string, prompt: string): Promise<string>;
 }

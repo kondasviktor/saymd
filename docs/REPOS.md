@@ -3,8 +3,8 @@
 | Repo | Visibility | Contents | Vercel? |
 |------|------------|----------|---------|
 | [kondasviktor/saymd](https://github.com/kondasviktor/saymd) | **Public** (MIT) | Free CLI (`packages/cli`) only | **No** |
-| [kondasviktor/saymd-pro](https://github.com/kondasviktor/saymd-pro) | **Private** | `@saymd/pro` — continue, review, `--out`, vocab, duration, license verify | **No** |
-| [kondasviktor/saymd-app](https://github.com/kondasviktor/saymd-app) | **Private** | Landing, Stripe, activation API | **Yes** → [saymd.app](https://saymd.app) |
+| [kondasviktor/saymd-pro](https://github.com/kondasviktor/saymd-pro) | **Private** | `@saymd/pro` — split, ground, MCP server, Pro Cloud sync helpers, continue, review, `--out`, vocab, duration, license verify | **No** |
+| [kondasviktor/saymd-app](https://github.com/kondasviktor/saymd-app) | **Private** | Landing, Stripe, activation API, Pro Cloud (Telegram bot, sync APIs) | **Yes** → [saymd.app](https://saymd.app) |
 
 Do **not** put Pro implementation into this MIT CLI repo (even behind a license check). The Free CLI may dynamically `import('@saymd/pro')` and show a paywall. Merge, review, cross-language prompts, vocab, and Pro recording limits live only in `saymd-pro`.
 
@@ -14,9 +14,7 @@ Do **not** put Pro implementation into this MIT CLI repo (even behind a license 
 packages/cli/              # npm package `saymd`
 skills/saymd/              # shared Agent Skill
 commands/                  # slash commands (/saymd, …)
-plugin.json                # Antigravity CLI (`agy`) + Agent Plugins (skills/)
-gemini-extension.json      # Legacy Gemini CLI / `agy plugin import gemini`
-GEMINI.md                  # Workspace context (Antigravity still reads this)
+plugin.json                # Antigravity CLI (`agy`) plugin manifest (skills/)
 .cursor-plugin/            # Cursor manifest
 .claude-plugin/            # Claude Code + marketplace.json
 .codex-plugin/             # Codex skills-only manifest

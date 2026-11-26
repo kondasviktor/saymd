@@ -2,12 +2,13 @@
   "name": "saymd-workspace",
   "private": true,
   "workspaces": [
+    "packages/core",
     "packages/cli"
   ],
   "scripts": {
-    "build": "npm run build -w saymd",
-    "test": "npm run test -w saymd",
-    "typecheck": "npm run typecheck -w saymd",
+    "build": "npm run build -w @saymd/core && npm run build -w saymd",
+    "test": "npm run test -w @saymd/core && npm run test -w saymd",
+    "typecheck": "npm run build -w @saymd/core && npm run typecheck -w @saymd/core && npm run typecheck -w saymd",
     "validate:plugins": "node scripts/validate-plugin-manifests.js"
   },
   "engines": {

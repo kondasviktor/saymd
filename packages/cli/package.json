@@ -1,7 +1,8 @@
 {
   "name": "saymd",
-  "version": "0.1.2",
-  "description": "Speak once. Get a prompt file any agent can @.",
+  "mcpName": "io.github.kondasviktor/saymd",
+  "version": "0.2.0",
+  "description": "Voice inbox for your repo — voice notes become repo-grounded specs and task queues for any coding agent.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -19,6 +20,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "@saymd/core": "0.2.0",
     "@google/genai": "^2.31.0",
     "zod": "^4.6.7"
   },
@@ -31,6 +33,8 @@
     "node": ">=24"
   },
   "keywords": [
+    "groq",
+    "whisper",
     "gemini",
     "openai",
     "deepgram",
@@ -42,7 +46,12 @@
     "claude",
     "speech-to-text",
     "ai-agent",
-    "byok"
+    "byok",
+    "mcp",
+    "telegram",
+    "voice-inbox",
+    "codex",
+    "antigravity"
   ],
   "repository": {
     "type": "git",

@@ -1,22 +1,22 @@
 # saymd
 
-**Speak once. Get a prompt file any agent can @.**
+**Voice inbox for your repo — voice notes become repo-grounded specs and task queues for any coding agent.**
 
-Agents execute. saymd delivers a usable spec. Free MIT CLI — bring your own speech-to-text key (**BYOK**). Works with Cursor · Claude Code · Codex · GitHub Copilot · Antigravity CLI · OpenCode. Pro is a **separate proprietary package** (`@saymd/pro`) — not in this package.
+Free MIT CLI — bring your own speech-to-text key (**BYOK**). Pro adds ordered task files, repo grounding and an MCP server; Pro Cloud adds a Telegram voice inbox. Works with Cursor · Claude Code · Codex · GitHub Copilot · Antigravity CLI · OpenCode. Pro is a **separate proprietary package** (`@saymd/pro`) — not in this package.
 
 ### Free includes
 
 - Mic **or** `--file` audio
 - **85+ languages** with auto-detect (output stays in the language you spoke)
-- Exact models: `gemini-3.5-transcribe`, `gpt-4o-transcribe`, `nova-3`, `scribe_v2`
+- Exact models: `whisper-large-v3-turbo` (Groq), `gemini-3.5-transcribe`, `gpt-transcribe`, `nova-3`, `scribe_v3`
 - Templates: `feature`, `bug`, `plan`
 
 ## Start here — Free
 
 ```bash
-npx saymd@0.1.2 setup
-npx saymd@0.1.2 doctor
-npx saymd@0.1.2 -o .ai/prompt.md --template feature --seconds 30
+npx saymd@1.0.0 setup
+npx saymd@1.0.0 doctor
+npx saymd@1.0.0 -o .ai/prompt.md --template feature --seconds 30
 ```
 
 Speak, press **Enter** to stop, then `@` `.ai/prompt.md` in Cursor, Claude Code, Codex, Copilot, Antigravity CLI, OpenCode, or any agent that can read Markdown.
@@ -58,26 +58,34 @@ You pay the STT provider. Keys in `~/.saymd/config.json` (0600) or env — never
 
 | `--provider` | Exact model ID |
 |--------------|----------------|
-| `gemini` (recommended) | `gemini-3.5-transcribe` |
-| `openai` | `gpt-4o-transcribe` |
-| `deepgram` | `nova-3` (needs Gemini or OpenAI for structuring) |
-| `elevenlabs` | `scribe_v2` (needs Gemini or OpenAI for structuring) |
+| `groq` (start here: free tier, no card) | `whisper-large-v3-turbo`; structures with `openai/gpt-oss-120b` |
+| `gemini` | `gemini-3.5-transcribe`; structures with `gemini-3.5-flash-lite` |
+| `openai` | `gpt-transcribe`; structures with `gpt-6-luna` |
+| `deepgram` | `nova-3` (needs Gemini, OpenAI or Groq for structuring) |
+| `elevenlabs` | `scribe_v3` (needs Gemini, OpenAI or Groq for structuring) |
 
 ```bash
 saymd setup
 saymd config set provider openai
+saymd config set model elevenlabs/scribe-v2      # with --provider openrouter
+saymd --provider openrouter --model openai/gpt-transcribe --file memo.m4a
 saymd --provider deepgram --file meeting.wav
 ```
 
 ## Pro
 
-`--continue`, `--review`, `--out`, `.saymd/vocab.txt`, and longer recordings require [saymd.app](https://saymd.app) (€39/yr · €5/mo).
+`--split`, `--ground`, `saymd mcp`, `--continue`, `--review`, `--out`, `.saymd/vocab.txt`, and longer recordings require **Pro Local** (€49 one-time). **Pro Cloud** (€9/mo or €79/yr) adds the Telegram voice inbox with no API key. [saymd.app/pricing](https://saymd.app/pricing.html)
 
 ```bash
 saymd activate <activation-code>
+saymd --split --ground --file walk.m4a   # ordered task files in .ai/tasks/ with depends_on
+saymd --ground -o .ai/prompt.md          # spec with real @paths, checked against disk
+saymd mcp config claude                  # agent settings; tools: list_tasks, get_item, mark_done, list_inbox
 saymd --continue .ai/prompt.md
 saymd --review .ai/prompt.md
 saymd --out en
+saymd project add --map                  # Pro Cloud: register this repo for Telegram voice notes
+saymd inbox sync                         # Pro Cloud: pull Telegram specs/tasks into .ai/inbox/ and .ai/tasks/
 ```
 
 ## Privacy

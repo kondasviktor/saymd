@@ -1,13 +1,15 @@
-import { readFile } from 'node:fs/promises';
-
+import { loadAudio } from './audio-input.js';
 import type { TranscribeOptions, Transcript, TranscriptionProvider } from './types.js';
 
-const TRANSCRIBE_MODEL = process.env.DEEPGRAM_TRANSCRIBE_MODEL ?? 'nova-3';
+const DEFAULT_MODEL = 'nova-3';
+function defaultModel(): string {
+  return process.env.DEEPGRAM_TRANSCRIBE_MODEL?.trim() || DEFAULT_MODEL;
+}
 const USD_PER_MIN = 0.0052;
 
-function buildListenUrl(lang?: string): string {
+function buildListenUrl(model: string, lang?: string): string {
   const params = new URLSearchParams({
-    model: TRANSCRIBE_MODEL,
+    model,
     smart_format: 'true',
     punctuate: 'true',
   });
@@ -19,8 +21,12 @@ function buildListenUrl(lang?: string): string {
 export const deepgramProvider: TranscriptionProvider = {
   id: 'deepgram',
   displayName: 'Deepgram',
-  model: TRANSCRIBE_MODEL,
+  get model() {
+    return defaultModel();
+  },
   usdPerMinute: USD_PER_MIN,
+  knownModels: { [DEFAULT_MODEL]: USD_PER_MIN },
+  modelEnvVar: 'DEEPGRAM_TRANSCRIBE_MODEL',
 
   async verifyApiKey(apiKey: string): Promise<void> {
     const res = await fetch('https://api.deepgram.com/v1/projects', {
@@ -33,8 +39,9 @@ export const deepgramProvider: TranscriptionProvider = {
   },
 
   async transcribeFile(apiKey: string, opts: TranscribeOptions): Promise<Transcript> {
-    const buffer = await readFile(opts.localPath);
-    const res = await fetch(buildListenUrl(opts.lang), {
+    const { buffer } = await loadAudio(opts);
+    const model = opts.model?.trim() || defaultModel();
+    const res = await fetch(buildListenUrl(model, opts.lang), {
       method: 'POST',
       headers: {
         Authorization: `Token ${apiKey}`,
@@ -61,7 +68,7 @@ export const deepgramProvider: TranscriptionProvider = {
       text,
       language: channel?.detected_language,
       provider: 'deepgram',
-      model: TRANSCRIBE_MODEL,
+      model,
       durationSeconds: opts.durationSeconds,
     };
   },
@@ -70,17 +77,18 @@ export const deepgramProvider: TranscriptionProvider = {
     apiKey: string,
     chunkPaths: string[],
     mimeType: string,
-    lang?: string
+    lang?: string,
+    model?: string
   ): Promise<Transcript> {
     const parts: string[] = [];
     for (const p of chunkPaths) {
-      const t = await deepgramProvider.transcribeFile(apiKey, { localPath: p, mimeType, lang });
+      const t = await deepgramProvider.transcribeFile(apiKey, { localPath: p, mimeType, lang, model });
       parts.push(t.text);
     }
     return {
       text: parts.join('\n'),
       provider: 'deepgram',
-      model: TRANSCRIBE_MODEL,
+      model: model?.trim() || defaultModel(),
     };
   },
 };

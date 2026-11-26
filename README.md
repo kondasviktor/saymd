@@ -1,8 +1,8 @@
 # saymd
 
-**Speak once. Get a prompt file any agent can @.**
+**Voice inbox for your repo — voice notes become repo-grounded specs and task queues for any coding agent.**
 
-Agents execute. saymd delivers a usable spec — a Free MIT CLI that turns microphone speech or audio files into structured Markdown prompts. You bring your own speech-to-text key (**BYOK**). saymd does not host audio or sell transcription minutes.
+Talk it through on a walk; find the spec in your repo. The Free MIT CLI turns microphone speech or audio files into structured Markdown specs with your own speech-to-text key (**BYOK**). Pro splits a long memo into ordered task files grounded in your repo and serves them to agents over MCP; Pro Cloud adds a Telegram voice inbox with no API key.
 
 **Works with:** Cursor · Claude Code · Codex · Grok Build · GitHub Copilot · Antigravity CLI · OpenCode (and any agent that can `@` a Markdown file).
 
@@ -10,7 +10,7 @@ Agents execute. saymd delivers a usable spec — a Free MIT CLI that turns micro
 [![Grok Build plugin](https://img.shields.io/badge/Grok%20Build-Plugin-111111?style=flat-square)](https://github.com/kondasviktor/saymd)
 [![Antigravity CLI plugin](https://img.shields.io/badge/Antigravity%20CLI-Plugin-1a73e8?style=flat-square)](https://github.com/kondasviktor/saymd)
 
-Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separate proprietary package**. It is not in this repository. Removing a check in this CLI does not unlock Pro.
+Pro (`--split`, `--ground`, `saymd mcp`, `--continue`, `--review`, `--out`, vocab, longer recordings) is a **separate proprietary package**. It is not in this repository. Removing a check in this CLI does not unlock Pro.
 
 ### Free includes
 
@@ -18,18 +18,18 @@ Pro (`--continue`, `--review`, `--out`, vocab, longer recordings) is a **separat
 - **85+ input languages** with automatic detection
 - Structured Markdown (not a raw transcript dump)
 - Templates: `feature`, `bug`, `plan` (or default headings)
-- Exact BYOK models: `gemini-3.5-transcribe`, `gpt-4o-transcribe`, `nova-3`, `scribe_v2`
+- Exact BYOK models: `whisper-large-v3-turbo` (Groq), `gemini-3.5-transcribe`, `gpt-transcribe`, `nova-3`, `scribe_v3`
 
 ## Start here — Free
 
-1. **Install** — `npx saymd@0.1.2 setup` (pick a provider; key stays on this machine).
+1. **Install** — `npx saymd@1.0.0 setup` (pick a provider; key stays on this machine).
 2. **Speak** — mic or `--file`; press **Enter** to stop (you do not need to wait for the maximum).
 3. **@ the prompt** — open `.ai/prompt.md` in your agent.
 
 ```bash
-npx saymd@0.1.2 setup
-npx saymd@0.1.2 doctor
-npx saymd@0.1.2 -o .ai/prompt.md --template feature --seconds 30
+npx saymd@1.0.0 setup
+npx saymd@1.0.0 doctor
+npx saymd@1.0.0 -o .ai/prompt.md --template feature --seconds 30
 ```
 
 `doctor` checks ffmpeg, microphone, provider, and API key before your first run.
@@ -38,7 +38,7 @@ npx saymd@0.1.2 -o .ai/prompt.md --template feature --seconds 30
 
 ## Install in Cursor / Claude / Codex / Grok / Antigravity
 
-This repo is the plugin package (shared skill + slash commands). The Free CLI stays `npx saymd@0.1.2`.
+This repo is the plugin package (shared skill + slash commands). The Free CLI stays `npx saymd@1.0.0`.
 
 | Agent | Install |
 |-------|---------|
@@ -46,12 +46,11 @@ This repo is the plugin package (shared skill + slash commands). The Free CLI st
 | **Claude Code** | `claude plugin marketplace add kondasviktor/saymd` then install **saymd**. Or submit/install from the community catalog after approval. |
 | **Codex** | Listed in the [OpenAI Plugins Directory](https://chatgpt.com/plugins/plugins_6aa7de5bf4f48191b8eb88fcf33e2f24) (ChatGPT + Codex). Manifest: `.codex-plugin/plugin.json` |
 | **Grok Build** | DIY: `grok plugin marketplace add kondasviktor/saymd` then install **saymd**. Official catalog PR pending ([xai-org/plugin-marketplace](https://github.com/xai-org/plugin-marketplace)). Manifest: `.grok-plugin/plugin.json` |
-| **Antigravity CLI** (`agy`) | `agy plugin install https://github.com/kondasviktor/saymd` (root `plugin.json` + `skills/`). Google retired Gemini CLI for personal accounts in June 2026; this is the replacement. |
-| **Gemini CLI** (enterprise / API-key only) | `gemini extensions install https://github.com/kondasviktor/saymd` or `agy plugin import gemini` if you already had the extension. |
+| **Antigravity CLI** (`agy`) | `agy plugin install https://github.com/kondasviktor/saymd` (root `plugin.json` + `skills/`). |
 
-Slash commands: `/saymd`, `/saymd-feature`, `/saymd-bug`, `/saymd-plan`, `/saymd-continue`, `/saymd-review`, `/saymd-out`.
+Slash commands: `/saymd`, `/saymd-feature`, `/saymd-bug`, `/saymd-plan`, `/saymd-split` (Pro), `/saymd-inbox` (Pro Cloud), `/saymd-continue`, `/saymd-review`, `/saymd-out`.
 
-Native loop: run local CLI → `@` `.ai/prompt.md` → offer to implement. Pro CTAs use `?utm_source=<agent>&utm_medium=plugin`.
+Native loop: record or `saymd inbox sync` → `@` the spec or the next task → offer to implement. With Pro, connect `saymd mcp` (`saymd mcp config <agent>`) and the agent pulls the next task itself. Pro CTAs use `?utm_source=<agent>&utm_medium=plugin`.
 
 The raw transcript is not the main artifact — the structured spec is.
 
@@ -118,51 +117,87 @@ saymd --seconds 30       # shorter first test
 
 **BYOK = Bring Your Own Key.** You create a key with the provider, paste it into `saymd setup`, and pay that provider directly. saymd never sells transcription credits.
 
-All four models below are available on **Free**:
+All five providers below are available on **Free**:
 
 | `--provider` | Exact model ID | What it does |
 |--------------|----------------|--------------|
-| `gemini` **(recommended)** | `gemini-3.5-transcribe` | Speech-to-text **and** Markdown structuring |
-| `openai` | `gpt-4o-transcribe` | Speech-to-text **and** Markdown structuring |
-| `deepgram` | `nova-3` | Speech-to-text only — also needs a Gemini or OpenAI key to structure Markdown |
-| `elevenlabs` | `scribe_v2` | Speech-to-text only — same as Deepgram |
+| `groq` **(start here)** | `whisper-large-v3-turbo` | Speech-to-text **and** Markdown structuring (`openai/gpt-oss-120b`). Free tier, no card needed. Cheapest and least accurate of the five |
+| `gemini` | `gemini-3.5-transcribe` | Speech-to-text (Interactions API, with `saymd` and your Pro vocabulary as custom vocabulary) **and** Markdown structuring (`gemini-3.1-flash-lite`). Best all-round accuracy across 85+ languages |
+| `openai` | `gpt-transcribe` | Speech-to-text **and** Markdown structuring (`gpt-6-luna`) |
+| `deepgram` | `nova-3` | Speech-to-text only — also needs a Gemini, OpenAI or Groq key to structure Markdown |
+| `elevenlabs` | `scribe_v3` | Speech-to-text only — same as Deepgram. 90+ languages |
+| `openrouter` | `google/gemini-3.5-transcribe` | One key for many models: pick any with `--model`, e.g. `elevenlabs/scribe-v2`, `openai/gpt-transcribe`, `deepgram/nova-3`. Also structures Markdown (`google/gemini-3.5-flash-lite`; `OPENROUTER_STRUCTURE_MODEL` overrides). The cost shown is OpenRouter's own figure |
 
 ```bash
 saymd setup                              # pick provider + paste key
-saymd config                             # current provider (never prints the key)
+saymd config                             # current provider and model (never prints the key)
 saymd config set provider openai
+saymd config set model elevenlabs/scribe-v2   # saved per provider (here OpenRouter); `default` resets it
+saymd --provider openrouter --model openai/gpt-transcribe --file memo.m4a   # one run only
 saymd --provider deepgram --file meeting.wav
 ```
 
+Model overrides also work through env vars: `GROQ_TRANSCRIBE_MODEL`, `GEMINI_TRANSCRIBE_MODEL`, `OPENAI_TRANSCRIBE_MODEL`, `DEEPGRAM_TRANSCRIBE_MODEL`, `ELEVENLABS_TRANSCRIBE_MODEL`. `GROQ_STRUCTURE_MODEL` and `GEMINI_ENRICH_MODEL` change the structuring model for Groq and Gemini. `GROQ_BASE_URL`, `GEMINI_BASE_URL` and `OPENAI_BASE_URL` point a provider at a gateway.
+
 Keys live in `~/.saymd/config.json` (mode **0600**) or environment variables:
 
+- `GROQ_API_KEY`
 - `GEMINI_API_KEY`
 - `OPENAI_API_KEY`
 - `DEEPGRAM_API_KEY`
 - `ELEVENLABS_API_KEY`
 
-Get keys: [Google AI Studio](https://aistudio.google.com/app/apikey) · [OpenAI](https://platform.openai.com/api-keys) · [Deepgram](https://console.deepgram.com/) · [ElevenLabs](https://elevenlabs.io/)
+Get keys: [Groq](https://console.groq.com/keys) · [Google AI Studio](https://aistudio.google.com/app/apikey) · [OpenAI](https://platform.openai.com/api-keys) · [Deepgram](https://console.deepgram.com/) · [ElevenLabs](https://elevenlabs.io/)
 
 A typical ~60 second dictation is usually well under **$0.01** on your own key (provider pricing applies).
 
 ## Pro — when you need more
 
-Upgrade at [saymd.app](https://saymd.app) (**€39/year** · **€5/month**), then:
+Two paid tiers at [saymd.app/pricing](https://saymd.app/pricing.html):
+
+| | Price | Runs where | Adds |
+|---|---|---|---|
+| **Pro Local** | **€49 one-time**, 12 months of updates (keeps working after) | Your machine, your key | `--split`, `--ground`, `saymd mcp`, `--continue` / `--review` / `--out`, vocab, 10-minute recordings |
+| **Pro Cloud** | **€9/month** or **€79/year**, cancel anytime | Hosted, no API key | Everything in Pro Local, plus the Telegram voice inbox (300 min/month fair use) and `saymd inbox sync` |
+
+**Founding offer:** €49 one-time until 30 days after launch (max 50 buyers): Pro Local for life with lifetime updates, plus 6 months of Pro Cloud. Pro Cloud includes Pro Local while it is paid. Already on Pro at €39/year or €5/month? You move to Pro Cloud at your current price.
+
+Then:
 
 ```bash
 saymd activate <activation-code>   # downloads @saymd/pro into ~/.saymd automatically
+saymd --split --ground --file walk.m4a   # one long memo → .ai/tasks/01-db.md, 02-api.md … + README index
+saymd --ground -o .ai/prompt.md    # one spec that references real @paths, checked against disk
+saymd mcp config claude            # settings for Claude Code, Cursor, Codex, Antigravity CLI, VS Code
 saymd --continue .ai/prompt.md     # add more speech; merge into the same spec
 saymd --review .ai/prompt.md       # missing requirements, constraints, acceptance criteria
 saymd --out en                     # speak one language → write the spec in another
 ```
 
-`.saymd/vocab.txt` — project names, APIs, acronyms (one per line). Ignored on Free.
+- **`--split [dir]`** writes one task per pull request, foundations first, each with `depends_on` frontmatter and `status: todo`, plus a `README.md` index with the run order. A later split adds tasks after the existing ones; nothing is overwritten.
+- **`--ground`** builds a local map of the repo — file paths (`.gitignore` respected), `package.json`, Prisma / SQL / OpenAPI names and `AGENTS.md` / `CLAUDE.md` headings, never source code — and puts it in the prompt. Every `@path` in the result is checked on disk; missing ones are flagged in **Open questions**.
+
+- **`saymd mcp`** is an MCP server your agent starts in the repo. Tools: `list_tasks` (the queue in run order, with the next ready task), `get_item`, `mark_done` (sets `status: done`, updates the index, returns the next task) and `list_inbox` (voice specs in `.ai/inbox/` and `.ai/prompt.md`). Agents pull voice work themselves, no `@` tagging needed. `saymd mcp --check` shows what it would serve.
+
+### Pro Cloud — voice notes from Telegram
+
+With a Pro Cloud plan, send the saymd Telegram bot a voice note on a walk. It answers with the spec, plus buttons: **✂️ Split into tasks**, **📁 Project** (ground the spec in one of your repos) and **🗑 Discard**. Back at the laptop:
+
+```bash
+saymd project add --map   # register this repo; optionally upload its repo map (paths and names, never source code or the folder location)
+saymd inbox sync          # pull ready notes into .ai/inbox/ (specs) or .ai/tasks/ (split notes); --dry-run to preview
+saymd project remove      # delete this repo's project and map from saymd.app (--no-map on add deletes just the map)
+```
+
+Sync refreshes the uploaded map, writes each note once (a repeat sync never duplicates), then tells the server, which deletes the note's content. Notes never synced are deleted after 30 days.
+
+`.saymd/vocab.txt` — project names, APIs, acronyms (one per line). Also biases Gemini transcription. Ignored on Free.
 
 Pro implementation ships as `@saymd/pro` from a **private** repo. This MIT tree only has a dynamic import and a paywall message.
 
 ## Privacy
 
-API keys stay on this machine. Audio is sent only to the STT provider you chose, using your key. saymd does not receive your audio, transcripts, or prompt files.
+API keys stay on this machine. Audio is sent only to the STT provider you chose, using your key. saymd does not receive your audio, transcripts, or prompt files. Pro Cloud is the exception you opt in to: Telegram voice notes are processed on saymd.app: audio is never stored, and a note's content is deleted once it is synced or discarded, or after 30 days.
 
 [Privacy policy](https://saymd.app/privacy.html)
 
@@ -184,7 +219,7 @@ saymd activate <code>      # activate Pro
 
 1. ⭐ **Star this repo** if saymd is useful — stars help other developers find a Free BYOK voice-to-Markdown CLI, and they tell us the project is worth maintaining.
 2. 🍴 **Fork it** when you want to experiment, fix a bug, or adapt the Free CLI for your workflow — Pro stays out of this tree on purpose.
-3. 💻 **Try the Free CLI (BYOK)** — `npx saymd@0.1.2 setup && npx saymd@0.1.2 doctor`, then one short recording or `--file` clip, and [open an issue](https://github.com/kondasviktor/saymd/issues) if something breaks.
+3. 💻 **Try the Free CLI (BYOK)** — `npx saymd@1.0.0 setup && npx saymd@1.0.0 doctor`, then one short recording or `--file` clip, and [open an issue](https://github.com/kondasviktor/saymd/issues) if something breaks.
 4. ✉️ **[Subscribe to the Vibe Coder's Life newsletter](https://vibecoderslife.com/?utm_source=github&utm_medium=readme&utm_campaign=saymd#subscribe-email)** for product updates and developer tooling write-ups — no need to live in GitHub to stay in the loop.
 5. ☕ **[Buy Me a Coffee](https://buymeacoffee.com/kondasviktor)** if you want to support maintenance — optional tips help keep the Free MIT CLI updated.
 

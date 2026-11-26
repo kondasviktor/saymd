@@ -1,0 +1,28 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.kondasviktor/saymd",
+  "title": "saymd",
+  "description": "Voice inbox for your repo: agents pull voice-note specs and ordered tasks. Needs saymd Pro.",
+  "websiteUrl": "https://saymd.app/?utm_source=mcp&utm_medium=registry&utm_campaign=saymd",
+  "repository": {
+    "url": "https://github.com/kondasviktor/saymd",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "saymd",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ]
+    }
+  ]
+}

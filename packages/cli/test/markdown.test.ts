@@ -1,8 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { normalizeKnownAsr } from '../src/asr-normalize.js';
-import { parseMarkdownSections, sectionsToMarkdown } from '../src/markdown.js';
+import { normalizeKnownAsr, parseMarkdownSections, sectionsToMarkdown } from '@saymd/core';
 
 test('normalizeKnownAsr fixes Saint and SanePro mishearings of saymd', () => {
   assert.equal(
@@ -17,7 +16,7 @@ test('normalizeKnownAsr fixes Saint and SanePro mishearings of saymd', () => {
 });
 
 test('polish recovers plan Context and saymd spelling', async () => {
-  const { polishStructuredSections } = await import('../src/structure-polish.js');
+  const { polishStructuredSections } = await import('@saymd/core');
   const polished = polishStructuredSections(
     'Implementation plan for Saint Pro checkout. Context: Private landing and Stripe on Saint app. Step one: prices.',
     {

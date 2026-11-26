@@ -5,12 +5,13 @@ const PRIVACY = 'https://saymd.app/privacy.html';
 
 /** Human onboarding — `saymd help` */
 export function printStartHere(): void {
-  console.log(`saymd — Speak once. Get a prompt file any agent can @.
+  console.log(`saymd — voice inbox for your repo. Voice notes become specs and task files any agent can pick up.
 
 Start here — Free
 ─────────────────
 1) saymd setup
-   Choose a transcription provider (Gemini recommended) and add your API key.
+   Choose a transcription provider and add your API key.
+   Groq is recommended to start: free tier, no card needed.
    Clipboard or hidden paste — the key stays on this machine.
 
 2) saymd doctor
@@ -58,37 +59,50 @@ Providers — BYOK
 ────────────────
 You pay the speech-to-text provider on your own account.
 
-  Gemini                   recommended
-  OpenAI
-  Deepgram
-  ElevenLabs
+  Groq                     start here — free tier, no card
+  Gemini                   most accurate across 85+ languages
+  OpenAI                   gpt-transcribe
+  Deepgram                 speech-to-text only
+  ElevenLabs               speech-to-text only (Scribe v3)
+  OpenRouter               one key for many models: --model google/gemini-3.5-transcribe,
+                           elevenlabs/scribe-v2, openai/gpt-transcribe …
 
   saymd setup              configure or change provider / key
   saymd config             show current provider (never prints the key)
   saymd config set provider openai
+  saymd config set model elevenlabs/scribe-v2   (per provider; default resets)
 
-Pro — when you need more
-────────────────────────
-  saymd --continue .ai/prompt.md
-      add more speech and merge it into the same spec
+Pro Local — your own key, on this machine
+─────────────────────────────────────────
+  saymd activate <code>
+      unlock Pro (the code is in your purchase email)
 
-  saymd --review .ai/prompt.md
-      find missing requirements, constraints, and acceptance criteria
+  saymd --split --ground --file walk.m4a
+      one long memo → ordered task files in .ai/tasks/ (01-db.md, 02-api.md …)
+      with depends_on and real @paths from this repo
 
-  saymd --out en
-      speak one language → write the spec in another
+  saymd --ground -o .ai/prompt.md
+      one spec that references real files, checked on disk
 
-  .saymd/vocab.txt
-      project names, APIs, acronyms, terminology (one per line)
+  saymd mcp config claude          (or cursor, codex, antigravity, vscode)
+      let your agent pull the tasks itself: list_tasks, get_item, mark_done, list_inbox
 
-  longer recordings
-      up to ${PRO_MAX_MIC_SECONDS / 60} minutes per recording
+  Also: --continue, --review, --out en, .saymd/vocab.txt, recordings up to ${PRO_MAX_MIC_SECONDS / 60} minutes
+
+Pro Cloud — no API key, voice notes from your phone
+───────────────────────────────────────────────────
+  1) Send /link <activation code> to the saymd Telegram bot, then a voice note
+  2) saymd project add --map     register this repo so notes can be grounded in it
+  3) saymd inbox sync            pull ready notes into .ai/inbox/ or .ai/tasks/
+
+  saymd project remove           delete this repo's project and map from saymd.app
 
 Privacy
 ───────
-API keys stay on this machine (~/.saymd/config.json, mode 0600).
-Audio is sent only to the STT provider you chose, using your key.
-saymd does not receive your audio, transcripts, or prompt files.
+Free and Pro Local: API keys stay on this machine (~/.saymd/config.json, mode 0600).
+Audio goes only to the STT provider you chose, using your key; saymd.app never receives it.
+Pro Cloud: saymd.app transcribes your Telegram notes without storing the audio, and
+deletes a note once you sync or discard it, or after 30 days.
   ${PRIVACY}
 
 Useful commands
@@ -97,6 +111,7 @@ Useful commands
   saymd doctor             check your installation
   saymd setup              configure or change provider / API key
   saymd activate <code>    activate Pro (downloads Pro automatically)
+  saymd inbox sync         Pro Cloud: pull Telegram notes into this repo
 
   Pro     ${PRO_URL}
   GitHub  ${GITHUB}
@@ -105,7 +120,7 @@ Useful commands
 
 /** Conventional flag reference — `saymd --help` */
 export function printHelp(): void {
-  console.log(`saymd — Speak once. Get a prompt file any agent can @.
+  console.log(`saymd — voice inbox for your repo. Voice notes become specs and task files any agent can pick up.
 
 Onboarding:  saymd help
 Quick start: saymd setup && saymd doctor && saymd -o .ai/prompt.md --template feature --seconds 30
@@ -113,11 +128,14 @@ Quick start: saymd setup && saymd doctor && saymd -o .ai/prompt.md --template fe
 Usage
   saymd [--file audio] [options]
   saymd setup | doctor | help | config
-  saymd config set provider <gemini|openai|deepgram|elevenlabs>
+  saymd config set provider <groq|gemini|openai|deepgram|elevenlabs|openrouter>
+  saymd config set model <model-id|default>
   saymd activate <activation-code>   # downloads Pro into ~/.saymd automatically
+  saymd mcp config [claude|cursor|codex|antigravity|vscode]   # agent settings for the MCP server
 
 Free options
-  --provider gemini|openai|deepgram|elevenlabs
+  --provider groq|gemini|openai|deepgram|elevenlabs|openrouter
+  --model ID            STT model for this run, e.g. elevenlabs/scribe-v2 (OpenRouter)
   --template feature|bug|plan
                         feature: Objective, Context, Instructions, Constraints, Acceptance criteria
                         bug:     Objective, Context, Steps to reproduce, Expected / Actual
@@ -134,6 +152,14 @@ Pro options → ${PRO_URL}
   --continue [file]     merge new speech into an existing spec
   --review [file]       missing requirements, constraints, acceptance criteria
   --out CODE            cross-language output (e.g. speak HU, write EN)
+  --split [dir]         one recording → ordered task files with depends_on + README index
+                        (default dir: .ai/tasks; new tasks are numbered after existing ones)
+  --ground              ground the spec in this repo: real @paths, checked against disk
+  saymd project add     register this repo with Pro Cloud (--map uploads paths + headings, never code; --no-map deletes it)
+  saymd project remove  delete this repo's project and map from saymd.app
+  saymd inbox sync      pull Telegram voice notes into .ai/inbox/ (or .ai/tasks/ when split)
+  saymd mcp             MCP server for agents: list_inbox, get_item, list_tasks, mark_done
+                        (saymd mcp --check shows what it would serve)
 
 BYOK: keys in ~/.saymd/config.json or env. Never paste keys into chat.
 Privacy: ${PRIVACY}
@@ -148,7 +174,7 @@ Next
   saymd -o .ai/prompt.md --template feature --seconds 30
 
 Speak, press Enter, then @ the file in your agent.
-Later: saymd --continue .ai/prompt.md  (Pro → ${PRO_URL})
+Pro: saymd --split --ground --file memo.m4a  → ordered task files (${PRO_URL})
 
 Provider saved: ${providerId}
 `);

@@ -1,15 +1,15 @@
-import { GoogleGenAI } from '@google/genai';
+import type { GoogleGenAI } from '@google/genai';
+
+import { geminiClient, geminiTextModel } from '../providers/gemini-client.js';
 
 import { structureSchemaHint } from '../templates.js';
 import { sectionsSchema } from '../types.js';
 import { freeCompilerRules, freeCompilerReminder } from './rules.js';
 import type { PromptCompiler, StructureOptions } from './types.js';
 
-const ENRICH_MODEL = process.env.GEMINI_ENRICH_MODEL ?? 'gemini-3.5-flash-lite';
-
 async function generateJson(client: GoogleGenAI, prompt: string): Promise<string> {
   const response = await client.models.generateContent({
-    model: ENRICH_MODEL,
+    model: geminiTextModel(),
     contents: prompt,
     config: { responseMimeType: 'application/json', temperature: 0.2 },
   });
@@ -71,8 +71,12 @@ ${structureSchemaHint(opts.template)}`;
 export const geminiCompiler: PromptCompiler = {
   id: 'gemini',
 
+  async generateJson(apiKey: string, prompt: string) {
+    return generateJson(geminiClient(apiKey), prompt);
+  },
+
   async structureTranscript(opts: StructureOptions) {
-    const client = new GoogleGenAI({ apiKey: opts.apiKey });
+    const client = geminiClient(opts.apiKey);
     const rawJson = await generateJson(client, buildPrompt(opts));
     return parseStructureJson(rawJson, client);
   },

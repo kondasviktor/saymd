@@ -1,7 +1,7 @@
 {
   "name": "saymd",
-  "version": "0.1.2",
-  "description": "Voice to structured Markdown prompts — run local saymd, then @ .ai/prompt.md",
+  "version": "1.0.0",
+  "description": "Voice inbox for your repo: voice notes → specs and ordered task files any agent can pick up",
   "author": {
     "name": "Viktor Kondás",
     "email": "support@saymd.app"
@@ -9,5 +9,15 @@
   "homepage": "https://saymd.app/?utm_source=claude&utm_medium=plugin&utm_campaign=saymd",
   "repository": "https://github.com/kondasviktor/saymd",
   "license": "MIT",
-  "keywords": ["voice", "markdown", "prompts", "cli", "byok"]
+  "keywords": [
+    "voice",
+    "voice-inbox",
+    "markdown",
+    "specs",
+    "tasks",
+    "mcp",
+    "telegram",
+    "cli",
+    "byok"
+  ]
 }

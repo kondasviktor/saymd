@@ -2,8 +2,7 @@ import { mkdir, readFile, writeFile, chmod, access, rm } from 'node:fs/promises'
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-import type { SttProviderId } from './providers/types.js';
-import { STT_PROVIDER_IDS } from './providers/types.js';
+import { createJsonLlm, STT_PROVIDER_IDS, type ProviderKeys, type SttProviderId } from '@saymd/core';
 
 export const SAYMD_DIR = join(homedir(), '.saymd');
 export const CONFIG_PATH = join(SAYMD_DIR, 'config.json');
@@ -12,10 +11,14 @@ export const LICENSE_PATH = join(SAYMD_DIR, 'license.json');
 
 export interface SaymdConfig {
   provider?: SttProviderId;
+  /** Per-provider STT model override, set with `saymd config set model <id>`. */
+  models?: Partial<Record<SttProviderId, string>>;
+  groqApiKey?: string;
   geminiApiKey?: string;
   openaiApiKey?: string;
   deepgramApiKey?: string;
   elevenlabsApiKey?: string;
+  openrouterApiKey?: string;
   defaultTemplate?: string;
   defaultOutput?: string;
 }
@@ -26,10 +29,12 @@ export interface SaymdState {
 
 export interface SaymdLicense {
   email: string;
-  plan: 'annual' | 'monthly';
+  plan: 'local' | 'founding' | 'cloud_monthly' | 'cloud_annual' | 'annual' | 'monthly';
   validUntil: string;
   key: string;
   signature: string;
+  /** Pro Local: end of the 12 months of updates (also inside the signed key, which is what counts). */
+  updatesUntil?: string;
 }
 
 export async function ensureSaymdDir(): Promise<void> {
@@ -98,6 +103,10 @@ export function resolveOpenaiKey(config: SaymdConfig): string | undefined {
   return process.env.OPENAI_API_KEY?.trim() || config.openaiApiKey?.trim() || undefined;
 }
 
+export function resolveGroqKey(config: SaymdConfig): string | undefined {
+  return process.env.GROQ_API_KEY?.trim() || config.groqApiKey?.trim() || undefined;
+}
+
 export function resolveDeepgramKey(config: SaymdConfig): string | undefined {
   return process.env.DEEPGRAM_API_KEY?.trim() || config.deepgramApiKey?.trim() || undefined;
 }
@@ -106,8 +115,14 @@ export function resolveElevenlabsKey(config: SaymdConfig): string | undefined {
   return process.env.ELEVENLABS_API_KEY?.trim() || config.elevenlabsApiKey?.trim() || undefined;
 }
 
+export function resolveOpenrouterKey(config: SaymdConfig): string | undefined {
+  return process.env.OPENROUTER_API_KEY?.trim() || config.openrouterApiKey?.trim() || undefined;
+}
+
 export function resolveSttApiKey(provider: SttProviderId, config: SaymdConfig): string | undefined {
   switch (provider) {
+    case 'groq':
+      return resolveGroqKey(config);
     case 'gemini':
       return resolveGeminiKey(config);
     case 'openai':
@@ -116,7 +131,19 @@ export function resolveSttApiKey(provider: SttProviderId, config: SaymdConfig): 
       return resolveDeepgramKey(config);
     case 'elevenlabs':
       return resolveElevenlabsKey(config);
+    case 'openrouter':
+      return resolveOpenrouterKey(config);
   }
+}
+
+/** Every provider key the user has (env first, then ~/.saymd/config.json), for @saymd/core. */
+export function providerKeys(config: SaymdConfig): ProviderKeys {
+  const keys: ProviderKeys = {};
+  for (const id of STT_PROVIDER_IDS) {
+    const key = resolveSttApiKey(id, config);
+    if (key) keys[id] = key;
+  }
+  return keys;
 }
 
 /** Text-model key for Pro --continue/--review.
@@ -129,6 +156,19 @@ export function resolveTextApiKey(config: SaymdConfig): string | undefined {
   return resolveGeminiKey(config) ?? resolveOpenaiKey(config);
 }
 
+/**
+ * The LLM Pro's own features use (--continue, --review, --out): the structuring provider of the configured
+ * speech provider, so OpenRouter, Groq, Gemini or OpenAI all work. `apiKey` (Gemini/OpenAI) stays for older Pro.
+ */
+export function resolveProLlm(config: SaymdConfig, provider: SttProviderId): { llm?: (prompt: string) => Promise<string>; apiKey?: string } {
+  const apiKey = resolveTextApiKey(config);
+  try {
+    return { llm: createJsonLlm(provider, providerKeys(config)).llm, apiKey };
+  } catch {
+    return { apiKey };
+  }
+}
+
 /** @deprecated Use resolveTextApiKey or resolveSttApiKey */
 export function resolveApiKey(config: SaymdConfig): string | undefined {
   return resolveTextApiKey(config);
@@ -136,6 +176,8 @@ export function resolveApiKey(config: SaymdConfig): string | undefined {
 
 export function sttKeyEnvName(provider: SttProviderId): string {
   switch (provider) {
+    case 'groq':
+      return 'GROQ_API_KEY';
     case 'gemini':
       return 'GEMINI_API_KEY';
     case 'openai':
@@ -144,11 +186,15 @@ export function sttKeyEnvName(provider: SttProviderId): string {
       return 'DEEPGRAM_API_KEY';
     case 'elevenlabs':
       return 'ELEVENLABS_API_KEY';
+    case 'openrouter':
+      return 'OPENROUTER_API_KEY';
   }
 }
 
 export function configKeyField(provider: SttProviderId): keyof SaymdConfig {
   switch (provider) {
+    case 'groq':
+      return 'groqApiKey';
     case 'gemini':
       return 'geminiApiKey';
     case 'openai':
@@ -157,6 +203,8 @@ export function configKeyField(provider: SttProviderId): keyof SaymdConfig {
       return 'deepgramApiKey';
     case 'elevenlabs':
       return 'elevenlabsApiKey';
+    case 'openrouter':
+      return 'openrouterApiKey';
   }
 }
 

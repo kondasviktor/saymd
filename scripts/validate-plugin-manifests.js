@@ -38,7 +38,6 @@ function assertNoDotDot(obj, label) {
 
 const files = [
   'plugin.json',
-  'gemini-extension.json',
   '.cursor-plugin/plugin.json',
   '.claude-plugin/plugin.json',
   '.claude-plugin/marketplace.json',
@@ -71,6 +70,8 @@ const cmds = [
   'saymd-continue',
   'saymd-review',
   'saymd-out',
+  'saymd-split',
+  'saymd-inbox',
 ];
 for (const c of cmds) {
   const p = path.join(ROOT, 'commands', `${c}.md`);
@@ -80,10 +81,13 @@ for (const c of cmds) {
 
 const rootPlugin = readJson('plugin.json');
 if (rootPlugin && rootPlugin.name !== 'saymd') fail('plugin.json name must be saymd');
-else if (rootPlugin) ok('plugin.json name=saymd (Antigravity + Agent Plugins)');
+else if (rootPlugin) ok('plugin.json name=saymd (Antigravity CLI plugin)');
 
-if (!fs.existsSync(path.join(ROOT, 'GEMINI.md'))) fail('missing GEMINI.md');
-else ok('GEMINI.md (Antigravity still loads this as workspace context)');
+// Gemini CLI is retired; Antigravity CLI uses plugin.json + skills/ (+ mcp_config.json, rules/).
+for (const legacy of ['gemini-extension.json', 'GEMINI.md']) {
+  if (fs.existsSync(path.join(ROOT, legacy))) fail(`${legacy} is Gemini CLI only (retired) — remove it`);
+}
+ok('no Gemini CLI files (gemini-extension.json, GEMINI.md)');
 if (!fs.existsSync(path.join(ROOT, 'assets/logo.svg'))) fail('missing assets/logo.svg');
 else ok('assets/logo.svg');
 
@@ -96,8 +100,10 @@ if (fs.existsSync(path.join(ROOT, 'wrappers/gemini-cli'))) {
 ok('broken Cursor/Gemini wrappers absent');
 
 // Claude community review rejects unpinned package runners (npx pkg / pkg@latest).
-const PINNED = 'npx saymd@0.1.2';
-const scanRoots = ['skills', 'commands', 'GEMINI.md', '.claude-plugin', '.codex-plugin', 'plugin.json'];
+// One version for every install line in the plugins, READMEs and the HF wrapper: bump it here at release.
+const PINNED_VERSION = '1.0.0';
+const PINNED = `npx saymd@${PINNED_VERSION}`;
+const scanRoots = ['skills', 'commands', '.claude-plugin', '.codex-plugin', '.cursor-plugin', '.grok-plugin', 'plugin.json', 'README.md', 'packages/cli/README.md', 'wrappers'];
 const unpinned = [];
 function scanFile(rel) {
   const abs = path.join(ROOT, rel);
@@ -110,7 +116,7 @@ function scanFile(rel) {
     }
     return;
   }
-  if (!/\.(md|json|sh|js|ts|yml|yaml)$/.test(rel)) return;
+  if (!/\.(md|json|sh|js|ts|yml|yaml|html)$/.test(rel)) return;
   const lines = fs.readFileSync(abs, 'utf8').split(/\r?\n/);
   lines.forEach((line, i) => {
     if (/\bnpx\s+saymd(?!@)/.test(line) || /\bsaymd@latest\b/.test(line)) {
@@ -126,5 +132,34 @@ if (unpinned.length) {
 } else {
   ok(`plugin text pins ${PINNED}`);
 }
+
+// Every manifest carries the same version as the pin.
+for (const f of ['plugin.json', '.claude-plugin/plugin.json', '.codex-plugin/plugin.json', '.cursor-plugin/plugin.json', '.grok-plugin/plugin.json']) {
+  const j = readJson(f);
+  if (j && j.version !== PINNED_VERSION) fail(`${f}: version ${j.version}, expected ${PINNED_VERSION}`);
+}
+for (const f of ['.claude-plugin/marketplace.json', '.grok-plugin/marketplace.json']) {
+  const j = readJson(f);
+  if (j && (j.metadata?.version !== PINNED_VERSION || j.plugins?.some((p) => p.version !== PINNED_VERSION))) fail(`${f}: versions must be ${PINNED_VERSION}`);
+}
+ok(`manifest versions = ${PINNED_VERSION}`);
+
+// MCP Registry: server.json follows the pinned version and matches the npm package's mcpName.
+const serverJson = readJson('server.json');
+const cliPkg = readJson('packages/cli/package.json');
+if (serverJson && cliPkg) {
+  if (serverJson.name !== cliPkg.mcpName) fail(`server.json name ${serverJson.name} must equal packages/cli mcpName ${cliPkg.mcpName}`);
+  if (serverJson.version !== PINNED_VERSION || serverJson.packages?.[0]?.version !== PINNED_VERSION) fail(`server.json versions must be ${PINNED_VERSION}`);
+  if ((serverJson.description || '').length > 100) fail('server.json description over 100 characters (registry limit)');
+  ok('server.json matches mcpName and the pinned version');
+}
+
+// The retired v1 tagline must not come back into listings.
+const v1 = [];
+for (const f of ['plugin.json', '.claude-plugin/marketplace.json', '.grok-plugin/marketplace.json', 'skills/saymd/SKILL.md', 'README.md', 'packages/cli/README.md', 'wrappers/huggingface/index.html', 'wrappers/huggingface/README.md']) {
+  if (fs.existsSync(path.join(ROOT, f)) && fs.readFileSync(path.join(ROOT, f), 'utf8').includes('Speak once. Get a prompt file')) v1.push(f);
+}
+if (v1.length) v1.forEach((f) => fail(`${f}: v1 tagline; use the v2 one-liner`));
+else ok('v2 one-liner in listings');
 
 process.exit(failed ? 1 : 0);

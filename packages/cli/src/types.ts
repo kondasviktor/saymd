@@ -1,25 +1,20 @@
-import { z } from 'zod';
+import type { SaymdSections, SttProviderId, TemplateId } from '@saymd/core';
 
-import type { SttProviderId } from './providers/types.js';
+export { sectionsSchema } from '@saymd/core';
+export type { SaymdSections, TemplateId } from '@saymd/core';
 
-const stringList = z
-  .union([z.array(z.string()), z.string()])
-  .transform((v) => (Array.isArray(v) ? v : [v]))
-  .optional();
+export interface SplitTask {
+  slug: string;
+  title: string;
+  depends_on: string[];
+  sections: SaymdSections;
+}
 
-export const sectionsSchema = z.object({
-  objective: z.string().optional(),
-  context: z.string().optional(),
-  acceptanceCriteria: stringList,
-  openQuestions: stringList,
-  stepsToReproduce: stringList,
-  instructions: stringList,
-  constraints: stringList,
-  expectedBehavior: z.string().optional(),
-  actualBehavior: z.string().optional(),
-});
-
-export type SaymdSections = z.infer<typeof sectionsSchema>;
+export interface PathSummary {
+  found: string[];
+  newFiles: string[];
+  missing: string[];
+}
 
 export interface SaymdResult {
   raw: string;
@@ -31,13 +26,18 @@ export interface SaymdResult {
   estimatedCostUsd: number;
   provider: SttProviderId;
   sttModel: string;
+  /** Pro --split: ordered draft tasks (numbered when written). */
+  tasks?: SplitTask[];
+  summary?: string;
+  /** Pro --ground: @path check against disk. */
+  paths?: PathSummary;
 }
-
-export type TemplateId = 'default' | 'feature' | 'bug' | 'plan';
 
 export interface CliOptions {
   file?: string;
   provider?: SttProviderId;
+  /** STT model override, e.g. gpt-transcribe or elevenlabs/scribe-v2. */
+  model?: string;
   template: TemplateId;
   output: string;
   lang?: string;
@@ -50,5 +50,9 @@ export interface CliOptions {
   dryRun: boolean;
   continue?: string;
   review?: string;
+  /** Pro: task directory for --split (default .ai/tasks). */
+  split?: string;
+  /** Pro: ground the spec in a local repo map. */
+  ground: boolean;
   recordSeconds: number;
 }
