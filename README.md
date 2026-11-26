@@ -126,6 +126,7 @@ All five providers below are available on **Free**:
 | `openai` | `gpt-4o-transcribe`, or `gpt-4o-mini-transcribe` at half the price | Speech-to-text **and** Markdown structuring |
 | `deepgram` | `nova-3` | Speech-to-text only — also needs a Gemini, OpenAI or Groq key to structure Markdown |
 | `elevenlabs` | `scribe_v3` | Speech-to-text only — same as Deepgram. 90+ languages |
+| `openrouter` | `google/gemini-3.5-transcribe` | One key for many models: pick any with `--model`, e.g. `openai/gpt-4o-mini-transcribe`, `elevenlabs/scribe-v2`, `deepgram/nova-3`. Also structures Markdown (`google/gemini-3.1-flash-lite`; `OPENROUTER_STRUCTURE_MODEL` overrides). The cost shown is OpenRouter's own figure |
 
 ```bash
 saymd setup                              # pick provider + paste key

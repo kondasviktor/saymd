@@ -64,6 +64,8 @@ You pay the speech-to-text provider on your own account.
   OpenAI                   --model gpt-4o-mini-transcribe for half the price
   Deepgram                 speech-to-text only
   ElevenLabs               speech-to-text only (Scribe v3)
+  OpenRouter               one key for many models: --model google/gemini-3.5-transcribe,
+                           openai/gpt-4o-mini-transcribe, elevenlabs/scribe-v2 …
 
   saymd setup              configure or change provider / key
   saymd config             show current provider (never prints the key)
@@ -126,13 +128,13 @@ Quick start: saymd setup && saymd doctor && saymd -o .ai/prompt.md --template fe
 Usage
   saymd [--file audio] [options]
   saymd setup | doctor | help | config
-  saymd config set provider <groq|gemini|openai|deepgram|elevenlabs>
+  saymd config set provider <groq|gemini|openai|deepgram|elevenlabs|openrouter>
   saymd config set model <model-id|default>
   saymd activate <activation-code>   # downloads Pro into ~/.saymd automatically
   saymd mcp config [claude|cursor|codex|antigravity|vscode]   # agent settings for the MCP server
 
 Free options
-  --provider groq|gemini|openai|deepgram|elevenlabs
+  --provider groq|gemini|openai|deepgram|elevenlabs|openrouter
   --model ID            STT model for this run, e.g. gpt-4o-mini-transcribe (OpenAI, half price)
   --template feature|bug|plan
                         feature: Objective, Context, Instructions, Constraints, Acceptance criteria

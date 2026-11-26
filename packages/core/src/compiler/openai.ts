@@ -5,6 +5,7 @@ import type { PromptCompiler, StructureOptions } from './types.js';
 
 import { openaiBaseUrl } from '../providers/openai.js';
 import { groqBaseUrl } from '../providers/groq.js';
+import { openrouterBaseUrl } from '../providers/openrouter.js';
 import { trimSlash } from '../providers/openai-compatible.js';
 import type { CompilerProviderId } from './types.js';
 
@@ -130,4 +131,14 @@ export const groqCompiler = createOpenAiCompatibleCompiler({
   model: () => process.env.GROQ_STRUCTURE_MODEL?.trim() || GROQ_DEFAULT_STRUCTURE_MODEL,
   // gpt-oss is a reasoning model; low effort keeps latency and free-tier tokens down.
   extraBody: (model) => (model.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {}),
+});
+
+/** OpenRouter structurer: Gemini 3.1 Flash-Lite by default (OPENROUTER_STRUCTURE_MODEL overrides). */
+export const OPENROUTER_DEFAULT_STRUCTURE_MODEL = 'google/gemini-3.1-flash-lite';
+
+export const openrouterCompiler = createOpenAiCompatibleCompiler({
+  id: 'openrouter',
+  displayName: 'OpenRouter',
+  baseUrl: openrouterBaseUrl,
+  model: () => process.env.OPENROUTER_STRUCTURE_MODEL?.trim() || OPENROUTER_DEFAULT_STRUCTURE_MODEL,
 });

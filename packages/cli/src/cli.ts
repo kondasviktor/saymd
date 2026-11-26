@@ -82,7 +82,7 @@ function parseArgs(argv: string[]): ParsedArgs {
       case '--provider': {
         const p = args.shift();
         if (!p || !isSttProviderId(p)) {
-          console.error('Provider must be: groq, gemini, openai, deepgram, or elevenlabs');
+          console.error('Provider must be: groq, gemini, openai, deepgram, elevenlabs, or openrouter');
           process.exit(1);
         }
         opts.provider = p;
@@ -273,7 +273,7 @@ async function main(): Promise<void> {
       return;
     }
     if (!parsed.configKey || !parsed.configValue) {
-      console.error('Usage: saymd config\n       saymd config set provider <groq|gemini|openai|deepgram|elevenlabs>\n       saymd config set model <model-id|default>');
+      console.error('Usage: saymd config\n       saymd config set provider <groq|gemini|openai|deepgram|elevenlabs|openrouter>\n       saymd config set model <model-id|default>');
       process.exit(1);
     }
     await runConfigSet(parsed.configKey, parsed.configValue);

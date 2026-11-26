@@ -3,6 +3,7 @@ import { elevenlabsProvider } from './elevenlabs.js';
 import { geminiProvider } from './gemini.js';
 import { groqProvider } from './groq.js';
 import { openaiProvider } from './openai.js';
+import { openrouterProvider } from './openrouter.js';
 import { STT_PROVIDER_IDS, type SttProviderId, type TranscriptionProvider } from './types.js';
 
 export type { SttProviderId, Transcript, TranscriptionProvider } from './types.js';
@@ -15,6 +16,7 @@ const PROVIDERS: Record<SttProviderId, TranscriptionProvider> = {
   openai: openaiProvider,
   deepgram: deepgramProvider,
   elevenlabs: elevenlabsProvider,
+  openrouter: openrouterProvider,
 };
 
 export function getProvider(id: SttProviderId): TranscriptionProvider {

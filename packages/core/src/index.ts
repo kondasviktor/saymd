@@ -10,6 +10,7 @@ export { isDedicatedTranscribeModel, transcribeVocabulary } from './providers/ge
 export { GEMINI_DEFAULT_TEXT_MODEL, geminiClient, geminiTextModel } from './providers/gemini-client.js';
 export { OPENAI_STT_MODELS } from './providers/openai.js';
 export { GROQ_STT_MODELS } from './providers/groq.js';
+export { OPENROUTER_STT_MODELS, openrouterAudioFormat } from './providers/openrouter.js';
 export {
   compilerKeyEnvName,
   createJsonLlm,
@@ -19,7 +20,7 @@ export {
   structureTranscript,
 } from './compiler/index.js';
 export type { CompilerProviderId, PromptCompiler, ProviderKeys, StructuredResult, StructureOptions } from './compiler/index.js';
-export { GROQ_DEFAULT_STRUCTURE_MODEL } from './compiler/openai.js';
+export { GROQ_DEFAULT_STRUCTURE_MODEL, OPENROUTER_DEFAULT_STRUCTURE_MODEL } from './compiler/openai.js';
 export { freeCompilerRules, freeCompilerReminder } from './compiler/rules.js';
 export { structureSchemaHint } from './templates.js';
 export { parseMarkdownSections, sectionsToMarkdown } from './markdown.js';

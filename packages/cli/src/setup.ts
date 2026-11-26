@@ -34,11 +34,13 @@ const PROVIDER_URLS: Record<SttProviderId, string> = {
   openai: 'https://platform.openai.com/api-keys',
   deepgram: 'https://console.deepgram.com/',
   elevenlabs: 'https://elevenlabs.io/app/settings/api-keys',
+  openrouter: 'https://openrouter.ai/settings/keys',
 };
 
 const PROVIDER_NOTES: Partial<Record<SttProviderId, string>> = {
   groq: 'recommended to start — free tier, no card',
   openai: 'or gpt-4o-mini-transcribe at half the price',
+  openrouter: 'one key for Gemini, OpenAI, ElevenLabs and more (--model google/gemini-3.5-transcribe)',
 };
 
 type KeyChoice = 'clipboard' | 'hidden' | 'env' | 'keep';
@@ -59,6 +61,9 @@ function setConfigKey(config: SaymdConfig, providerId: SttProviderId, key: strin
       break;
     case 'elevenlabs':
       config.elevenlabsApiKey = key;
+      break;
+    case 'openrouter':
+      config.openrouterApiKey = key;
       break;
   }
 }
@@ -309,6 +314,7 @@ export async function runConfigShow(): Promise<void> {
   const openai = env('OPENAI_API_KEY') || flag(config.openaiApiKey) || 'not set';
   const deepgram = env('DEEPGRAM_API_KEY') || flag(config.deepgramApiKey) || 'not set';
   const eleven = env('ELEVENLABS_API_KEY') || flag(config.elevenlabsApiKey) || 'not set';
+  const openrouter = env('OPENROUTER_API_KEY') || flag(config.openrouterApiKey) || 'not set';
   const providerId = resolveProvider(config);
   const model = resolveSttModel(providerId, config.models);
   console.log(`provider:   ${config.provider ?? 'gemini (default)'}
@@ -319,6 +325,7 @@ GEMINI:     ${gemini}
 OPENAI:     ${openai}
 DEEPGRAM:   ${deepgram}
 ELEVENLABS: ${eleven}
+OPENROUTER: ${openrouter}
 
 Change provider: saymd config set provider openai
 Change model:    saymd config set model gpt-4o-mini-transcribe

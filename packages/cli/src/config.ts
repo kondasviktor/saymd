@@ -18,6 +18,7 @@ export interface SaymdConfig {
   openaiApiKey?: string;
   deepgramApiKey?: string;
   elevenlabsApiKey?: string;
+  openrouterApiKey?: string;
   defaultTemplate?: string;
   defaultOutput?: string;
 }
@@ -114,6 +115,10 @@ export function resolveElevenlabsKey(config: SaymdConfig): string | undefined {
   return process.env.ELEVENLABS_API_KEY?.trim() || config.elevenlabsApiKey?.trim() || undefined;
 }
 
+export function resolveOpenrouterKey(config: SaymdConfig): string | undefined {
+  return process.env.OPENROUTER_API_KEY?.trim() || config.openrouterApiKey?.trim() || undefined;
+}
+
 export function resolveSttApiKey(provider: SttProviderId, config: SaymdConfig): string | undefined {
   switch (provider) {
     case 'groq':
@@ -126,6 +131,8 @@ export function resolveSttApiKey(provider: SttProviderId, config: SaymdConfig): 
       return resolveDeepgramKey(config);
     case 'elevenlabs':
       return resolveElevenlabsKey(config);
+    case 'openrouter':
+      return resolveOpenrouterKey(config);
   }
 }
 
@@ -166,6 +173,8 @@ export function sttKeyEnvName(provider: SttProviderId): string {
       return 'DEEPGRAM_API_KEY';
     case 'elevenlabs':
       return 'ELEVENLABS_API_KEY';
+    case 'openrouter':
+      return 'OPENROUTER_API_KEY';
   }
 }
 
@@ -181,6 +190,8 @@ export function configKeyField(provider: SttProviderId): keyof SaymdConfig {
       return 'deepgramApiKey';
     case 'elevenlabs':
       return 'elevenlabsApiKey';
+    case 'openrouter':
+      return 'openrouterApiKey';
   }
 }
 

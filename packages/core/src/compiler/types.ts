@@ -1,7 +1,7 @@
 import type { TemplateId } from '../types.js';
 import { sectionsSchema } from '../types.js';
 
-export type CompilerProviderId = 'gemini' | 'openai' | 'groq';
+export type CompilerProviderId = 'gemini' | 'openai' | 'groq' | 'openrouter';
 
 export interface StructuredResult {
   language: string;

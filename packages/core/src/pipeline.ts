@@ -1,4 +1,4 @@
-import { structureTranscript, type ProviderKeys } from './compiler/index.js';
+import { structureTranscript, type CompilerProviderId, type ProviderKeys } from './compiler/index.js';
 import { normalizeKnownAsr } from './asr-normalize.js';
 import { sectionsToMarkdown } from './markdown.js';
 import { estimateCostUsd, getProvider, resolveSttModel } from './providers/index.js';
@@ -36,8 +36,10 @@ export async function transcribeAudio(opts: TranscribeAudioOptions): Promise<Tra
   return {
     ...transcript,
     raw: normalizeKnownAsr(transcript.text),
+    // The provider's own figure when it reports one (OpenRouter), else the list-price estimate.
     estimatedCostUsd:
-      opts.durationSeconds !== undefined ? estimateCostUsd(opts.provider, opts.durationSeconds, transcript.model) : undefined,
+      transcript.costUsd ??
+      (opts.durationSeconds !== undefined ? estimateCostUsd(opts.provider, opts.durationSeconds, transcript.model) : undefined),
   };
 }
 
@@ -59,8 +61,11 @@ export async function compileSpec(opts: {
   template: TemplateId;
   /** Pro prompt lines: --out, vocab, --ground. */
   addendum?: string;
+  /** Structure with this provider instead of the one paired with the STT provider (Pro Cloud setting). */
+  structuringProvider?: CompilerProviderId;
 }): Promise<CompiledSpec> {
   const structured = await structureTranscript(opts.sttProvider, opts.keys, {
+    preferred: opts.structuringProvider,
     raw: opts.raw,
     template: opts.template,
     proAddendum: opts.addendum,

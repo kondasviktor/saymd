@@ -70,9 +70,9 @@ async function tempAudio(): Promise<{ path: string; dir: string }> {
   return { path, dir };
 }
 
-test('listProviders includes all five STT providers, Groq first', () => {
+test('listProviders includes all six STT providers, Groq first, OpenRouter last', () => {
   const ids = listProviders().map((p) => p.id);
-  assert.deepEqual(ids, ['groq', 'gemini', 'openai', 'deepgram', 'elevenlabs']);
+  assert.deepEqual(ids, ['groq', 'gemini', 'openai', 'deepgram', 'elevenlabs', 'openrouter']);
   assert.equal(RECOMMENDED_PROVIDER, 'groq');
 });
 

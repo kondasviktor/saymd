@@ -1,4 +1,4 @@
-export type SttProviderId = 'groq' | 'gemini' | 'openai' | 'deepgram' | 'elevenlabs';
+export type SttProviderId = 'groq' | 'gemini' | 'openai' | 'deepgram' | 'elevenlabs' | 'openrouter';
 
 export interface Transcript {
   text: string;
@@ -6,6 +6,8 @@ export interface Transcript {
   durationSeconds?: number;
   provider: SttProviderId;
   model: string;
+  /** Actual cost in USD when the provider reports it (OpenRouter's usage.cost). */
+  costUsd?: number;
 }
 
 export interface TranscribeOptions {
@@ -50,7 +52,7 @@ export interface TranscriptionProvider {
 }
 
 /** Order shown in `saymd setup`. Groq first: free tier, no card needed. */
-export const STT_PROVIDER_IDS: SttProviderId[] = ['groq', 'gemini', 'openai', 'deepgram', 'elevenlabs'];
+export const STT_PROVIDER_IDS: SttProviderId[] = ['groq', 'gemini', 'openai', 'deepgram', 'elevenlabs', 'openrouter'];
 
 /** Providers that only transcribe; structuring needs a Gemini, OpenAI or Groq key. */
 export const STT_ONLY_PROVIDERS: SttProviderId[] = ['deepgram', 'elevenlabs'];
