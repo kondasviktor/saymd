@@ -108,7 +108,7 @@ async function transcribeUploaded(
       durationSeconds: opts.durationSeconds,
     };
   }
-  // General Gemini models (e.g. --model gemini-3.1-flash-lite): prompt-based transcription.
+  // General Gemini models (e.g. --model gemini-3.5-flash-lite): prompt-based transcription.
   const langHint =
     opts.lang && opts.lang !== 'auto'
       ? `The spoken language is ${languageName(opts.lang)} (${opts.lang}). Transcribe in that language.`

@@ -7,16 +7,16 @@ export function openrouterBaseUrl(): string {
 }
 
 /**
- * OpenRouter: one key for many speech-to-text models (Gemini 3.5 Transcribe, GPT-4o (mini) Transcribe,
- * ElevenLabs Scribe v2, Deepgram Nova-3, Whisper …) via POST /audio/transcriptions with base64 JSON.
+ * OpenRouter: one key for many speech-to-text models (Gemini 3.5 Transcribe, ElevenLabs Scribe v2, GPT Transcribe,
+ * Deepgram Nova-3, Whisper …) via POST /audio/transcriptions with base64 JSON. The list below is what setup offers:
+ * models with no retirement announced (checked 26 Nov 2026); any other slug still works with --model.
  * OpenRouter returns the actual cost (usage.cost), which is used instead of the estimate below.
  * Estimates: USD per audio minute from openrouter.ai/api/v1/models (26 Nov 2026).
  */
 export const OPENROUTER_STT_MODELS: Record<string, number> = {
   'google/gemini-3.5-transcribe': 0.0054,
-  'openai/gpt-4o-mini-transcribe': 0.003,
-  'openai/gpt-4o-transcribe': 0.006,
   'elevenlabs/scribe-v2': 0.0036667,
+  'openai/gpt-transcribe': 0.0045,
   'deepgram/nova-3': 0.0043,
   'openai/whisper-large-v3-turbo': 0.0002,
   'openai/whisper-large-v3': 0.00045,

@@ -72,7 +72,7 @@ test('isDedicatedTranscribeModel picks the Interactions API only for transcribe 
   assert.ok(isDedicatedTranscribeModel('gemini-3.5-transcribe'));
   assert.ok(isDedicatedTranscribeModel('models/gemini-3.5-transcribe'));
   assert.ok(!isDedicatedTranscribeModel('gemini-3.5-transcribe-live'));
-  assert.ok(!isDedicatedTranscribeModel('gemini-3.1-flash-lite'));
+  assert.ok(!isDedicatedTranscribeModel('gemini-3.5-flash-lite'));
 });
 
 test('transcribeVocabulary always biases towards saymd, dedupes and caps at 1000', () => {
@@ -94,7 +94,7 @@ test('Free Gemini: Files API upload → Interactions transcribe → Flash-Lite J
     'POST /upload-session/1',
     'POST /v1beta/interactions',
     'DELETE /v1beta/files/mock1',
-    'POST /v1beta/models/gemini-3.1-flash-lite:generateContent',
+    'POST /v1beta/models/gemini-3.5-flash-lite:generateContent',
   ]);
   for (const q of mock.requests) assert.equal(q.apiKey, 'AIza-mock-key');
 
@@ -126,13 +126,13 @@ test('Free Gemini: Files API upload → Interactions transcribe → Flash-Lite J
 
 test('--model with a general Gemini model uses the prompt-based generateContent path', { skip }, async () => {
   mock.requests.length = 0;
-  const r = await run(['--provider', 'gemini', '--model', 'gemini-3.1-flash-lite', '--file', audio, '--raw']);
+  const r = await run(['--provider', 'gemini', '--model', 'gemini-3.5-flash-lite', '--file', audio, '--raw']);
   assert.equal(r.code, 0, r.err);
   assert.match(r.out, /General-model transcript/);
   assert.ok(!mock.requests.some((q) => q.path === '/v1beta/interactions'));
   const stt = mock.requests.find((q) => q.body.includes('Transcribe this audio verbatim'));
   assert.ok(stt, 'prompt-based transcription request sent');
-  assert.equal(stt.path, '/v1beta/models/gemini-3.1-flash-lite:generateContent');
+  assert.equal(stt.path, '/v1beta/models/gemini-3.5-flash-lite:generateContent');
   assert.match(stt.body, /"fileData":\{"fileUri":"[^"]+\/v1beta\/files\/mock\d+"/);
 });
 
@@ -142,7 +142,7 @@ test('doctor verifies the Gemini key with Flash-Lite and reuses it for structuri
   assert.match(r.out, /STT provider: Google Gemini \(gemini-3\.5-transcribe\)/);
   assert.match(r.out, /✓ GEMINI_API_KEY valid/);
   assert.match(r.out, /Prompt compiler: gemini \(same key as speech-to-text\)/);
-  assert.ok(mock.requests.some((q) => q.path === '/v1beta/models/gemini-3.1-flash-lite:generateContent'));
+  assert.ok(mock.requests.some((q) => q.path === '/v1beta/models/gemini-3.5-flash-lite:generateContent'));
 });
 
 test('an empty transcript from Gemini fails with a clear message', { skip }, async () => {

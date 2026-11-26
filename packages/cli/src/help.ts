@@ -61,16 +61,16 @@ You pay the speech-to-text provider on your own account.
 
   Groq                     start here — free tier, no card
   Gemini                   most accurate across 85+ languages
-  OpenAI                   --model gpt-4o-mini-transcribe for half the price
+  OpenAI                   gpt-transcribe
   Deepgram                 speech-to-text only
   ElevenLabs               speech-to-text only (Scribe v3)
   OpenRouter               one key for many models: --model google/gemini-3.5-transcribe,
-                           openai/gpt-4o-mini-transcribe, elevenlabs/scribe-v2 …
+                           elevenlabs/scribe-v2, openai/gpt-transcribe …
 
   saymd setup              configure or change provider / key
   saymd config             show current provider (never prints the key)
   saymd config set provider openai
-  saymd config set model gpt-4o-mini-transcribe
+  saymd config set model elevenlabs/scribe-v2   (per provider; default resets)
 
 Pro Local — your own key, on this machine
 ─────────────────────────────────────────
@@ -135,7 +135,7 @@ Usage
 
 Free options
   --provider groq|gemini|openai|deepgram|elevenlabs|openrouter
-  --model ID            STT model for this run, e.g. gpt-4o-mini-transcribe (OpenAI, half price)
+  --model ID            STT model for this run, e.g. elevenlabs/scribe-v2 (OpenRouter)
   --template feature|bug|plan
                         feature: Objective, Context, Instructions, Constraints, Acceptance criteria
                         bug:     Objective, Context, Steps to reproduce, Expected / Actual

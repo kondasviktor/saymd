@@ -20,6 +20,11 @@ export interface OpenAiCompatibleCompilerConfig {
 
 type ChatJson = (apiKey: string, prompt: string) => Promise<string>;
 
+/** GPT-5/GPT-6-class and o-series models only take the default temperature; others get 0.2. */
+export function acceptsTemperature(model: string): boolean {
+  return !/(^|\/)(gpt-5|gpt-6|o\d)/.test(model);
+}
+
 function makeChatJson(cfg: OpenAiCompatibleCompilerConfig): ChatJson {
   return async (apiKey, prompt) => {
     const model = cfg.model();
@@ -31,7 +36,7 @@ function makeChatJson(cfg: OpenAiCompatibleCompilerConfig): ChatJson {
       },
       body: JSON.stringify({
         model,
-        temperature: 0.2,
+        ...(acceptsTemperature(model) ? { temperature: 0.2 } : {}),
         response_format: { type: 'json_object' },
         messages: [{ role: 'user', content: prompt }],
         ...(cfg.extraBody?.(model) ?? {}),
@@ -118,7 +123,8 @@ export const openaiCompiler = createOpenAiCompatibleCompiler({
   id: 'openai',
   displayName: 'OpenAI',
   baseUrl: openaiBaseUrl,
-  model: () => process.env.OPENAI_ENRICH_MODEL?.trim() || 'gpt-4o-mini',
+  // gpt-4o-mini shuts down 14 Jan 2027; OpenAI names gpt-6-luna as its replacement.
+  model: () => process.env.OPENAI_ENRICH_MODEL?.trim() || 'gpt-6-luna',
 });
 
 /** Default Groq structurer. Free tier, rate-limited; override with GROQ_STRUCTURE_MODEL. */
@@ -133,8 +139,8 @@ export const groqCompiler = createOpenAiCompatibleCompiler({
   extraBody: (model) => (model.startsWith('openai/gpt-oss') ? { reasoning_effort: 'low' } : {}),
 });
 
-/** OpenRouter structurer: Gemini 3.1 Flash-Lite by default (OPENROUTER_STRUCTURE_MODEL overrides). */
-export const OPENROUTER_DEFAULT_STRUCTURE_MODEL = 'google/gemini-3.1-flash-lite';
+/** OpenRouter structurer: Gemini 3.5 Flash-Lite by default (OPENROUTER_STRUCTURE_MODEL overrides). */
+export const OPENROUTER_DEFAULT_STRUCTURE_MODEL = 'google/gemini-3.5-flash-lite';
 
 export const openrouterCompiler = createOpenAiCompatibleCompiler({
   id: 'openrouter',

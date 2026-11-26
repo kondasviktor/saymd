@@ -18,7 +18,7 @@ Pro (`--split`, `--ground`, `saymd mcp`, `--continue`, `--review`, `--out`, voca
 - **85+ input languages** with automatic detection
 - Structured Markdown (not a raw transcript dump)
 - Templates: `feature`, `bug`, `plan` (or default headings)
-- Exact BYOK models: `whisper-large-v3-turbo` (Groq), `gemini-3.5-transcribe`, `gpt-4o-transcribe` / `gpt-4o-mini-transcribe`, `nova-3`, `scribe_v3`
+- Exact BYOK models: `whisper-large-v3-turbo` (Groq), `gemini-3.5-transcribe`, `gpt-transcribe`, `nova-3`, `scribe_v3`
 
 ## Start here — Free
 
@@ -123,17 +123,17 @@ All five providers below are available on **Free**:
 |--------------|----------------|--------------|
 | `groq` **(start here)** | `whisper-large-v3-turbo` | Speech-to-text **and** Markdown structuring (`openai/gpt-oss-120b`). Free tier, no card needed. Cheapest and least accurate of the five |
 | `gemini` | `gemini-3.5-transcribe` | Speech-to-text (Interactions API, with `saymd` and your Pro vocabulary as custom vocabulary) **and** Markdown structuring (`gemini-3.1-flash-lite`). Best all-round accuracy across 85+ languages |
-| `openai` | `gpt-4o-transcribe`, or `gpt-4o-mini-transcribe` at half the price | Speech-to-text **and** Markdown structuring |
+| `openai` | `gpt-transcribe` | Speech-to-text **and** Markdown structuring (`gpt-6-luna`) |
 | `deepgram` | `nova-3` | Speech-to-text only — also needs a Gemini, OpenAI or Groq key to structure Markdown |
 | `elevenlabs` | `scribe_v3` | Speech-to-text only — same as Deepgram. 90+ languages |
-| `openrouter` | `google/gemini-3.5-transcribe` | One key for many models: pick any with `--model`, e.g. `openai/gpt-4o-mini-transcribe`, `elevenlabs/scribe-v2`, `deepgram/nova-3`. Also structures Markdown (`google/gemini-3.1-flash-lite`; `OPENROUTER_STRUCTURE_MODEL` overrides). The cost shown is OpenRouter's own figure |
+| `openrouter` | `google/gemini-3.5-transcribe` | One key for many models: pick any with `--model`, e.g. `elevenlabs/scribe-v2`, `openai/gpt-transcribe`, `deepgram/nova-3`. Also structures Markdown (`google/gemini-3.5-flash-lite`; `OPENROUTER_STRUCTURE_MODEL` overrides). The cost shown is OpenRouter's own figure |
 
 ```bash
 saymd setup                              # pick provider + paste key
 saymd config                             # current provider and model (never prints the key)
 saymd config set provider openai
-saymd config set model gpt-4o-mini-transcribe   # saved per provider; `default` resets it
-saymd --model gpt-4o-mini-transcribe --file memo.m4a   # one run only
+saymd config set model elevenlabs/scribe-v2   # saved per provider (here OpenRouter); `default` resets it
+saymd --provider openrouter --model openai/gpt-transcribe --file memo.m4a   # one run only
 saymd --provider deepgram --file meeting.wav
 ```
 

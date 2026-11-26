@@ -91,7 +91,7 @@ function parseArgs(argv: string[]): ParsedArgs {
       case '--model': {
         const m = args.shift();
         if (!m || m.startsWith('-')) {
-          console.error('Usage: --model <model-id>  (e.g. --model gpt-4o-mini-transcribe)');
+          console.error('Usage: --model <model-id>  (e.g. --model elevenlabs/scribe-v2)');
           process.exit(1);
         }
         opts.model = m;

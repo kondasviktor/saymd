@@ -40,7 +40,6 @@ const PROVIDER_URLS: Record<SttProviderId, string> = {
 
 const PROVIDER_NOTES: Partial<Record<SttProviderId, string>> = {
   groq: 'recommended to start — free tier, no card',
-  openai: 'or gpt-4o-mini-transcribe at half the price',
   openrouter: 'one key for Gemini, OpenAI, ElevenLabs and more (--model google/gemini-3.5-transcribe)',
 };
 
@@ -248,7 +247,7 @@ export async function runSetup(): Promise<void> {
     console.log('Whisper is the cheapest way to start; Gemini or ElevenLabs are more accurate if you need it.');
   } else if (providerId === 'openrouter') {
     console.log('One key for many models: Gemini 3.5 Transcribe, GPT-4o (mini) Transcribe, ElevenLabs Scribe, Deepgram, Whisper.');
-    console.log('OpenRouter also writes the spec (Gemini 3.1 Flash-Lite), so one key is enough. saymd shows what OpenRouter charged.');
+    console.log('OpenRouter also writes the spec (Gemini 3.5 Flash-Lite), so one key is enough. saymd shows what OpenRouter charged.');
   } else {
     console.log('Typical 60-second dictation costs well under $0.01 on your key (BYOK).');
   }
@@ -343,7 +342,7 @@ ELEVENLABS: ${eleven}
 OPENROUTER: ${openrouter}
 
 Change provider: saymd config set provider openai
-Change model:    saymd config set model gpt-4o-mini-transcribe
+Change model:    saymd config set model <model-id>
 Re-enter keys:   saymd setup`);
 }
 

@@ -8,7 +8,7 @@ Free MIT CLI — bring your own speech-to-text key (**BYOK**). Pro adds ordered 
 
 - Mic **or** `--file` audio
 - **85+ languages** with auto-detect (output stays in the language you spoke)
-- Exact models: `whisper-large-v3-turbo` (Groq), `gemini-3.5-transcribe`, `gpt-4o-transcribe` / `gpt-4o-mini-transcribe`, `nova-3`, `scribe_v3`
+- Exact models: `whisper-large-v3-turbo` (Groq), `gemini-3.5-transcribe`, `gpt-transcribe`, `nova-3`, `scribe_v3`
 - Templates: `feature`, `bug`, `plan`
 
 ## Start here — Free
@@ -59,16 +59,16 @@ You pay the STT provider. Keys in `~/.saymd/config.json` (0600) or env — never
 | `--provider` | Exact model ID |
 |--------------|----------------|
 | `groq` (start here: free tier, no card) | `whisper-large-v3-turbo`; structures with `openai/gpt-oss-120b` |
-| `gemini` | `gemini-3.5-transcribe`; structures with `gemini-3.1-flash-lite` |
-| `openai` | `gpt-4o-transcribe` or `gpt-4o-mini-transcribe` (half the price) |
+| `gemini` | `gemini-3.5-transcribe`; structures with `gemini-3.5-flash-lite` |
+| `openai` | `gpt-transcribe`; structures with `gpt-6-luna` |
 | `deepgram` | `nova-3` (needs Gemini, OpenAI or Groq for structuring) |
 | `elevenlabs` | `scribe_v3` (needs Gemini, OpenAI or Groq for structuring) |
 
 ```bash
 saymd setup
 saymd config set provider openai
-saymd config set model gpt-4o-mini-transcribe
-saymd --model gpt-4o-mini-transcribe --file memo.m4a
+saymd config set model elevenlabs/scribe-v2      # with --provider openrouter
+saymd --provider openrouter --model openai/gpt-transcribe --file memo.m4a
 saymd --provider deepgram --file meeting.wav
 ```
 

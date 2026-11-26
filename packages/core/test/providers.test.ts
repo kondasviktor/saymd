@@ -85,7 +85,7 @@ test('estimateCostUsd scales by provider rate', () => {
   assert.ok(groq > 0);
   assert.ok(gemini > groq);
   assert.ok(deepgram < gemini);
-  assert.ok(openai >= gemini);
+  assert.ok(openai < gemini, 'gpt-transcribe ($0.0045/min) is the OpenAI default now');
 });
 
 test('estimateCostUsd uses the model price: gpt-4o-mini-transcribe is half', () => {
@@ -140,7 +140,7 @@ test('getProvider returns default model names', async () => {
   await withCleanEnv(() => {
     assert.equal(getProvider('groq').model, 'whisper-large-v3-turbo');
     assert.match(getProvider('gemini').model, /gemini/);
-    assert.equal(getProvider('openai').model, 'gpt-4o-transcribe');
+    assert.equal(getProvider('openai').model, 'gpt-transcribe');
     assert.equal(getProvider('deepgram').model, 'nova-3');
     assert.equal(getProvider('elevenlabs').model, 'scribe_v3');
   });
@@ -148,10 +148,10 @@ test('getProvider returns default model names', async () => {
 
 test('resolveSttModel precedence: --model > env > config > default', async () => {
   await withCleanEnv(() => {
-    assert.equal(resolveSttModel('openai'), 'gpt-4o-transcribe');
+    assert.equal(resolveSttModel('openai'), 'gpt-transcribe');
     assert.equal(resolveSttModel('openai', { openai: 'whisper-1' }), 'whisper-1');
     // Config for another provider does not leak.
-    assert.equal(resolveSttModel('openai', { groq: 'whisper-large-v3' }), 'gpt-4o-transcribe');
+    assert.equal(resolveSttModel('openai', { groq: 'whisper-large-v3' }), 'gpt-transcribe');
     process.env.OPENAI_TRANSCRIBE_MODEL = 'gpt-4o-mini-transcribe';
     assert.equal(resolveSttModel('openai', { openai: 'whisper-1' }), 'gpt-4o-mini-transcribe');
     assert.equal(resolveSttModel('openai', { openai: 'whisper-1' }, 'gpt-4o-transcribe'), 'gpt-4o-transcribe');
@@ -258,7 +258,7 @@ test('Groq compiler structures via chat/completions with gpt-oss and JSON mode',
   });
 });
 
-test('OpenAI compiler keeps gpt-4o-mini and sends no reasoning_effort', async () => {
+test('OpenAI compiler defaults to gpt-6-luna with the default temperature and no reasoning_effort', async () => {
   await withCleanEnv(async () => {
     const content = JSON.stringify({ language: 'en', clean: 'x', sections: { objective: 'x' } });
     const stub = stubFetch({ choices: [{ message: { content } }] });
@@ -266,7 +266,8 @@ test('OpenAI compiler keeps gpt-4o-mini and sends no reasoning_effort', async ()
       await getCompiler('openai').structureTranscript({ apiKey: 'sk', raw: 'x', template: 'default' });
       assert.equal(stub.calls[0].url, 'https://api.openai.com/v1/chat/completions');
       const body = JSON.parse(String(stub.calls[0].init?.body));
-      assert.equal(body.model, 'gpt-4o-mini');
+      assert.equal(body.model, 'gpt-6-luna');
+      assert.equal('temperature' in body, false, 'gpt-6-luna takes only the default temperature');
       assert.equal(body.reasoning_effort, undefined);
     } finally {
       stub.restore();

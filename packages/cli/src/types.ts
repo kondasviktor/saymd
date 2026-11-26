@@ -36,7 +36,7 @@ export interface SaymdResult {
 export interface CliOptions {
   file?: string;
   provider?: SttProviderId;
-  /** STT model override, e.g. gpt-4o-mini-transcribe. */
+  /** STT model override, e.g. gpt-transcribe or elevenlabs/scribe-v2. */
   model?: string;
   template: TemplateId;
   output: string;
