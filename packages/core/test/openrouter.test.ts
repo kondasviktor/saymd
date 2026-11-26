@@ -50,12 +50,14 @@ test('OpenRouter: transcription request, actual cost, and structuring on the sam
       model: 'openai/gpt-4o-mini-transcribe',
       input_audio: { data: 'OggS voice', format: 'ogg' },
       language: 'hu',
+      provider: { data_collection: 'deny' },
     });
 
     const spec = await compileSpec({ sttProvider: 'openrouter', keys: { openrouter: 'sk-or-test' }, raw: t.raw, template: 'feature' });
     assert.match(spec.markdown, /Add dark mode to the settings page/);
     assert.equal(seen[1].json.model, 'google/gemini-3.1-flash-lite', 'default structurer');
     assert.deepEqual(seen[1].json.response_format, { type: 'json_object' });
+    assert.deepEqual(seen[1].json.provider, { data_collection: 'deny' }, 'only providers that do not store or train on content');
 
     // Pro Cloud can pair any STT provider with OpenRouter structuring, and --split uses the same choice.
     const { provider } = createJsonLlm('elevenlabs', { elevenlabs: 'el', openrouter: 'sk-or-test' }, 'openrouter');

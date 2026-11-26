@@ -5,7 +5,7 @@ import type { PromptCompiler, StructureOptions } from './types.js';
 
 import { openaiBaseUrl } from '../providers/openai.js';
 import { groqBaseUrl } from '../providers/groq.js';
-import { openrouterBaseUrl } from '../providers/openrouter.js';
+import { openrouterBaseUrl, openrouterProviderPrefs } from '../providers/openrouter.js';
 import { trimSlash } from '../providers/openai-compatible.js';
 import type { CompilerProviderId } from './types.js';
 
@@ -141,4 +141,5 @@ export const openrouterCompiler = createOpenAiCompatibleCompiler({
   displayName: 'OpenRouter',
   baseUrl: openrouterBaseUrl,
   model: () => process.env.OPENROUTER_STRUCTURE_MODEL?.trim() || OPENROUTER_DEFAULT_STRUCTURE_MODEL,
+  extraBody: () => openrouterProviderPrefs(),
 });

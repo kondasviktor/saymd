@@ -41,6 +41,14 @@ export function openrouterAudioFormat(filename: string, mimeType: string): strin
 
 const defaultModel = (): string => process.env[MODEL_ENV]?.trim() || DEFAULT_MODEL;
 
+/**
+ * OpenRouter routing preferences sent with every request: only providers that do not store or train on the
+ * content (`data_collection: "deny"`). OPENROUTER_DATA_COLLECTION=allow lifts this (not recommended).
+ */
+export function openrouterProviderPrefs(): { provider: { data_collection: 'deny' | 'allow' } } {
+  return { provider: { data_collection: process.env.OPENROUTER_DATA_COLLECTION?.trim() === 'allow' ? 'allow' : 'deny' } };
+}
+
 async function apiFetch(apiKey: string, path: string, init?: RequestInit): Promise<Response> {
   const res = await fetch(`${trimSlash(openrouterBaseUrl())}${path}`, {
     ...init,
@@ -84,6 +92,7 @@ export const openrouterProvider: TranscriptionProvider = {
       body: JSON.stringify({
         model,
         input_audio: { data: Buffer.from(buffer).toString('base64'), format: openrouterAudioFormat(filename, opts.mimeType) },
+        ...openrouterProviderPrefs(),
         ...(lang ? { language: lang } : {}),
       }),
     });

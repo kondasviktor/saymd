@@ -22,7 +22,9 @@ declare module '@saymd/pro' {
   export function parseLicenseKey(raw: string): SaymdLicenseFile;
   export function detectTemplate(markdown: string): 'default' | 'feature' | 'bug' | 'plan';
   export function mergeContinue(opts: {
-    apiKey: string;
+    apiKey?: string;
+    /** 1.0.0+: any JSON LLM (older Pro ignores it and needs apiKey). */
+    llm?: (prompt: string) => Promise<string>;
     targetPath: string;
     dryRun: boolean;
     cwd: string;
@@ -31,7 +33,8 @@ declare module '@saymd/pro' {
     template?: 'default' | 'feature' | 'bug' | 'plan';
   }): Promise<string>;
   export function reviewSpec(opts: {
-    apiKey: string;
+    apiKey?: string;
+    llm?: (prompt: string) => Promise<string>;
     targetPath: string;
     cwd: string;
   }): Promise<void>;
@@ -42,7 +45,8 @@ declare module '@saymd/pro' {
   };
   export function proCompilerAddendum(opts: { vocab: string[]; outLang?: string }): string;
   export function translateSections(opts: {
-    apiKey: string;
+    apiKey?: string;
+    llm?: (prompt: string) => Promise<string>;
     sections: Record<string, unknown>;
     outLang: string;
     template?: 'default' | 'feature' | 'bug' | 'plan';

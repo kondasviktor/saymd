@@ -19,6 +19,7 @@ import {
   getProvider,
   isKnownModel,
   listProviders,
+  OPENROUTER_STT_MODELS,
   RECOMMENDED_PROVIDER,
   resolveSttModel,
   STT_ONLY_PROVIDERS,
@@ -245,6 +246,9 @@ export async function runSetup(): Promise<void> {
   if (providerId === 'groq') {
     console.log('Free tier: sign in, create a key, no card needed. Groq also structures the spec, so one key is enough.');
     console.log('Whisper is the cheapest way to start; Gemini or ElevenLabs are more accurate if you need it.');
+  } else if (providerId === 'openrouter') {
+    console.log('One key for many models: Gemini 3.5 Transcribe, GPT-4o (mini) Transcribe, ElevenLabs Scribe, Deepgram, Whisper.');
+    console.log('OpenRouter also writes the spec (Gemini 3.1 Flash-Lite), so one key is enough. saymd shows what OpenRouter charged.');
   } else {
     console.log('Typical 60-second dictation costs well under $0.01 on your key (BYOK).');
   }
@@ -267,6 +271,17 @@ export async function runSetup(): Promise<void> {
   }
 
   config.provider = providerId;
+
+  if (providerId === 'openrouter') {
+    const models = Object.entries(OPENROUTER_STT_MODELS);
+    const current = config.models?.openrouter || provider.model;
+    console.log('\nSpeech-to-text model on OpenRouter (any transcription model slug works, see openrouter.ai/models):');
+    models.forEach(([slug, usd], i) => console.log(`  ${i + 1}. ${slug} — about $${usd.toFixed(4)}/min${slug === current ? ' (current)' : ''}`));
+    const pick = (await rl.question(`Model [1-${models.length}] or a slug (Enter keeps ${current}): `)).trim();
+    const chosen = /^\d+$/.test(pick) ? models[Number(pick) - 1]?.[0] : pick.includes('/') ? pick : undefined;
+    if (chosen) config.models = { ...config.models, openrouter: chosen };
+    console.log(`Model: ${config.models?.openrouter || current}  (change later: saymd config set model <slug>)`);
+  }
 
   if (STT_ONLY_PROVIDERS.includes(providerId)) {
     const hasCompiler = resolveGeminiKey(config) || resolveOpenaiKey(config) || resolveGroqKey(config);

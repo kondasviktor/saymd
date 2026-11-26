@@ -22,7 +22,7 @@ import { runInboxSync, runProjectAdd, runProjectRemove } from './cloud.js';
 import { cliVersion, MCP_CLIENTS, printMcpConfig } from './mcp-config.js';
 import { resolveUserPath } from './paths.js';
 import { runConfigSet, runConfigShow, runSetup } from './setup.js';
-import { isSttProviderId, loadConfig, resolveSttApiKey, resolveTextApiKey, resolveProvider, sttKeyEnvName } from './config.js';
+import { isSttProviderId, loadConfig, resolveProLlm, resolveSttApiKey, resolveProvider, sttKeyEnvName } from './config.js';
 import type { CliOptions, SaymdResult, TemplateId } from './types.js';
 
 type ParsedArgs = CliOptions & {
@@ -317,21 +317,23 @@ async function main(): Promise<void> {
   }
 
   if (parsed.review) {
-    const apiKey = resolveTextApiKey(await loadConfig());
-    if (!apiKey) {
-      console.error('GEMINI_API_KEY or OPENAI_API_KEY not set. Run: saymd setup');
+    const config = await loadConfig();
+    const proLlm = resolveProLlm(config, resolveProvider(config, parsed.provider));
+    if (!proLlm.llm && !proLlm.apiKey) {
+      console.error('No LLM key for --review: set up Gemini, OpenAI, Groq or OpenRouter. Run: saymd setup');
       process.exit(1);
     }
-    await runReview({ apiKey, targetPath: resolveUserPath(cwd, parsed.review), cwd });
+    await runReview({ ...proLlm, targetPath: resolveUserPath(cwd, parsed.review), cwd });
     return;
   }
 
   if (parsed.continue) {
     // Gate before any mic / STT work so free users never start recording.
     if (!(await requirePro('continue'))) return;
-    const apiKey = resolveTextApiKey(await loadConfig());
-    if (!apiKey) {
-      console.error('GEMINI_API_KEY or OPENAI_API_KEY not set. Run: saymd setup');
+    const config = await loadConfig();
+    const proLlm = resolveProLlm(config, resolveProvider(config, parsed.provider));
+    if (!proLlm.llm && !proLlm.apiKey) {
+      console.error('No LLM key for --continue: set up Gemini, OpenAI, Groq or OpenRouter. Run: saymd setup');
       process.exit(1);
     }
     const target = resolveUserPath(cwd, parsed.continue);
@@ -348,7 +350,7 @@ async function main(): Promise<void> {
       cwd
     );
     const merged = await runContinue({
-      apiKey,
+      ...proLlm,
       targetPath: target,
       dryRun: parsed.dryRun,
       cwd,

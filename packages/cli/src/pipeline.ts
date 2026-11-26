@@ -24,7 +24,7 @@ import {
   loadConfig,
   providerKeys,
   resolveProvider,
-  resolveTextApiKey,
+  resolveProLlm,
   sttKeyEnvName,
 } from './config.js';
 import { resolveUserPath } from './paths.js';
@@ -155,7 +155,8 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
     const base = {
       raw: rawText,
       durationSeconds: probe.durationSeconds,
-      estimatedCostUsd: estimateCostUsd(providerId, probe.durationSeconds, transcript.model, chunkPaths.length),
+      // OpenRouter reports what it charged; other providers get the list-price estimate.
+      estimatedCostUsd: transcript.costUsd ?? estimateCostUsd(providerId, probe.durationSeconds, transcript.model, chunkPaths.length),
       provider: providerId,
       sttModel: transcript.model,
     };
@@ -201,12 +202,12 @@ export async function runPipeline(opts: CliOptions, cwd: string): Promise<SaymdR
     let sections: SaymdSections = structured.sections;
 
     if (isPro && outLang && outLang !== 'same') {
-      const textKey = resolveTextApiKey(config);
+      const proLlm = resolveProLlm(config, providerId);
       const pro = await importProModule();
-      if (textKey && pro?.translateSections) {
+      if ((proLlm.llm || proLlm.apiKey) && pro?.translateSections) {
         process.stderr.write(`Translating spec to ${outLang}…\n`);
         sections = (await pro.translateSections({
-          apiKey: textKey,
+          ...proLlm,
           sections,
           outLang,
           template: opts.template,

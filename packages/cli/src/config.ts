@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile, chmod, access, rm } from 'node:fs/promises'
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-import { STT_PROVIDER_IDS, type ProviderKeys, type SttProviderId } from '@saymd/core';
+import { createJsonLlm, STT_PROVIDER_IDS, type ProviderKeys, type SttProviderId } from '@saymd/core';
 
 export const SAYMD_DIR = join(homedir(), '.saymd');
 export const CONFIG_PATH = join(SAYMD_DIR, 'config.json');
@@ -154,6 +154,19 @@ export function resolveTextApiKey(config: SaymdConfig): string | undefined {
     return resolveOpenaiKey(config) ?? resolveGeminiKey(config);
   }
   return resolveGeminiKey(config) ?? resolveOpenaiKey(config);
+}
+
+/**
+ * The LLM Pro's own features use (--continue, --review, --out): the structuring provider of the configured
+ * speech provider, so OpenRouter, Groq, Gemini or OpenAI all work. `apiKey` (Gemini/OpenAI) stays for older Pro.
+ */
+export function resolveProLlm(config: SaymdConfig, provider: SttProviderId): { llm?: (prompt: string) => Promise<string>; apiKey?: string } {
+  const apiKey = resolveTextApiKey(config);
+  try {
+    return { llm: createJsonLlm(provider, providerKeys(config)).llm, apiKey };
+  } catch {
+    return { apiKey };
+  }
 }
 
 /** @deprecated Use resolveTextApiKey or resolveSttApiKey */

@@ -217,7 +217,8 @@ export async function requireProModule<K extends keyof ProModule>(
 }
 
 export async function runContinue(opts: {
-  apiKey: string;
+  apiKey?: string;
+  llm?: (prompt: string) => Promise<string>;
   targetPath: string;
   dryRun: boolean;
   cwd: string;
@@ -237,7 +238,8 @@ export async function runContinue(opts: {
 }
 
 export async function runReview(opts: {
-  apiKey: string;
+  apiKey?: string;
+  llm?: (prompt: string) => Promise<string>;
   targetPath: string;
   cwd: string;
 }): Promise<void> {
